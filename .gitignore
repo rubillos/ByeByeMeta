@@ -1,0 +1,7 @@
+.pio
+.clang_complete
+.gcc-flags.json
+entries*.html
+FB-Data
+index.html
+your_posts.html
