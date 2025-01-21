@@ -27,7 +27,6 @@ postsFolder = "posts"
 mainPostsName = "your_posts__check_ins__photos_and_videos_1.html"
 otherPostsName = "your_uncategorized_photos.html"
 
-
 def getFolder(message):
 	command = f"folderPath=$(osascript -e \'choose folder with prompt \"{message}\"'); if [ -z \"$folderPath\" ]; then exit 1; fi; echo \"$folderPath\""
 	result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
