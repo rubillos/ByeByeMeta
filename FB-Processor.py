@@ -27,6 +27,10 @@ postsFolder = "posts"
 mainPostsName = "your_posts__check_ins__photos_and_videos_1.html"
 otherPostsName = "your_uncategorized_photos.html"
 
+staticPrefix = "https://static."
+
+scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
+
 def getFolder(message):
 	command = f"folderPath=$(osascript -e \'choose folder with prompt \"{message}\"'); if [ -z \"$folderPath\" ]; then exit 1; fi; echo \"$folderPath\""
 	result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -37,8 +41,34 @@ def getFolder(message):
 		path = "/"+"/".join(path.split(":")[1:-1])
 	else:
 		path = None
-		
+	
 	return path
+
+def pluralize(string, count, pad=False):
+	return "{:d} {}{}".format(count, string, "s" if count!=1 else " " if pad else "")
+
+def fileExists(path):
+	return os.path.isfile(path)
+
+def createFolder(path):
+	try:
+		if "." in path:
+			path = os.path.dirname(path)
+		os.makedirs(path, exist_ok=True)
+	except OSError as e:
+		print(f"Error creating folder '{path}': {e}")
+
+def copyFile(srcPath, dstPath):
+	if not os.path.isfile(dstPath) or os.path.getsize(srcPath) != os.path.getsize(dstPath):
+		try:
+			os.makedirs(os.path.dirname(dstPath), exist_ok=True)
+			shutil.copy(srcPath, dstPath)
+			return True
+		except OSError as e:
+			print(f"Error copying '{srcPath}' to '{dstPath}' - {e}")
+			return False
+	else:
+		return False
 
 def processData():
 	srcFolder = getFolder("Select the <your_facebook_activity folder>:")
@@ -50,6 +80,7 @@ def processData():
 
 	print(f"src={srcFolder}\ndst={dstFolder}")
 
+	# --------------------------------------------------
 	print("Open Main FB Data File")
 
 	mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName) 
@@ -60,35 +91,9 @@ def processData():
 	with open(otherSrcFile) as fp:
 		soup2 = BeautifulSoup(fp, 'lxml')
 
-	def pluralize(string, count, pad=False):
-		return "{:d} {}{}".format(count, string, "s" if count!=1 else " " if pad else "")
-
-	def fileExists(path):
-		return os.path.isfile(path)
-
-	def createFolder(path):
-		try:
-			if "." in path:
-				path = os.path.dirname(path)
-			os.makedirs(path, exist_ok=True)
-		except OSError as e:
-			print(f"Error creating folder '{path}': {e}")
-
-	def copyFile(srcPath, dstPath):
-		if not os.path.isfile(dstPath) or os.path.getsize(srcPath) != os.path.getsize(dstPath):
-			try:
-				os.makedirs(os.path.dirname(dstPath), exist_ok=True)
-				shutil.copy(srcPath, dstPath)
-				return True
-			except OSError as e:
-				print(f"Error copying '{srcPath}' to '{dstPath}' - {e}")
-				return False
-		else:
-			return False
-
-	scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
-	
+	# --------------------------------------------------
 	print("Cleaning destination folder...")
+
 	foldersRemoved = 0
 	filesRemoved = 0
 	for name in os.listdir(dstFolder):
@@ -104,7 +109,9 @@ def processData():
 	else:
 		print(" done.")
 
+	# --------------------------------------------------
 	print("Copying Assets folder...")
+
 	destAssetsPath = os.path.join(dstFolder, assetsFolder)
 	if os.path.isdir(destAssetsPath):
 		shutil.rmtree(destAssetsPath)
@@ -116,10 +123,10 @@ def processData():
 		except OSError as e:
 			print("\nError copying: ", destAssetsPath, e)
 
+	# --------------------------------------------------
 	print("Merge Other elements")
 
 	mainEntries = soup.find("div", class_="_a6-g").parent
-
 	otherList = list(soup2.find("div", class_="_a6-g").parent.children)
 	for entry in otherList:
 		entry.extract()
@@ -132,6 +139,7 @@ def processData():
 		entry.insert(0, newDiv)
 		mainEntries.append(entry)
 
+	# --------------------------------------------------
 	print("Remove unneeded elements")
 
 	del soup.head.base['href']
@@ -144,6 +152,7 @@ def processData():
 	for pdsc in pdescs:
 		pdsc.decompose()
 
+	# --------------------------------------------------
 	print("Remove Facebook links")
 
 	fblinks = soup.find_all("a", href=re.compile(".*facebook\.com"))
@@ -151,6 +160,9 @@ def processData():
 		p = flink.parent
 		flink.unwrap()
 		p.smooth()
+
+	# --------------------------------------------------
+	print("Remove GPS coordinates")
 
 	def isAPlace(tag):
 		if (tag.name == "div"):
@@ -160,18 +172,20 @@ def processData():
 					return True
 		return False
 
-	print("Remove GPS coordinates")
-
 	places = soup.find_all(isAPlace)
 	for place in places:
 		place.string = re.sub(" \(-?\d+.?\d*, ?-?\d+.?\d*\)", "", place.string).replace("Place: ", "")
 		place.unwrap()
 
+	# --------------------------------------------------
 	print("Remove Addresses")
 
 	addresses = soup.find_all("div", string=re.compile("^Address: "))
 	for address in addresses:
 		address.decompose()
+
+	# --------------------------------------------------
+	print("Reformat entries")
 
 	def addClass(tag, c):
 		classes = tag['class']
@@ -189,8 +203,6 @@ def processData():
 
 	def convertToDatetime(dateStr, parserinfo=None):
 		return parse(dateStr, parserinfo=parserinfo)
-
-	print("Reformat entries")
 
 	entries = soup.find_all("div", class_="_a6-g")
 	entryOuter = entries[0].parent
@@ -228,11 +240,13 @@ def processData():
 			a701[0].decompose()
 		entry.extract()
 
+	# --------------------------------------------------
 	print("Sort entries")
 
 	entries.sort(key=lambda x: x.itemdate, reverse=True)
 	entryOuter.extend(entries)
 
+	# --------------------------------------------------
 	print("Remove unneeded headings")
 
 	headings = soup.find_all("div", string=[
@@ -246,6 +260,9 @@ def processData():
 	])
 	for heading in headings:
 		heading.string.replace_with("")
+
+	# --------------------------------------------------
+	print("Clean up tags")
 
 	class Clean(Enum):
 		Ok = 0
@@ -277,10 +294,9 @@ def processData():
 		else:
 			return Clean.Ok
 
-	print("Clean up tags")
-
 	cleanTag(soup.body)
 
+	# --------------------------------------------------
 	print("Remove duplicate tags")
 
 	entries = soup.find_all("div", class_="_a6-g")
@@ -303,6 +319,9 @@ def processData():
 		entries.remove(item)
 
 	print("Deleted", len(toDelete), "birthday entries")
+
+	# --------------------------------------------------
+	print("Count tags")
 
 	allClasses = set()
 	allNames = set()
@@ -330,7 +349,8 @@ def processData():
 	print("There are", len(allClasses), "classes")
 	print("There are", len(allIDs), "ids")
 
-	print("Split into multiple blocks")
+	# --------------------------------------------------
+	print("Renaming and organizing media files", end="", flush=True)
 
 	yearCounts = {}
 
@@ -338,8 +358,6 @@ def processData():
 	allNewNames = set()
 	oldNameTotal = 0
 	newNameTotal = 0
-
-	print("Renaming and organizing media files", end="", flush=True)
 
 	createFolder(os.path.join(dstFolder, mediaFolder))
 	srcMediaPath = "/".join(srcFolder.split("/")[:-1])
@@ -352,6 +370,7 @@ def processData():
 			yearCounts[date.year] += 1
 		else:
 			yearCounts[date.year] = 1
+			addClass(entry, "year-mark")
 
 		imgs = entry.find_all(["img", "video"])
 		if (len(imgs) > 0):
@@ -376,7 +395,7 @@ def processData():
 					if taga != None:
 						taga['href'] = newName
 					if copyFile(os.path.join(srcMediaPath, oldName), os.path.join(dstFolder, newName)):
-						print(f"Copied {oldName} to {newName}")
+						# print(f"Copied {oldName} to {newName}")
 						copyCount += 1
 						if copyCount % 10 == 1:
 							print(".", end="", flush=True)
@@ -386,9 +405,8 @@ def processData():
 	print("")
 	print("Copied", copyCount, "files")
 
+	# --------------------------------------------------
 	print("Retrieve static graphics")
-
-	staticPrefix = "https://static."
 
 	for img in soup.find_all("img"):
 		src = img['src']
@@ -416,6 +434,7 @@ def processData():
 		elif src.startswith("http"):
 			print("External file:", src)
 
+	# --------------------------------------------------
 	print("Split entries into blocks")
 
 	entryCount = len(entries)
@@ -443,6 +462,7 @@ def processData():
 	print("Media items:", len(fileRename))
 	print("Total name usage went from", oldNameTotal, "to", newNameTotal)
 
+	# --------------------------------------------------
 	print("Fix styles")
 
 	styletag = soup.find("style")
@@ -525,35 +545,36 @@ def processData():
 
 	styletag.string.replace_with(newStyle)
 
+	# --------------------------------------------------
 	print("Add styles")
 
 	linkTag = soup.new_tag("link", href=os.path.join(assetsFolder, styleName))
 	linkTag['rel'] = "stylesheet"
 	soup.head.append(linkTag)
 
+	# --------------------------------------------------
 	print("Add computed values")
 
 	years = sorted(yearCounts.keys())
 	yearCounts = [yearCounts[year] for year in years]
 
-	years = ",".join(map(str, years))
-	yearCounts = ",".join(map(str, yearCounts))
-
 	scripttag = soup.new_tag("script")
 	varString = f"var numSrcFiles = {str(len(htmlBlocks)-1)};" \
-				f"var allYears = [{years}];" \
-				f"var yearCounts = [{yearCounts}];" \
+				f"var allYears = [{','.join(map(str, years))}];" \
+				f"var yearCounts = [{','.join(map(str, yearCounts))}];" \
 				f"var numEntries = {str(len(entries))};"
 	
 	scripttag.append(varString)
 	soup.head.append(scripttag)
 
+	# --------------------------------------------------
 	print("Add scripts")
 
 	scripttag = soup.new_tag("script")
 	scripttag['src'] = os.path.join(assetsFolder, appName)
 	soup.head.append(scripttag)
 
+	# --------------------------------------------------
 	print("Write files")
 	totalBytes = 0
 

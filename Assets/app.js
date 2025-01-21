@@ -2,6 +2,25 @@ console.log("Load remaining entries");
 
 var yearsReady = false;
 var entryCount = 0;
+var navOffsets = [0];
+var yearOffsets = [0];
+
+function interpolate(inputValues, outputValues) {
+    return function(value) {
+        if (value <= inputValues[0]) return outputValues[0];
+        if (value >= inputValues[inputValues.length - 1]) return outputValues[outputValues.length - 1];
+
+        for (let i = 0; i < inputValues.length - 1; i++) {
+            if (value >= inputValues[i] && value <= inputValues[i + 1]) {
+                const t = (value - inputValues[i]) / (inputValues[i + 1] - inputValues[i]);
+                return outputValues[i] + t * (outputValues[i + 1] - outputValues[i]);
+            }
+        }
+    };
+}
+
+const getOffsetForNav = interpolate(navOffsets, yearOffsets);
+const getNavForOffset = interpolate(yearOffsets, navOffsets);
 
 function updateYearBackground() {
 	if (yearsReady) {
@@ -45,8 +64,22 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 		activeTask = parseTask(text, activeTask, index);
 		index += 1;
 	}
-	updateIndicatorPosition();
+
+	await activeTask;
+
+	document.getElementById('year-back-bottom').style.display = "block";
+
+	const yearElements = document.querySelectorAll('.year-mark');
+
+	yearElements.forEach((mark, index) => {
+		if (index > 0) {
+			yearOffsets.push(mark.offsetTop);
+		}
+	});
+	yearOffsets.push(document.body.scrollHeight);
+
 	indicator.style.display = "flex";
+	updateIndicatorPosition();
 }
 
 var mouseIsDown = false;
@@ -83,30 +116,28 @@ function setupContent() {
 
 	function setupYears() {
 		const yearColumn = document.getElementById('year-column');
-		const columnHeight = yearColumn.offsetHeight;
 		const years = window.allYears.reverse();
-		const yearCounts = window.yearCounts.reverse();
-		const totalSize = yearCounts.reduce((acc, size) => acc + size, 0);
-		var curSize = 0;
+		const yearCount = window.yearCounts.length;
 	
 		years.forEach((year, index) => {
 			const yearDiv = document.createElement('div');
-			const curCount = yearCounts[index];
 			yearDiv.className = 'year-div';
-			yearDiv.style.height = `${(curCount / totalSize) * columnHeight}px`;
 
 			const innerDiv = document.createElement('div');
 			innerDiv.className = 'year-text';
 			innerDiv.textContent = year;
 
 			yearDiv.appendChild(innerDiv);
-			yearDiv.style.setProperty('--pos', `${(curSize + (curCount / 2)) / totalSize}`);
-			curSize += curCount;
+			yearDiv.style.setProperty('--pos', `${(index + 0.5) / yearCount}`);
 			yearColumn.appendChild(yearDiv);
 		});	
 
+		for (let i = 1; i <= yearCount; i++) {
+			navOffsets.push(i / yearCount);
+		}
+
 		const background = document.getElementById('year-background');
-		background.style.width = yearColumn.offsetWidth + 'px';
+		background.style.width = yearColumn.offsetWidth * 2.0 + 'px';
 
 		yearsReady = true;
 		entryCount += document.querySelector('._a706').children.length;
@@ -141,8 +172,7 @@ function setupContent() {
 
 		indicator.style.top = newTop + "px";
 
-		var scrollRatio = (newTop - minTop) / (maxTop - minTop);
-		var scrollPosition = scrollRatio * (document.documentElement.scrollHeight - window.innerHeight);
+		var scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
 		window.scrollTo(0, scrollPosition);
 
 		updateIndicatorVar();
@@ -163,10 +193,7 @@ function updateIndicatorVar() {
 
 function updateIndicatorPosition() {
 	if (!mouseIsDown) {
-		var scrollRatio = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-		var minTop = 0 - (indicator.offsetHeight / 2);
-		var maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
-		var newTop = minTop + scrollRatio * (maxTop - minTop);
+		var newTop = getNavForOffset(window.scrollY) * indicator.parentElement.offsetHeight - indicator.offsetHeight/2;
 		indicator.style.top = newTop + "px";
 		updateIndicatorVar();
 	}
