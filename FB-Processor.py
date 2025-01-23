@@ -1,11 +1,9 @@
-#!python
+#!python3
 
-# pip install --upgrade pip
-# pip install beautifulsoup4
-# pip install dateutil
-# pip install pyqt6
-# pip install pyface
-# pip install requests
+# pip3 install --upgrade pip
+# pip3 install beautifulsoup4
+# pip3 install dateutil
+# pip3 install requests
 
 from bs4 import BeautifulSoup, NavigableString
 import re
@@ -26,6 +24,9 @@ styleName = "style.css"
 postsFolder = "posts"
 mainPostsName = "your_posts__check_ins__photos_and_videos_1.html"
 otherPostsName = "your_uncategorized_photos.html"
+yourPhotos = "your_photos.html"
+yourVideos = "your_videos.html"
+albumsFolderName = "album"
 
 staticPrefix = "https://static."
 
@@ -37,8 +38,11 @@ def getFolder(message):
 	
 	results = result.stdout.decode("utf-8").split("\n")
 	if len(results) > 1:
-		path = results[1].removeprefix("alias ")
-		path = "/"+"/".join(path.split(":")[1:-1])
+		if "User canceled." in results[1]:
+			path = None
+		else:
+			path = results[1].removeprefix("alias ")
+			path = "/"+"/".join(path.split(":")[1:-1])
 	else:
 		path = None
 	
@@ -51,12 +55,14 @@ def fileExists(path):
 	return os.path.isfile(path)
 
 def createFolder(path):
+	if "." in path:
+		path = os.path.dirname(path)
 	try:
-		if "." in path:
-			path = os.path.dirname(path)
 		os.makedirs(path, exist_ok=True)
+		return True
 	except OSError as e:
 		print(f"Error creating folder '{path}': {e}")
+		return False
 
 def copyFile(srcPath, dstPath):
 	if not os.path.isfile(dstPath) or os.path.getsize(srcPath) != os.path.getsize(dstPath):
@@ -86,10 +92,6 @@ def processData():
 	mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName) 
 	with open(mainSrcFile) as fp:
 		soup = BeautifulSoup(fp, 'lxml')
-
-	otherSrcFile = os.path.join(srcFolder, postsFolder, otherPostsName) 
-	with open(otherSrcFile) as fp:
-		soup2 = BeautifulSoup(fp, 'lxml')
 
 	# --------------------------------------------------
 	print("Cleaning destination folder...")
@@ -124,20 +126,76 @@ def processData():
 			print("\nError copying: ", destAssetsPath, e)
 
 	# --------------------------------------------------
-	print("Merge Other elements")
+	print("Build used file list")
+
+	usedFiles = set()
 
 	mainEntries = soup.find("div", class_="_a6-g").parent
-	otherList = list(soup2.find("div", class_="_a6-g").parent.children)
-	for entry in otherList:
-		entry.extract()
-		tab = entry.find('table')
-		if (tab != None):
-			tab.decompose()
-		newDiv = soup2.new_tag("div")
-		newDiv.string = " "
-		newDiv['class'] = ["_2ph_", "_a6-h", "_a6-i"]
-		entry.insert(0, newDiv)
-		mainEntries.append(entry)
+	for entry in mainEntries:
+		imgs = entry.find_all(["img", "video"])
+		for img in imgs:
+			src = img['src']
+			if not src.startswith("http"):
+				usedFiles.add(os.path.basename(src))
+
+	# --------------------------------------------------
+
+	def mergeAlbumSoup(albumSoup):
+		albumList = list(albumSoup.find("div", class_="_a6-g").parent.children)
+		for entry in albumList:
+			skip = False
+			imgs = entry.find_all(["img", "video"])
+			for img in imgs:
+				src = os.path.basename(img['src'])
+				if src in usedFiles:
+					skip = True
+					break
+				else:
+					usedFiles.add(src)
+			if not skip:
+				entry.extract()
+				tab = entry.find('table')
+				if (tab != None):
+					tab.decompose()
+				if len(list(entry.children)) == 2:
+					newDiv = soup2.new_tag("div")
+					label = entry.find("div", class_= "_3-95")
+					if label != None and label.string != None:
+						newDiv.string = label.string
+					else:
+						newDiv.string = " "
+					newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+					entry.insert(0, newDiv)
+				mainEntries.append(entry)
+
+	print("Merge Photos")
+	photosSrcFile = os.path.join(srcFolder, postsFolder, yourPhotos) 
+	with open(photosSrcFile) as fp:
+		soup2 = BeautifulSoup(fp, 'lxml')
+		mergeAlbumSoup(soup2)
+
+	print("Merge Videos")
+	videosSrcFile = os.path.join(srcFolder, postsFolder, yourVideos) 
+	with open(videosSrcFile) as fp:
+		soup2 = BeautifulSoup(fp, 'lxml')
+		mergeAlbumSoup(soup2)
+
+	print("Merge Other Posts")
+	otherSrcFile = os.path.join(srcFolder, postsFolder, otherPostsName) 
+	with open(otherSrcFile) as fp:
+		soup2 = BeautifulSoup(fp, 'lxml')
+		mergeAlbumSoup(soup2)
+
+	albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
+	albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+
+	print("Merge", len(albumFiles), "albums")
+
+	for albumFile in albumFiles:
+		albumSrcFile = os.path.join(albumsFolder, albumFile)
+		with open(albumSrcFile) as fp:
+			soup4 = BeautifulSoup(fp, 'lxml')
+			mergeAlbumSoup(soup4)
 
 	# --------------------------------------------------
 	print("Remove unneeded elements")
@@ -195,11 +253,9 @@ def processData():
 
 	def removeClass(tag, c):
 		classes = tag['class']
-		try:
+		if c in classes:
 			classes.remove(c)
 			tag['class'] = classes
-		except KeyError:
-			return
 
 	def convertToDatetime(dateStr, parserinfo=None):
 		return parse(dateStr, parserinfo=parserinfo)
@@ -297,7 +353,7 @@ def processData():
 	cleanTag(soup.body)
 
 	# --------------------------------------------------
-	print("Remove duplicate tags")
+	print("Remove duplicate and birthday tags")
 
 	entries = soup.find_all("div", class_="_a6-g")
 	toDelete = []
@@ -311,7 +367,7 @@ def processData():
 					if str(divs[0].string)==str(divs[1].string):
 						divs[1].decompose()
 				for string in div1.strings:
-					if re.match("^happy birthday.*", string, re.IGNORECASE):
+					if re.match("^ha+p{2,}y .*birthday.*", string, re.IGNORECASE):
 						toDelete.append(entry)
 						break
 	for item in toDelete:
@@ -319,6 +375,52 @@ def processData():
 		entries.remove(item)
 
 	print("Deleted", len(toDelete), "birthday entries")
+
+	# --------------------------------------------------
+	print("Remove Updated... strings")
+
+	pin2s = soup.find_all("div", string=re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m"))
+	for pin in pin2s:
+		pin.decompose()
+
+	# --------------------------------------------------
+	print("Clean up titles")
+
+	entries = soup.find_all("div", class_="_a6-g")
+	for entry in entries:
+		a6h = entry.find("div", class_="_a6-h")
+		a6p = entry.find("div", class_="_a6-p")
+		if a6h != None and a6p != None:
+			if a6h.string == "" or a6h.string == " ":
+				pin2s = a6p.find_all("div", class_="_2pin")
+				if len(pin2s) > 0 and len(pin2s) <= 2:
+					last = len(pin2s) - 1
+					if pin2s[last].string != None:
+						a6h.string.replace_with(pin2s[last].string)
+						pin2s[last].decompose()
+					else:
+						newParts = []
+						for string in list(pin2s[last].strings):
+							if not string.startswith("http"):
+								if len(string)>0 and string != " ":
+									newParts.append(str(string))
+								string.extract()
+						if (len(newParts)):
+							a6h.string.replace_with(" ".join(newParts))
+						pin2s[last].decompose()
+		else:
+			clist = list(entry.children)
+			if len(clist) == 2:
+				pin2s = entry.find_all("div", class_="_2pin")
+				if len(pin2s) == 2 and pin2s[1].string != None:
+					second = clist[1]
+					second.extract()
+					entry.insert(0, second)
+					newDiv = soup.new_tag("div")
+					newDiv.string = pin2s[1].string
+					newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+					pin2s[1].decompose()
+					entry.insert(0, newDiv)	
 
 	# --------------------------------------------------
 	print("Count tags")
@@ -378,11 +480,7 @@ def processData():
 				oldName = tagimg['src']
 				if not oldName.startswith("http"):
 					extension = oldName.split(".")[-1]
-					if i>0:
-						suffix = str(i)
-					else:
-						suffix = ""
-					newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second) + suffix)
+					newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
 					newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
 					index = 2
 					while newName in allNewNames:
@@ -391,9 +489,8 @@ def processData():
 					allNewNames.add(newName)
 					fileRename[oldName] = newName
 					tagimg['src'] = newName
-					taga = entry.find("a")
-					if taga != None:
-						taga['href'] = newName
+					if tagimg.parent.name == "a":
+						tagimg.parent['href'] = newName
 					if copyFile(os.path.join(srcMediaPath, oldName), os.path.join(dstFolder, newName)):
 						# print(f"Copied {oldName} to {newName}")
 						copyCount += 1
@@ -480,34 +577,31 @@ def processData():
 				itemDict[pieces[0]] = pieces[1]
 			styleDict[parts[0]] = itemDict
 
-	def removeStyle(selector, property):
-		nonlocal styleDict
-		try:
+	def removeStyle(selector, property, styleDict):
+		if selector in styleDict:
 			item = styleDict[selector]
-			item.pop(property)
-		except KeyError:
-			pass
+			if property in item:
+				item.pop(property)
 
-	def addStyle(selector, property, value):
-		nonlocal styleDict
-		try:
+	def addStyle(selector, property, value, styleDict):
+		if selector in styleDict:
 			item = styleDict[selector]
-		except KeyError:
+		else:
 			item = {}
 			styleDict[selector] = item
 		item[property] = value
 
-	removeStyle("._2pin", "padding-bottom")
-	removeStyle("._a7nf", "padding-left")
-	removeStyle("._a72d", "padding-bottom")
-	removeStyle("._a7ng", "padding-right")
-	removeStyle("._3-96", "margin-bottom")
+	removeStyle("._2pin", "padding-bottom", styleDict)
+	removeStyle("._a7nf", "padding-left", styleDict)
+	removeStyle("._a72d", "padding-bottom", styleDict)
+	removeStyle("._a7ng", "padding-right", styleDict)
+	removeStyle("._3-96", "margin-bottom", styleDict)
 
-	addStyle("._a6-g", "margin-top", "12px")
-	addStyle("._a6-g", "border-radius", "16px")
-	addStyle("._a7nf", "column-gap", "12px")
-	addStyle("._bot4", "padding-bottom", "4px")
-	addStyle("._top0", "padding-top", "0px")
+	addStyle("._a6-g", "margin-top", "12px", styleDict)
+	addStyle("._a6-g", "border-radius", "16px", styleDict)
+	addStyle("._a7nf", "column-gap", "12px", styleDict)
+	addStyle("._bot4", "padding-bottom", "4px", styleDict)
+	addStyle("._top0", "padding-top", "0px", styleDict)
 
 	keysToDelete = []
 	for key in styleDict.keys():
@@ -546,7 +640,7 @@ def processData():
 	styletag.string.replace_with(newStyle)
 
 	# --------------------------------------------------
-	print("Add styles")
+	print("Add style sheet")
 
 	linkTag = soup.new_tag("link", href=os.path.join(assetsFolder, styleName))
 	linkTag['rel'] = "stylesheet"
@@ -575,7 +669,7 @@ def processData():
 	soup.head.append(scripttag)
 
 	# --------------------------------------------------
-	print("Write files")
+	print("Write html files")
 	totalBytes = 0
 
 	with open(os.path.join(dstFolder, indexName), "w") as f:
