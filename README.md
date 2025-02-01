@@ -1,15 +1,15 @@
 # FB-Processor - Facebook Data Cleaner
-
-1. [Bqckground](#background)
-1. [Features](#features)
-2. [Getting your data from Facebook](#data)
-3. [Getting the script](#script)
-4. [Running the script](#running)
-5. [Adjusting the results](#adjusting)
-6. [Viewing your posts](#viewing)
+[Background](#background)
+[Features](#features)
+[Getting your data from Facebook](#data)
+[Making the Output folder](#outputfolder)
+[Getting the script](#script)
+[Running the script](#running)
+[Viewing your posts](#viewing)
+[Adjusting the results](#adjusting)
+[Done!](#done)
 
 ## <a name="background"></a>Background
-
 With the moderation changes and general move towards the far-right of the Meta products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky](https://bsky.app/profile/ubillos.bsky.social)
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
@@ -19,7 +19,6 @@ Below are instructions for performing your download and for running the FB-Proce
 **Note:** Currently the script only runs on a Mac. If you're on Windows, contact me and I'll work with you to get a Windows version working.
 
 ## <a name="features"></a>Features
-
 * Takes the data dump that you can download from FaceBook and turns it into a navigable web page where you can see and search all of your posts.
     * (Instagram version coming soon)
 * Merges posts, uncategorized entries, photos, and videos into a single collection.
@@ -50,25 +49,54 @@ From your Facebook page on a Mac browser:
 
 You'll now see a page saying that your information has been requesdted. It will take a little time for Facebook to process everything, usuualy just a few minutes. You'll get an email and a Facebook notification when your data is ready. When you receive it, select the notification, then:
 
-
+1. Follow the notification and click the "Download" button.
+2. Locate the downloaded .zip file and double click it.
+3. You should now have a folder named something like "facebook-yourlastname-date-someletters"
 
 ## <a name="script"></a>Getting the script
 
+
+## <a name="outputfolder"></a>Making the Output folder
+
+- Create a folder somplace convenient (like on your Desktop) to hold the converted files. Name it something obvious, like `YourLastName-FB-Files`
+
 ## <a name="running"></a>Running the script
 
-## <a name="adjusting"></a>Adjusting the results
+1. Locate the app "Terminal" in the Utilities folder in the Applications folder; double click it.
+2. From the Script folder, drag the file `install-packages.sh` to the Terminal window.
+3. Bring the Terminal window to the front and press `return`
+    (This will install necessary libraries)
+4. From the Script folder, drag the file `FB-Processor.py` to the Terminal window.
+5. Bring tyhe Terminal window to the front and press `return`
+
+You will be presented with two `Open File` dialogs.
+- The first one asks you to locate the `your_facebook_activity` folder inside the Facebook data download folder.
+- The second asks you to locate the `Output Folder` you created above.
+
+At this point the script will run, printing out progress information and copying/renaming the media files.
 
 ## <a name="viewing"></a>Viewing your posts
 
----
+When the script is done, inside your `Output Folder` you should have three folders, `assets`, `entries`, and `media`, along with a file named `index.html`. Double clicking the `index.html` file should open it into your browser.
 
----
-## <a name="features"></a>Features
+You can use the navigation bar at the left to jump to any portion of any year.
 
-* Connects to the RV-C network in many modern RVs.
-    * RV-C is a subset of CAN-Bus running at 250kbps.
-* Uses an ESP32 with a CAN-Bus interface.
-* Connects lights, fans, switches, and thermostats to HomeKit.
-* Fits inside the RV wiring panel.
-* Plugs into an unused CAN-Bus socket for power and data.
-* STL files for a 3D printed case are included.
+## <a name="adjusting"></a>Adjusting the results
+
+There may be entries that you'd prefer not to have included. For me these were images that were used as heading for events I made.
+
+To omit these you just need to find the "entry numbers". Hold down the option key as you move the mouse over the entry you'd like to omit. It's "entry number" will show at the top center of the entry. Make a note of this number.
+
+Once you have a list of entry numbers to omit, you can re-run the FB-Processor script:
+
+1. Bring the Terminal window to the front.
+2. Press the `up-arrow` - this will show the previous command that was run.
+3. Type a space, followed by `-x`, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas (there should be only numbers and commas in this list, no additional spaces).
+4. Press `return`.
+
+The script will run again, omitting the specified entries. Once it has finished you can refresh the browser page, or double click `index.html` again. The specified entries should no longer be included on the page.
+
+You can repeat steps 1 through 4 above, editing the list of omitted entries as desired to curate your final page.
+
+## <a name="done"></a>Done!
+You now have an archive of your Facebook posts that you can look at locally on your computer, or you can host it on the web through a hosting provider.
