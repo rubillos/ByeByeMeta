@@ -94,7 +94,10 @@ Once you have a list of entry numbers to omit, you can re-run the FB-Processor s
 
 1. Bring the Terminal window to the front.
 2. Press the `up-arrow` - this will show the previous command that was run.
-3. Type a space, followed by `-x`, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas (there should be only numbers and commas in this list, no additional spaces).
+3. Type a space, followed by `-x`, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas. There should be only numbers and commas in this list, no additional spaces. You can use the arrow and delete keys to edit the line. It should look something like:
+```
+/Users/randy/Downloads/FBProcessor-1.0.0/FB-Processor.py -x 10,11,12,118,119,188,260
+```
 4. Press `return`.
 
 The script will run again, omitting the specified entries. Once it has finished you can refresh the browser page, or double click `index.html` again. The specified entries should no longer be included on the page.
