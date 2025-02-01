@@ -10,11 +10,11 @@
 [Done!](#done)
 
 ## <a name="background"></a>Background
-With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky](https://bsky.app/profile/ubillos.bsky.social)
+With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky - ubillos.bsky.social](https://bsky.app/profile/ubillos.bsky.social)
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
 
-Below are instructions for performing your download and for running the FB-Processor script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook, I'm pretty sure you can handle running the script.
+Below are instructions for downloading your posts from Facebook and for running the FB-Processor script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook, I'm pretty sure you can handle running the script.
 
 **Note:** Currently the script only runs on a Mac. If you're on Windows, contact me and I'll work with you to get a Windows version working.
 
@@ -54,33 +54,33 @@ You'll now see a page saying that your information has been requested. It will t
 
 ## <a name="script"></a>Getting the script
 
-1. Go to the <a href="https://github.com/rubillos/FBProcessor/releases" target="_blank">Releases page on Github</a>
+1. Go to the <a href="https://github.com/rubillos/FBProcessor/releases" target="_blank"><ins>Releases page on Github</ins></a>
 2. If no files are shown below "Assets", click the triangle.
-3. Click the `Source code (zip)` link
+3. Click the <ins>`Source code (zip)`</ins> link
 
-This should download a file to your computer. Double click the file to un-zip it. The resulting folder is the `Script Folder`, double click it to open it.
+This should download a file to your computer. Double click the file to un-zip it. The resulting folder is the $\colorbox{lightgray}{\small\color{blue}\texttt{Script Folder}}$, double click it to open it.
 
 ## <a name="outputfolder"></a>Making the Output folder
 
-- Create a folder somplace convenient (like on your Desktop) to hold the converted files. Name it something obvious, like `YourLastName-FB-Files`
+- Create a folder somplace convenient (like on your Desktop) to hold the converted files. Name it something obvious, like $\colorbox{lightgray}{\small\color{blue}\texttt{YourLastName-FB-Files}}$
 
 ## <a name="running"></a>Running the script
 
 1. Locate the app "Terminal" in the Utilities folder in the Applications folder; double click it.
-2. From the Script folder, drag the file `install-packages.sh` to the Terminal window.
-3. Bring the Terminal window to the front and press `return`. This will install necessary libraries.
-4. From the Script folder, drag the file `FB-Processor.py` to the Terminal window.
-5. Bring tyhe Terminal window to the front and press `return`.
+2. From the Script folder, drag the file $\colorbox{lightgray}{\small\color{blue}\texttt{install-packages.sh}}$ to the Terminal window.
+3. Bring the Terminal window to the front and press $\colorbox{green}{\small\color{white}\textsf{return}}$. This will install necessary libraries.
+4. From the Script folder, drag the file $\colorbox{lightgray}{\small\color{blue}\texttt{FB-Processor.py}}$ to the Terminal window.
+5. Bring the Terminal window to the front and press $\colorbox{green}{\small\color{white}\textsf{return}}$.
 
 You will be presented with two `Open File` dialogs.
-- The first one asks you to locate the `your_facebook_activity` folder inside the Facebook data download folder.
-- The second asks you to locate the `Output Folder` you created above.
+- The first one asks you to locate the $\colorbox{lightgray}{\small\color{blue}\texttt{your\_facebook\_activity}}$ folder inside the Facebook data download folder.
+- The second asks you to locate the $\colorbox{lightgray}{\small\color{blue}\texttt{Output Folder}}$ you created above.
 
 At this point the script will run, printing out progress information and copying/renaming the media files.
 
 ## <a name="viewing"></a>Viewing your posts
 
-When the script is done, inside your `Output Folder` you should have three folders, `assets`, `entries`, and `media`, along with a file named `index.html`. Double clicking the `index.html` file should open it into your browser.
+When the script is done, inside your $\colorbox{lightgray}{\small\color{blue}\texttt{Output Folder}}$ you should have three folders, $\colorbox{lightgray}{\small\color{blue}\texttt{assets}}$, $\colorbox{lightgray}{\small\color{blue}\texttt{entries}}$, and $\colorbox{lightgray}{\small\color{blue}\texttt{media}}$, along with a file named $\colorbox{lightgray}{\small\color{blue}\texttt{index.html}}$. Double clicking the $\colorbox{lightgray}{\small\color{blue}\texttt{index.html}}$ file should open it into your browser.
 
 You can use the navigation bar at the left to jump to any portion of any year.
 
@@ -88,16 +88,16 @@ You can use the navigation bar at the left to jump to any portion of any year.
 
 There may be entries that you'd prefer not to have included. For me these were images that were used as heading for events I made.
 
-To omit these you just need to find the "entry numbers". Hold down the option key as you move the mouse over the entry you'd like to omit. It's "entry number" will show at the top center of the entry. Make a note of this number.
+To omit these you just need to find the **entry numbers**. Hold down the option key as you move the mouse over the entry you'd like to omit. It's **entry number** will show at the top center of the entry. Make a note of this number.
 
-Once you have a list of entry numbers to omit, you can re-run the FB-Processor script:
+Once you have a list of **entry numbers** to omit, you can re-run the FB-Processor script:
 
 1. Bring the Terminal window to the front.
-2. Press the `up-arrow` - this will show the previous command that was run.
-3. Type a space, followed by `-x`, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas (there should be only numbers and commas in this list, no additional spaces).
-4. Press `return`.
+2. Press the $\colorbox{green}{\small\color{white}\textsf{up-arrow}}$ key - this will show the previous command that was run.
+3. Type a $\colorbox{green}{\small\color{white}\textsf{space}}$, followed by "`-x`", followed by a $\colorbox{green}{\small\color{white}\textsf{space}}$ and then type in the **entry numbers** that you'd like to omit, separated by commas. There should be only numbers and commas in this list, no additional spaces.
+4. Press $\colorbox{green}{\small\color{white}\textsf{return}}$.
 
-The script will run again, omitting the specified entries. Once it has finished you can refresh the browser page, or double click `index.html` again. The specified entries should no longer be included on the page.
+The script will run again, omitting the specified entries. Once it has finished you can refresh the browser page, or double click $\colorbox{lightgray}{\small\color{blue}\texttt{index.html}}$ file again. The specified entries should no longer be included on the page.
 
 You can repeat steps 1 through 4 above, editing the list of omitted entries as desired to curate your final page.
 
