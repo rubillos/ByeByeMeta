@@ -1,12 +1,12 @@
 # FB-Processor - Facebook Data Cleaner
-[Background](#background)
-[Features](#features)
-[Getting your data from Facebook](#data)
-[Making the Output folder](#outputfolder)
-[Getting the script](#script)
-[Running the script](#running)
-[Viewing your posts](#viewing)
-[Adjusting the results](#adjusting)
+[Background](#background)<br>
+[Features](#features)<br>
+[Getting your data from Facebook](#data)<br>
+[Making the Output folder](#outputfolder)<br>
+[Getting the script](#script)<br>
+[Running the script](#running)<br>
+[Viewing your posts](#viewing)<br>
+[Adjusting the results](#adjusting)<br>
 [Done!](#done)
 
 ## <a name="background"></a>Background
