@@ -26,12 +26,18 @@ entryName = "entries{}.html"
 appName = "app.js"
 styleName = "style.css"
 
+fbFolderName = "your_facebook_activity"
+igFolderName = "your_instagram_activity"
+
 postsFolder = "posts"
 mainPostsName = "your_posts__check_ins__photos_and_videos_1.html"
 otherPostsName = "your_uncategorized_photos.html"
 yourPhotos = "your_photos.html"
 yourVideos = "your_videos.html"
 albumsFolderName = "album"
+
+contentFolder = "content"
+igPostsName = "posts_1.html"
 
 staticPrefix = "https://static."
 
@@ -41,7 +47,11 @@ parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activit
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
+
+group = parser.add_argument_group("exclusion options")
 parser.add_argument("-x", "--exclude", dest="exclude", help="List of comma separated numbers to exclude", type=str, default="")
+parser.add_argument("-xfb", "--exclude-fb", dest="excludefb", help="List of comma separated numbers to exclude from Facebook data", type=str, default="")
+parser.add_argument("-xig", "--exclude-ig", dest="excludeig", help="List of comma separated numbers to exclude from Instagram data", type=str, default="")
 
 args = parser.parse_args()
 
@@ -95,7 +105,7 @@ def processData():
 	if args.srcFolder != None:
 		srcFolder = args.srcFolder
 	else:
-		srcFolder = getFolder("Select the <your_facebook_activity folder>:")
+		srcFolder = getFolder("Select the <your_facebook/instagram_activity folder>:")
 
 	if srcFolder == None:
 		return
@@ -111,9 +121,26 @@ def processData():
 	print(f"src={srcFolder}\ndst={dstFolder}")
 
 	# --------------------------------------------------
-	print("Open Main FB Data File")
+	print("Check Data Type")
 
-	mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName) 
+	if os.path.basename(srcFolder) == fbFolderName:
+		print("Processing Facebook Data")
+		isFacebook = True
+	elif os.path.basename(srcFolder) == igFolderName:
+		print("Processing Instagram Data")
+		isFacebook = False
+	else:
+		print("Unknown source data folder!")
+		return
+
+	# --------------------------------------------------
+	print("Open Main Data File")
+
+	if isFacebook:
+		mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName)
+	else:
+		mainSrcFile = os.path.join(srcFolder, contentFolder, igPostsName)
+
 	with open(mainSrcFile) as fp:
 		soup = BeautifulSoup(fp, 'lxml')
 
@@ -124,7 +151,7 @@ def processData():
 	filesRemoved = 0
 	for name in os.listdir(dstFolder):
 		path = os.path.join(dstFolder, name)
-		if name==entryFolder or name==assetsFolder:
+		if name==entryFolder or name==assetsFolder or name==mediaFolder:
 			shutil.rmtree(path)
 			foldersRemoved += 1
 		elif name==indexName:
@@ -194,34 +221,35 @@ def processData():
 						entry.insert(0, newDiv)
 					mainEntries.append(entry)
 
-	print("Merge Photos")
-	photosSrcFile = os.path.join(srcFolder, postsFolder, yourPhotos) 
-	with open(photosSrcFile) as fp:
-		soup2 = BeautifulSoup(fp, 'lxml')
-		mergeAlbumSoup(soup2)
+	if isFacebook:
+		print("Merge Photos")
+		photosSrcFile = os.path.join(srcFolder, postsFolder, yourPhotos) 
+		with open(photosSrcFile) as fp:
+			soup2 = BeautifulSoup(fp, 'lxml')
+			mergeAlbumSoup(soup2)
 
-	print("Merge Videos")
-	videosSrcFile = os.path.join(srcFolder, postsFolder, yourVideos) 
-	with open(videosSrcFile) as fp:
-		soup2 = BeautifulSoup(fp, 'lxml')
-		mergeAlbumSoup(soup2)
+		print("Merge Videos")
+		videosSrcFile = os.path.join(srcFolder, postsFolder, yourVideos) 
+		with open(videosSrcFile) as fp:
+			soup2 = BeautifulSoup(fp, 'lxml')
+			mergeAlbumSoup(soup2)
 
-	print("Merge Other Posts")
-	otherSrcFile = os.path.join(srcFolder, postsFolder, otherPostsName) 
-	with open(otherSrcFile) as fp:
-		soup2 = BeautifulSoup(fp, 'lxml')
-		mergeAlbumSoup(soup2)
+		print("Merge Other Posts")
+		otherSrcFile = os.path.join(srcFolder, postsFolder, otherPostsName) 
+		with open(otherSrcFile) as fp:
+			soup2 = BeautifulSoup(fp, 'lxml')
+			mergeAlbumSoup(soup2)
 
-	albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
-	albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+		albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
+		albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
 
-	print("Merge", len(albumFiles), "albums")
+		print("Merge", len(albumFiles), "albums")
 
-	for albumFile in albumFiles:
-		albumSrcFile = os.path.join(albumsFolder, albumFile)
-		with open(albumSrcFile) as fp:
-			soup4 = BeautifulSoup(fp, 'lxml')
-			mergeAlbumSoup(soup4)
+		for albumFile in albumFiles:
+			albumSrcFile = os.path.join(albumsFolder, albumFile)
+			with open(albumSrcFile) as fp:
+				soup4 = BeautifulSoup(fp, 'lxml')
+				mergeAlbumSoup(soup4)
 
 	# --------------------------------------------------
 	print("Remove unneeded elements")
@@ -232,9 +260,17 @@ def processData():
 	for updiv in upstrs:
 		updiv.decompose()
 
-	pdescs = soup.find_all("div", class_="_3-95")
-	for pdsc in pdescs:
-		pdsc.decompose()
+	if isFacebook:
+		pdescs = soup.find_all("div", class_="_3-95")
+		for pdsc in pdescs:
+			pdsc.decompose()
+	else:
+		table = soup.find("table")
+		if table != None:
+			table.decompose()
+		heading = soup.find("div", class_="_3-8y")
+		if heading != None:
+			heading.decompose()
 
 	# --------------------------------------------------
 	print("Remove Facebook links")
@@ -297,37 +333,59 @@ def processData():
 	entries = soup.find_all("div", class_="_a6-g")
 	entryOuter = entries[0].parent
 	for entry in entries:
-		kids = list(entry.children)
-		if len(kids) == 3 and kids[0].string != None:
-			twop = kids[1].find_all("div", class_="_2pin")
-			if len(twop) == 2:
-				subkids = list(twop[1].children)
-				if len(subkids) == 2:
-					kids[0].string.replace_with(", ".join(list(subkids[0].strings)))
-					twop[1].decompose()
-			removeClass(kids[0], "_a6-i")
-			addClass(kids[0], "_bot4")
-			addClass(kids[1], "_3-94")
-			addClass(kids[1], "_top0")
-			addClass(kids[2], "_a6-o")
-			kids[0].parent.insert(1, kids[2].extract())
-			a7ng = entry.find_all("div", class_="_a7ng")
-			for item in a7ng:
-				div1 = item.find("div")
-				if div1 != None:
-					div2 = div1.find("div")
-					if div2 != None:
-						div2.decompose()
-		if kids[0].string == " ":
-			kids[0].string.replace_with("")
-		a701 = entry.find_all("div", class_="_a701")
-		a72d = entry.find_all("div", class_="_a72d")
-		if len(a72d) == 1:
-			entry.itemdate = convertToDatetime(str(a72d[0].string))
-		if len(a701) == 1 and len(a72d) == 1:
-			newStr = str(a72d[0].string) + " with " + str(a701[0].string).replace("You tagged ", "")
-			a72d[0].string.replace_with(newStr)
-			a701[0].decompose()
+		if isFacebook:
+			kids = list(entry.children)
+			if len(kids) == 3 and kids[0].string != None:
+				twop = kids[1].find_all("div", class_="_2pin")
+				if len(twop) == 2:
+					subkids = list(twop[1].children)
+					if len(subkids) == 2:
+						kids[0].string.replace_with(", ".join(list(subkids[0].strings)))
+						twop[1].decompose()
+				removeClass(kids[0], "_a6-i")
+				addClass(kids[0], "_bot4")
+				addClass(kids[1], "_3-94")
+				addClass(kids[1], "_top0")
+				addClass(kids[2], "_a6-o")
+				kids[0].parent.insert(1, kids[2].extract())
+				a7ng = entry.find_all("div", class_="_a7ng")
+				for item in a7ng:
+					div1 = item.find("div")
+					if div1 != None:
+						div2 = div1.find("div")
+						if div2 != None:
+							div2.decompose()
+			if kids[0].string == " ":
+				kids[0].string.replace_with("")
+			a701 = entry.find_all("div", class_="_a701")
+			a72d = entry.find_all("div", class_="_a72d")
+			if len(a72d) == 1:
+				entry.itemdate = convertToDatetime(str(a72d[0].string))
+			if len(a701) == 1 and len(a72d) == 1:
+				newStr = str(a72d[0].string) + " with " + str(a701[0].string).replace("You tagged ", "")
+				a72d[0].string.replace_with(newStr)
+				a701[0].decompose()
+		else:
+			a6ps = entry.find_all("div", class_="_a6-p")
+			if len(a6ps) == 1:
+				tables = a6ps[0].find_all("table")
+				for table in reversed(tables):
+					table.decompose()
+				a6o = entry.find_all("div", class_="_a6-o")
+				if len(a6o) == 1:
+					entry.itemdate = convertToDatetime(str(a6o[0].string))
+				kids = list(entry.children)
+				if len(kids) == 2:
+					newDiv = soup.new_tag("div")
+					newDiv.string = " "
+					newDiv['class'] = ["_2ph_", "_a6-h"]
+					entry.insert(0, newDiv)
+					kids = list(entry.children)
+				entry.insert(1, a6o[0].extract())
+				if len(kids) == 3:
+					addClass(kids[0], "_top4")
+					addClass(kids[2], "_top0")
+
 		entry.extract()
 
 	# --------------------------------------------------
@@ -389,7 +447,17 @@ def processData():
 	# --------------------------------------------------
 	print("Add entry numbers")
 
-	xlist = args.exclude.split(",")
+	xstring = ""
+
+	if isFacebook:
+		xstring = args.excludefb
+	else:
+		xstring = args.excludeig
+
+	if xstring == "":
+		xstring = args.exclude
+
+	xlist = xstring.split(",")
 	toDelete = []
 	entries = soup.find_all("div", class_="_a6-g")
 	for i, entry in enumerate(entries):
@@ -435,41 +503,42 @@ def processData():
 	# --------------------------------------------------
 	print("Clean up titles")
 
-	entries = soup.find_all("div", class_="_a6-g")
-	for entry in entries:
-		a6h = entry.find("div", class_="_a6-h")
-		a6p = entry.find("div", class_="_a6-p")
-		if a6h != None and a6p != None:
-			if a6h.string == "" or a6h.string == " ":
-				pin2s = a6p.find_all("div", class_="_2pin")
-				if len(pin2s) > 0 and len(pin2s) <= 2:
-					last = len(pin2s) - 1
-					if pin2s[last].string != None:
-						a6h.string.replace_with(pin2s[last].string)
-						pin2s[last].decompose()
-					else:
-						newParts = []
-						for string in list(pin2s[last].strings):
-							if not string.startswith("http"):
-								if len(string)>0 and string != " ":
-									newParts.append(str(string))
-								string.extract()
-						if (len(newParts)):
-							a6h.string.replace_with(" ".join(newParts))
-						pin2s[last].decompose()
-		else:
-			clist = list(entry.children)
-			if len(clist) == 2:
-				pin2s = entry.find_all("div", class_="_2pin")
-				if len(pin2s) == 2 and pin2s[1].string != None:
-					second = clist[1]
-					second.extract()
-					entry.insert(0, second)
-					newDiv = soup.new_tag("div")
-					newDiv.string = pin2s[1].string
-					newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
-					pin2s[1].decompose()
-					entry.insert(0, newDiv)	
+	if isFacebook:
+		entries = soup.find_all("div", class_="_a6-g")
+		for entry in entries:
+			a6h = entry.find("div", class_="_a6-h")
+			a6p = entry.find("div", class_="_a6-p")
+			if a6h != None and a6p != None:
+				if a6h.string == "" or a6h.string == " ":
+					pin2s = a6p.find_all("div", class_="_2pin")
+					if len(pin2s) > 0 and len(pin2s) <= 2:
+						last = len(pin2s) - 1
+						if pin2s[last].string != None:
+							a6h.string.replace_with(pin2s[last].string)
+							pin2s[last].decompose()
+						else:
+							newParts = []
+							for string in list(pin2s[last].strings):
+								if not string.startswith("http"):
+									if len(string)>0 and string != " ":
+										newParts.append(str(string))
+									string.extract()
+							if (len(newParts)):
+								a6h.string.replace_with(" ".join(newParts))
+							pin2s[last].decompose()
+			else:
+				clist = list(entry.children)
+				if len(clist) == 2:
+					pin2s = entry.find_all("div", class_="_2pin")
+					if len(pin2s) == 2 and pin2s[1].string != None:
+						second = clist[1]
+						second.extract()
+						entry.insert(0, second)
+						newDiv = soup.new_tag("div")
+						newDiv.string = pin2s[1].string
+						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+						pin2s[1].decompose()
+						entry.insert(0, newDiv)	
 
 	# --------------------------------------------------
 	print("Count tags")
@@ -522,7 +591,9 @@ def processData():
 	newNameTotal = 0
 
 	createFolder(os.path.join(dstFolder, mediaFolder))
+
 	srcMediaPath = "/".join(srcFolder.split("/")[:-1])
+	
 	copyCount = 0
 
 	def yearDivWithYear(year):
@@ -698,11 +769,18 @@ def processData():
 	removeStyle("._a706", "width", styleDict)
 	removeStyle("._a706", "float", styleDict)
 
+	if isFacebook:
+		addStyle("._bot4", "padding-bottom", "4px", styleDict)
+	else:
+		removeStyle("._3-95", "margin-bottom", styleDict)
+		removeStyle("._a6-i", "border-bottom", styleDict)
+		removeStyle("._2ph_", "padding", styleDict)
+		addStyle("._top4", "padding-top", "4px", styleDict)
+
 	addStyle("._a6-g", "margin-top", "12px", styleDict)
 	addStyle("._a6-g", "border-radius", "16px", styleDict)
 	addStyle("._a6-g", "position", "relative", styleDict)
 	addStyle("._a7nf", "column-gap", "12px", styleDict)
-	addStyle("._bot4", "padding-bottom", "4px", styleDict)
 	addStyle("._top0", "padding-top", "0px", styleDict)
 	addStyle("._a706", 'margin-top', '-12px', styleDict)
 	addStyle("._a705", 'max-width', '800px', styleDict)

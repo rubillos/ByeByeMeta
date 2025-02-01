@@ -1,7 +1,7 @@
-# FB-Processor - Facebook Data Cleaner
+# FB-Processor - Facebook/Instagram Data Cleaner
 [Background](#background)<br>
 [Features](#features)<br>
-[Getting your data from Facebook](#data)<br>
+[Getting your data from Facebook/Instagram](#data)<br>
 [Making the Output folder](#outputfolder)<br>
 [Getting the script](#script)<br>
 [Running the script](#running)<br>
@@ -14,13 +14,12 @@ With the moderation changes and general move towards the far-right of Meta's pro
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
 
-Below are instructions for downloading your posts from Facebook and for running the FB-Processor script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook, I'm pretty sure you can handle running the script.
+Below are instructions for downloading your posts from Facebook/Instagram and for running the FB-Processor script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
 
 **Note:** Currently the script only runs on a Mac. If you're on Windows, contact me and I'll work with you to get a Windows version working.
 
 ## <a name="features"></a>Features
-* Takes the data dump that you can download from Facebook and turns it into a navigable web page where you can see and search all of your posts.
-    * (Instagram version coming soon)
+* Takes the data dump that you can download from Facebook/Instagram and turns it into a navigable web page where you can see and search all of your posts.
 * Merges posts, uncategorized entries, photos, and videos into a single collection.
 * Cleans up the HTML significantly
 * Provides a navigation bar for quickly getting to any portion of any year.
@@ -28,7 +27,7 @@ Below are instructions for downloading your posts from Facebook and for running 
 * Provides a method for omitting specific posts.
 * You can see "Memories" - posts with today's month and year by appending "?memories" to the URL.
 
-## <a name="data"></a>Getting your data from Facebook
+## <a name="data"></a>Getting your data from Facebook/Instagram
 From your Facebook page on a Mac browser:
 1. Click you account icon in the uper right corner.
 2. Click "Settings & privacy"
@@ -37,7 +36,7 @@ From your Facebook page on a Mac browser:
 5. Click "Your information and permissions"
 6. Click "Download your information"
 7. Click "Download or transfer information"
-8. Click the checkbox next to your Facebook account
+8. Click the checkbox next to your Facebook/Instagram account that you want to download
 9. Click "Next"
 10. Click "Specific types of information"
 11. Click the "Posts" checkbox
@@ -46,11 +45,11 @@ From your Facebook page on a Mac browser:
 14. Make sure "Format" is set to "HTML"
 15. Click "Media quality", then click "High", then "Save"
 
-You'll now see a page saying that your information has been requested. It will take a little time for Facebook to process everything, usuualy just a few minutes. You'll get an email and a Facebook notification when your data is ready. When you receive it, select the notification, then:
+You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usuualy just a few minutes. You'll get an email and a notification when your data is ready. When you receive it, select the notification, then:
 
 1. Follow the notification and click the "Download" button.
 2. Locate the downloaded .zip file and double click it.
-3. You should now have a folder named something like "facebook-yourlastname-date-someletters"
+3. You should now have a folder named something like "facebook-username-date-someletters" or "instagram-username-date-someletters".
 
 ## <a name="script"></a>Getting the script
 
@@ -73,7 +72,7 @@ This should download a file to your computer. Double click the file to un-zip it
 5. Bring the Terminal window to the front and press `return`.
 
 You will be presented with two `Open File` dialogs.
-- The first one asks you to locate the `your_facebook_activity` folder inside the Facebook data download folder.
+- The first one asks you to locate the `your_facebook_activity` or `your_instagram_activity` folder inside the data download folder.
 - The second asks you to locate the `Output Folder` you created above.
 
 At this point the script will run, printing out progress information and copying/renaming the media files.
@@ -105,4 +104,4 @@ The script will run again, omitting the specified entries. Once it has finished 
 You can repeat steps 1 through 4 above, editing the list of omitted entries as desired to curate your final page.
 
 ## <a name="done"></a>Done!
-You now have an archive of your Facebook posts that you can look at locally on your computer, or you can host it on the web through a hosting provider.
+You now have an archive of your Facebook/Instagram posts that you can look at locally on your computer, or you can host it on the web through a hosting provider.
