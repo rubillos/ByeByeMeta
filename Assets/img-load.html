@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Screen Div</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        .full-screen-div {
+            height: 100%;
+            width: 100%;
+            background-color: gray;
+        }
+        .full-screen-img {
+            display: block;
+            margin: auto;
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+        }
+        .close-x {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 4px 10px;
+            font-size: 36px;
+            color: white;
+            text-shadow: -1px -1px 0 gray, 1px -1px 0 gray, -1px 1px 0 gray, 1px 1px 0 gray;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const imgSrc = urlParams.get('src');
+            if (imgSrc) {
+                document.getElementById('main-img').src = "../" + imgSrc;
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="full-screen-div">
+        <div class="close-x" onclick="window.close()">
+            ⓧ
+        </div>
+        <img id="main-img" alt="Full Screen Image" class="full-screen-img">
+    </div>
+</body>
+</html>

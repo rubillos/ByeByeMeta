@@ -128,7 +128,7 @@ function showEIndex(event) {
 function showImage(event) {
 	const element = event.currentTarget;
 	const src = element.getAttribute('src');
-	window.open(src, '_blank');
+	window.open(`assets/img-load.html?src=${encodeURIComponent(src)}`, '_blank');
 }
 
 var mouseIsDown = false;
