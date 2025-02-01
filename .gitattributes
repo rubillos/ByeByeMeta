@@ -1,0 +1,5 @@
+# exclude .gitignore and similar from the generated tarball
+.git*           export-ignore
+.vscod*           export-ignore
+localserver.command     export-ignore
+Workspace.code-workspace     export-ignore
