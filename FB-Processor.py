@@ -165,32 +165,34 @@ def processData():
 	# --------------------------------------------------
 
 	def mergeAlbumSoup(albumSoup):
-		albumList = list(albumSoup.find("div", class_="_a6-g").parent.children)
-		for entry in albumList:
-			skip = False
-			imgs = entry.find_all(["img", "video"])
-			for img in imgs:
-				src = os.path.basename(img['src'])
-				if src in usedFiles:
-					skip = True
-					break
-				else:
-					usedFiles.add(src)
-			if not skip:
-				entry.extract()
-				tab = entry.find('table')
-				if (tab != None):
-					tab.decompose()
-				if len(list(entry.children)) == 2:
-					newDiv = soup2.new_tag("div")
-					label = entry.find("div", class_= "_3-95")
-					if label != None and label.string != None:
-						newDiv.string = label.string
+		firstDiv =albumSoup.find("div", class_="_a6-g")
+		if firstDiv:
+			albumList = list(firstDiv.parent.children)
+			for entry in albumList:
+				skip = False
+				imgs = entry.find_all(["img", "video"])
+				for img in imgs:
+					src = os.path.basename(img['src'])
+					if src in usedFiles:
+						skip = True
+						break
 					else:
-						newDiv.string = " "
-					newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
-					entry.insert(0, newDiv)
-				mainEntries.append(entry)
+						usedFiles.add(src)
+				if not skip:
+					entry.extract()
+					tab = entry.find('table')
+					if (tab != None):
+						tab.decompose()
+					if len(list(entry.children)) == 2:
+						newDiv = soup2.new_tag("div")
+						label = entry.find("div", class_= "_3-95")
+						if label != None and label.string != None:
+							newDiv.string = label.string
+						else:
+							newDiv.string = " "
+						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+						entry.insert(0, newDiv)
+					mainEntries.append(entry)
 
 	print("Merge Photos")
 	photosSrcFile = os.path.join(srcFolder, postsFolder, yourPhotos) 
