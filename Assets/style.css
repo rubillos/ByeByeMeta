@@ -6,6 +6,8 @@
 	left: 0;
 	width: 10vw;
 	height: calc(100% - 20px);
+	z-index: 1000;
+	cursor: move;
 }
 
 #indicator {
@@ -22,11 +24,17 @@
 }
 
 #indicator-line {
-	height: 2px;
+	height: 3px;
 	width: 100%;
 	background-color: rgb(255, 0, 0);
 	padding: 0;
 	margin: 0;
+}
+
+@media (orientation: portrait) {
+	#indicator-line {
+		height: 6px;
+	}
 }
 
 #year-column {
@@ -85,15 +93,55 @@
 	font-size: 15px;
 	font-weight: bold;
 	flex: 1;
+	cursor: move;
 }
 
 .year-text {
 	margin: 0px;
 	padding: 0px 5px;
-	scale: calc((clamp(0, 0.2 - abs(var(--pos) - var(--indicator)), 0.2) / 0.2) * 1.0 + 1);
 	transform-origin: 0% 50%;
+	cursor: move;
+}
+
+@media (orientation: portrait) {
+	.year-text {
+		scale: 2.0 3.0;
+	}
+
+	._a705 {
+		max-width: 88vw;
+	}
+}
+
+@media (orientation: landscape) {
+	.year-text {
+		scale: calc((clamp(0, 0.2 - abs(var(--pos) - var(--indicator)), 0.2) / 0.2) * 1.0 + 1);
+	}
 }
 
 .year-div:not(:last-child) {
     border-bottom: 1px solid #000; /* Apply border-bottom to all except the last child */
+}
+
+.year-mark {
+	background-color: gray;
+	margin-top: 12px;
+	padding: 10px;
+	font-size: 24px;
+	font-weight: 800;
+	color: white;
+	position: relative;
+	text-align: center;
+}
+
+.tooltip {
+	left: 0px;
+	top: 0px;
+	position: absolute;
+	width: 100%;
+	text-align: center;
+}
+
+img._a6_o {
+	cursor: pointer;
 }
