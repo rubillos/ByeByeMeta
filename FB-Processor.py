@@ -4,6 +4,8 @@
 # pip3 install beautifulsoup4
 # pip3 install dateutil
 # pip3 install requests
+# pip3 install Pillow
+# pip3 install opencv-python
 
 from bs4 import BeautifulSoup, NavigableString
 import re
@@ -11,6 +13,9 @@ from dateutil.parser import parse
 from enum import Enum
 import subprocess, sys, os, shutil
 import requests
+import argparse
+from PIL import Image
+import cv2
 
 assetsFolder = "assets"
 entryFolder = "entries"
@@ -29,6 +34,16 @@ yourVideos = "your_videos.html"
 albumsFolderName = "album"
 
 staticPrefix = "https://static."
+
+parser = argparse.ArgumentParser(description='Process FB Data Download')
+
+parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activity folder>", type=str, default=None)
+parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
+
+parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
+parser.add_argument("-x", "--exclude", dest="exclude", help="List of comma separated numbers to exclude", type=str, default="")
+
+args = parser.parse_args()
 
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -77,10 +92,19 @@ def copyFile(srcPath, dstPath):
 		return False
 
 def processData():
-	srcFolder = getFolder("Select the <your_facebook_activity folder>:")
+	if args.srcFolder != None:
+		srcFolder = args.srcFolder
+	else:
+		srcFolder = getFolder("Select the <your_facebook_activity folder>:")
+
 	if srcFolder == None:
 		return
-	dstFolder = getFolder("Select the destination folder:")
+	
+	if args.dstFolder != None:
+		dstFolder = args.dstFolder
+	else:
+		dstFolder = getFolder("Select the destination folder:")
+
 	if dstFolder == None:
 		return
 
@@ -260,6 +284,14 @@ def processData():
 	def convertToDatetime(dateStr, parserinfo=None):
 		return parse(dateStr, parserinfo=parserinfo)
 
+	firstDiv = soup.body.find("div")
+	removeClass(firstDiv, "clearfix")
+	removeClass(firstDiv, "_ikh")
+	secondDiv = firstDiv.find("div")
+	removeClass(secondDiv, "_4bl9")
+	thirdDiv = secondDiv.find("div")
+	removeClass(thirdDiv, "_li")
+
 	entries = soup.find_all("div", class_="_a6-g")
 	entryOuter = entries[0].parent
 	for entry in entries:
@@ -353,6 +385,20 @@ def processData():
 	cleanTag(soup.body)
 
 	# --------------------------------------------------
+	print("Add entry numbers")
+
+	xlist = args.exclude.split(",")
+	toDelete = []
+	entries = soup.find_all("div", class_="_a6-g")
+	for i, entry in enumerate(entries):
+		entry['eix'] = i
+		if str(i) in xlist:
+			toDelete.append(entry)
+
+	for item in toDelete:
+		item.decompose()
+
+	# --------------------------------------------------
 	print("Remove duplicate and birthday tags")
 
 	entries = soup.find_all("div", class_="_a6-g")
@@ -366,10 +412,11 @@ def processData():
 				if len(divs)==2:
 					if str(divs[0].string)==str(divs[1].string):
 						divs[1].decompose()
-				for string in div1.strings:
-					if re.match("^ha+p{2,}y .*birthday.*", string, re.IGNORECASE):
-						toDelete.append(entry)
-						break
+				if not args.birthdays:
+					for string in div1.strings:
+						if re.match("^ha+p{2,}y .*birthday.*", string, re.IGNORECASE):
+							toDelete.append(entry)
+							break
 	for item in toDelete:
 		item.decompose()
 		entries.remove(item)
@@ -452,6 +499,17 @@ def processData():
 	print("There are", len(allIDs), "ids")
 
 	# --------------------------------------------------
+	print("Remove img href wrappers")
+
+	alist = soup.find_all("a")
+	for a in alist:
+		imgs = a.find_all("img")
+		if len(imgs) == 1:
+			img = imgs[0]
+			if img.parent.name == "a":
+				img.parent.unwrap()
+
+	# --------------------------------------------------
 	print("Renaming and organizing media files", end="", flush=True)
 
 	yearCounts = {}
@@ -465,6 +523,29 @@ def processData():
 	srcMediaPath = "/".join(srcFolder.split("/")[:-1])
 	copyCount = 0
 
+	def yearDivWithYear(year):
+		yearDiv = soup.new_tag("div")
+		yearDiv.string = str(year)
+		yearDiv['class'] = "year-mark"
+		return yearDiv
+	
+	def dimensionsOfImage(path):
+		image = Image.open(path)
+		if image is not None:
+			return image.size
+		else:
+			return 0, 0
+		
+	def dimensionsOfVideo(path):
+		cap = cv2.VideoCapture(path)
+		if cap.isOpened():
+			width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+			height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+			cap.release()
+			return width, height
+		else:
+			return 0, 0
+
 	for entry in entries:
 		date = entry.itemdate
 		yearMonth = date.year*100 + date.month
@@ -472,7 +553,8 @@ def processData():
 			yearCounts[date.year] += 1
 		else:
 			yearCounts[date.year] = 1
-			addClass(entry, "year-mark")
+			entry.insert_before(yearDivWithYear(date.year))
+		addClass(entry, "d" + str(date.month*100 + date.day))
 
 		imgs = entry.find_all(["img", "video"])
 		if (len(imgs) > 0):
@@ -489,13 +571,22 @@ def processData():
 					allNewNames.add(newName)
 					fileRename[oldName] = newName
 					tagimg['src'] = newName
-					if tagimg.parent.name == "a":
-						tagimg.parent['href'] = newName
-					if copyFile(os.path.join(srcMediaPath, oldName), os.path.join(dstFolder, newName)):
+					destPath = os.path.join(dstFolder, newName)
+					copyFile(os.path.join(srcMediaPath, oldName), destPath)
 						# print(f"Copied {oldName} to {newName}")
-						copyCount += 1
-						if copyCount % 10 == 1:
-							print(".", end="", flush=True)
+					width = 0
+					height = 0
+					if tagimg.name == 'img':
+						width, height = dimensionsOfImage(destPath)
+					elif tagimg.name == 'video':
+						width, height = dimensionsOfVideo(destPath)
+					if width > 0:
+						tagimg['width'] = width
+						tagimg['style'] = f"aspect-ratio:{width}/{height};"
+						tagimg['loading'] = "lazy"
+					copyCount += 1
+					if copyCount % 10 == 1:
+						print(".", end="", flush=True)
 					oldNameTotal += len(oldName)
 					newNameTotal += len(newName)
 
@@ -526,6 +617,10 @@ def processData():
 						print(f"Downloaded {src} to {destPath}")
 					else:
 						print(f"Failed to download {src}")
+				width, height = dimensionsOfImage(destPath)
+				if width > 0:
+					img['width'] = width
+					img['style'] = f"aspect-ratio:{width}/{height};"
 			else:
 				print("Unknown static image type:", src)
 		elif src.startswith("http"):
@@ -533,6 +628,8 @@ def processData():
 
 	# --------------------------------------------------
 	print("Split entries into blocks")
+
+	entries = soup.find_all("div", class_=["_a6-g", "year-mark"])
 
 	entryCount = len(entries)
 	itemsPerBlock = 200
@@ -596,12 +693,17 @@ def processData():
 	removeStyle("._a72d", "padding-bottom", styleDict)
 	removeStyle("._a7ng", "padding-right", styleDict)
 	removeStyle("._3-96", "margin-bottom", styleDict)
+	removeStyle("._a706", "width", styleDict)
+	removeStyle("._a706", "float", styleDict)
 
 	addStyle("._a6-g", "margin-top", "12px", styleDict)
 	addStyle("._a6-g", "border-radius", "16px", styleDict)
+	addStyle("._a6-g", "position", "relative", styleDict)
 	addStyle("._a7nf", "column-gap", "12px", styleDict)
 	addStyle("._bot4", "padding-bottom", "4px", styleDict)
 	addStyle("._top0", "padding-top", "0px", styleDict)
+	addStyle("._a706", 'margin-top', '-12px', styleDict)
+	addStyle("._a705", 'max-width', '800px', styleDict)
 
 	keysToDelete = []
 	for key in styleDict.keys():
