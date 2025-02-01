@@ -7,6 +7,9 @@
 # pip3 install Pillow
 # pip3 install opencv-python
 
+# for Windows only:
+# pip3 install windows-filedialogs
+
 from bs4 import BeautifulSoup, NavigableString
 import re
 from dateutil.parser import parse
@@ -16,6 +19,7 @@ import requests
 import argparse
 from PIL import Image
 import cv2
+import platform
 
 assetsFolder = "assets"
 entryFolder = "entries"
@@ -58,18 +62,20 @@ args = parser.parse_args()
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 def getFolder(message):
-	command = f"folderPath=$(osascript -e \'choose folder with prompt \"{message}\"'); if [ -z \"$folderPath\" ]; then exit 1; fi; echo \"$folderPath\""
-	result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	
-	results = result.stdout.decode("utf-8").split("\n")
-	if len(results) > 1:
-		if "User canceled." in results[1]:
-			path = None
-		else:
-			path = results[1].removeprefix("alias ")
-			path = "/"+"/".join(path.split(":")[1:-1])
+	path = None
+
+	if platform.system() == "Windows":
+		from filedialogs import open_folder_dialog
+		path = open_folder_dialog(title=message)
 	else:
-		path = None
+		command = f"folderPath=$(osascript -e \'choose folder with prompt \"{message}\"'); if [ -z \"$folderPath\" ]; then exit 1; fi; echo \"$folderPath\""
+		result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+		
+		results = result.stdout.decode("utf-8").split("\n")
+		if len(results) > 1:
+			if not "User canceled." in results[1]:
+				path = results[1].removeprefix("alias ")
+				path = "/"+"/".join(path.split(":")[1:-1])
 	
 	return path
 

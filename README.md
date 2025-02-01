@@ -16,7 +16,7 @@ But I have quite a bit of history accumulated on Facebook that I don't want to l
 
 Below are instructions for downloading your posts from Facebook/Instagram and for running the FB-Processor script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
 
-**Note:** Currently the script only runs on a Mac. If you're on Windows, contact me and I'll work with you to get a Windows version working.
+**Note:** This script has been tested on a Mac. There is code to handle Windows, but it is untested. If someone tries it on Windows, let me know how it goes!
 
 ## <a name="features"></a>Features
 * Takes the data dump that you can download from Facebook/Instagram and turns it into a navigable web page where you can see and search all of your posts.
