@@ -10,7 +10,7 @@
 [Done!](#done)
 
 ## <a name="background"></a>Background
-With the moderation changes and general move towards the far-right of the Meta products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky](https://bsky.app/profile/ubillos.bsky.social)
+With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky](https://bsky.app/profile/ubillos.bsky.social)
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
 
@@ -19,13 +19,13 @@ Below are instructions for performing your download and for running the FB-Proce
 **Note:** Currently the script only runs on a Mac. If you're on Windows, contact me and I'll work with you to get a Windows version working.
 
 ## <a name="features"></a>Features
-* Takes the data dump that you can download from FaceBook and turns it into a navigable web page where you can see and search all of your posts.
+* Takes the data dump that you can download from Facebook and turns it into a navigable web page where you can see and search all of your posts.
     * (Instagram version coming soon)
 * Merges posts, uncategorized entries, photos, and videos into a single collection.
 * Cleans up the HTML significantly
-* Provides a navigation bar for quickly getting to any potion of any year.
+* Provides a navigation bar for quickly getting to any portion of any year.
 * Removes duplicate entries.
-* Provides a method for ommiting specific posts.
+* Provides a method for omiting specific posts.
 * You can see "Memories" - posts with today's month and year by appending "?memories" to the URL.
 
 ## <a name="data"></a>Getting your data from Facebook
@@ -45,9 +45,8 @@ From your Facebook page on a Mac browser:
 13. Click "Date range:, then click "All time", then "Save"
 14. Make sure "Format" is set to "HTML"
 15. Click "Media quality", then click "High", then "Save"
-16. Click the box for "Mobile compatible media"
 
-You'll now see a page saying that your information has been requesdted. It will take a little time for Facebook to process everything, usuualy just a few minutes. You'll get an email and a Facebook notification when your data is ready. When you receive it, select the notification, then:
+You'll now see a page saying that your information has been requested. It will take a little time for Facebook to process everything, usuualy just a few minutes. You'll get an email and a Facebook notification when your data is ready. When you receive it, select the notification, then:
 
 1. Follow the notification and click the "Download" button.
 2. Locate the downloaded .zip file and double click it.
@@ -55,6 +54,11 @@ You'll now see a page saying that your information has been requesdted. It will 
 
 ## <a name="script"></a>Getting the script
 
+1. Go to the <a href="https://github.com/rubillos/FBProcessor/releases" target="_blank">Releases page on Github</a>
+2. If no files are shown below "Assets", click the triangle.
+3. Click the `Source code (zip)` link
+
+This should download a file to your computer. Double click the file to un-zip it. The resulting folder is the `Script Folder`, double click it to open it.
 
 ## <a name="outputfolder"></a>Making the Output folder
 
@@ -64,10 +68,9 @@ You'll now see a page saying that your information has been requesdted. It will 
 
 1. Locate the app "Terminal" in the Utilities folder in the Applications folder; double click it.
 2. From the Script folder, drag the file `install-packages.sh` to the Terminal window.
-3. Bring the Terminal window to the front and press `return`
-    (This will install necessary libraries)
+3. Bring the Terminal window to the front and press `return`. This will install necessary libraries.
 4. From the Script folder, drag the file `FB-Processor.py` to the Terminal window.
-5. Bring tyhe Terminal window to the front and press `return`
+5. Bring tyhe Terminal window to the front and press `return`.
 
 You will be presented with two `Open File` dialogs.
 - The first one asks you to locate the `your_facebook_activity` folder inside the Facebook data download folder.
