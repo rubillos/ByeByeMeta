@@ -5,6 +5,10 @@ var entryCount = 0;
 var navOffsets = [0];
 var yearOffsets = [0];
 
+const showMemories = new URLSearchParams(window.location.search).has('memories');
+const currentDate = new Date();
+const currentMonthDay = (currentDate.getMonth() + 1) * 100 + currentDate.getDate();
+
 function interpolate(inputValues, outputValues) {
 	return function(value) {
 		if (value <= inputValues[0]) return outputValues[0];
@@ -19,13 +23,26 @@ function interpolate(inputValues, outputValues) {
 	};
 }
 
+function hideShowMemories(containerDiv) {
+	if (showMemories) {
+		for (entry in containerDiv.children) {
+			var monthDay = entry.getAttribute('monthday');
+			monthDay = (monthDay) ? parseInt(entry.getAttribute('monthday')) : 0;
+			if (currentMonthDay = monthDay) {
+				entry.style.display = "none";
+			}
+		}
+	}
+}
+
 const getOffsetForNav = interpolate(navOffsets, yearOffsets);
 const getNavForOffset = interpolate(yearOffsets, navOffsets);
 
-function updateYearBackground() {
+function updateYearBackground(durationMS) {
 	if (yearsReady) {
 		const background = document.getElementById('year-background');
 		const numEntries = parseInt(window.numEntries);
+		background.style.transition = `height ${(durationMS / 1000.0)}s linear`;
 		background.style.height = (entryCount/numEntries*100) + '%';
 	}
 }
@@ -34,13 +51,17 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	var activeTask = null;
 	var index = 1;
 	var checkDom = true;
+	var startTime = Date.now();
+	var targetDiv = document.querySelector('._a706');
+
+	hideShowMemories(targetDiv);
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(htmlText, 'text/html');
-			const entriesDiv = doc.querySelector('div');
-			const targetDiv = document.querySelector('._a706');
+			var entriesDiv = doc.querySelector('div');
+			var targetDiv = document.querySelector('._a706');
 
 			if (priorTask !== null) {
 				await priorTask;
@@ -51,9 +72,12 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 				checkDom = false;
 			}
 
+			hideShowMemories(entriesDiv);
 			targetDiv.appendChild(entriesDiv);
 			entryCount += entriesDiv.children.length;
-			updateYearBackground();
+			var curTime = Date.now();
+			updateYearBackground((index<filePaths.length-1) ? curTime - startTime : 0.2);
+			startTime = curTime;
 		};
 
 		const response = await fetch(filePath);
@@ -65,21 +89,20 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	await activeTask;
 
-	document.getElementById('year-back-bottom').style.display = "block";
+	yearBack = document.getElementById('year-background');
+	yearBackTop = document.getElementById('year-back-top');
+	yearBackBottom = document.getElementById('year-back-bottom');
 
-	const showMemories = new URLSearchParams(window.location.search).has('memories');
+	yearBack.style.transition = 'background-color 300ms';
+	yearBackTop.style.transition = 'background-color 300ms';
+	yearBackBottom.style.transition = 'display 300ms';
+
+	yearBack.style.backgroundColor = 'lightgray';
+	yearBackTop.style.backgroundColor = 'lightgray';
+	yearBackBottom.style.display = "block";
+
 	const yearElements = document.querySelectorAll('.year-mark');
 
-	const currentDate = new Date();
-	if (showMemories) {
-		var currentMonthDay = (currentDate.getMonth() + 1) * 100 + currentDate.getDate();
-		document.querySelectorAll('._a6-g').forEach(element => {
-			element.style.display = 'none';
-		});
-		document.querySelectorAll(`.d${currentMonthDay}`).forEach(element => {
-			element.style.display = 'block';
-		});
-	}
 	yearElements.forEach((mark, index) => {
 		if (index > 0) {
 			yearOffsets.push(mark.offsetTop);
@@ -106,6 +129,36 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	});
 	document.querySelectorAll('img._a6_o').forEach(element => {
 		element.onclick = showImage;
+	});
+
+	const imgUrls = [];
+	document.querySelectorAll('img').forEach(img => {
+		imgUrls.push(img.getAttribute('src'));
+	});
+	sessionStorage.setItem('img_urls', imgUrls);;
+
+	document.addEventListener('keydown', function(event) {
+		if (event.key === 'Enter' || event.key === 'ArrowRight') {
+			const images = document.querySelectorAll('img._a6_o');
+			const middleY = window.innerHeight / 2;
+			let closestImage = null;
+			let closestDistance = Infinity;
+
+			images.forEach(img => {
+				const rect = img.getBoundingClientRect();
+				const imgMiddleY = rect.top + rect.height / 2;
+				const distance = Math.abs(imgMiddleY - middleY);
+
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestImage = img;
+				}
+			});
+
+			if (closestImage) {
+				showImage({ currentTarget: closestImage });
+			}
+		}
 	});
 }
 

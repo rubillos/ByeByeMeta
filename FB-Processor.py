@@ -2,6 +2,7 @@
 
 # pip3 install --upgrade pip
 # pip3 install beautifulsoup4
+# pip3 install lxml
 # pip3 install dateutil
 # pip3 install requests
 # pip3 install Pillow
@@ -65,7 +66,7 @@ def getFolder(message):
 	path = None
 
 	if platform.system() == "Windows":
-		from filedialogs import open_folder_dialog
+		from filedialogs import open_folder_dialog # type: ignore   - for MacOS
 		path = open_folder_dialog(title=message)
 	else:
 		command = f"folderPath=$(osascript -e \'choose folder with prompt \"{message}\"'); if [ -z \"$folderPath\" ]; then exit 1; fi; echo \"$folderPath\""
@@ -142,11 +143,14 @@ def processData():
 	# --------------------------------------------------
 	print("Open Main Data File")
 
+	srcDataCount = 0
+
 	if isFacebook:
 		mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName)
 	else:
 		mainSrcFile = os.path.join(srcFolder, contentFolder, igPostsName)
 
+	srcDataCount += os.path.getsize(mainSrcFile)
 	with open(mainSrcFile) as fp:
 		soup = BeautifulSoup(fp, 'lxml')
 
@@ -193,19 +197,21 @@ def processData():
 		for img in imgs:
 			src = img['src']
 			if not src.startswith("http"):
-				usedFiles.add(os.path.basename(src))
+				usedFiles.add(src)
 
 	# --------------------------------------------------
 
-	def mergeAlbumSoup(albumSoup):
-		firstDiv =albumSoup.find("div", class_="_a6-g")
+	def mergeAlbumSoup(albumSoup, name):
+		firstDiv = albumSoup.find("div", class_="_a6-g")
 		if firstDiv:
 			albumList = list(firstDiv.parent.children)
+			listCount = len(albumList)
+			addedCount = 0
 			for entry in albumList:
 				skip = False
 				imgs = entry.find_all(["img", "video"])
 				for img in imgs:
-					src = os.path.basename(img['src'])
+					src = img['src']
 					if src in usedFiles:
 						skip = True
 						break
@@ -216,8 +222,8 @@ def processData():
 					tab = entry.find('table')
 					if (tab != None):
 						tab.decompose()
-					if len(list(entry.children)) == 2:
-						newDiv = soup2.new_tag("div")
+					if len(entry.contents) == 2:
+						newDiv = soup.new_tag("div")
 						label = entry.find("div", class_= "_3-95")
 						if label != None and label.string != None:
 							newDiv.string = label.string
@@ -226,36 +232,32 @@ def processData():
 						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
 						entry.insert(0, newDiv)
 					mainEntries.append(entry)
+					addedCount += 1
+			print("Added", addedCount, "out of", listCount, "entries from the album", name)
+
+	def mergeSoupFile(soupPath):
+		nonlocal srcDataCount
+		srcDataCount += os.path.getsize(soupPath)
+		with open(soupPath) as fp:
+			soup2 = BeautifulSoup(fp, 'lxml')
+			mergeAlbumSoup(soup2, os.path.basename(soupPath))
 
 	if isFacebook:
 		print("Merge Photos")
-		photosSrcFile = os.path.join(srcFolder, postsFolder, yourPhotos) 
-		with open(photosSrcFile) as fp:
-			soup2 = BeautifulSoup(fp, 'lxml')
-			mergeAlbumSoup(soup2)
+		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
 
 		print("Merge Videos")
-		videosSrcFile = os.path.join(srcFolder, postsFolder, yourVideos) 
-		with open(videosSrcFile) as fp:
-			soup2 = BeautifulSoup(fp, 'lxml')
-			mergeAlbumSoup(soup2)
+		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
 
 		print("Merge Other Posts")
-		otherSrcFile = os.path.join(srcFolder, postsFolder, otherPostsName) 
-		with open(otherSrcFile) as fp:
-			soup2 = BeautifulSoup(fp, 'lxml')
-			mergeAlbumSoup(soup2)
+		mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
 
 		albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
 		albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
 
 		print("Merge", len(albumFiles), "albums")
-
 		for albumFile in albumFiles:
-			albumSrcFile = os.path.join(albumsFolder, albumFile)
-			with open(albumSrcFile) as fp:
-				soup4 = BeautifulSoup(fp, 'lxml')
-				mergeAlbumSoup(soup4)
+			mergeSoupFile(os.path.join(albumsFolder, albumFile))
 
 	# --------------------------------------------------
 	print("Remove unneeded elements")
@@ -292,8 +294,7 @@ def processData():
 
 	def isAPlace(tag):
 		if (tag.name == "div"):
-			kids = list(tag.children)
-			if len(kids) == 1 and isinstance(kids[0], NavigableString):
+			if len(tag.contents) == 1 and isinstance(tag.contents[0], NavigableString):
 				if tag.string.startswith("Place: "):
 					return True
 		return False
@@ -314,10 +315,14 @@ def processData():
 	print("Reformat entries")
 
 	def addClass(tag, c):
-		classes = tag['class']
-		if c not in classes:
-			classes.append(c)
-			tag['class'] = classes
+		if isinstance(c, list):
+			for cls in c:
+				addClass(tag, cls)
+		else:
+			classes = tag['class']
+			if c not in classes:
+				classes.append(c)
+				tag['class'] = classes
 
 	def removeClass(tag, c):
 		classes = tag['class']
@@ -344,10 +349,11 @@ def processData():
 			if len(kids) == 3 and kids[0].string != None:
 				twop = kids[1].find_all("div", class_="_2pin")
 				if len(twop) == 2:
-					subkids = list(twop[1].children)
-					if len(subkids) == 2:
-						kids[0].string.replace_with(", ".join(list(subkids[0].strings)))
-						twop[1].decompose()
+					if len(twop[1].contents) == 2 and isinstance(twop[1].contents[0], NavigableString):
+						kids[0].string.replace_with(twop[1].contents[0])
+						twop[1].contents[0].extract()
+						# kids[0].string.replace_with(", ".join(list(twop[1].contents[0].strings)))
+						# twop[1].decompose()
 				removeClass(kids[0], "_a6-i")
 				addClass(kids[0], "_bot4")
 				addClass(kids[1], "_3-94")
@@ -380,15 +386,13 @@ def processData():
 				a6o = entry.find_all("div", class_="_a6-o")
 				if len(a6o) == 1:
 					entry.itemdate = convertToDatetime(str(a6o[0].string))
-				kids = list(entry.children)
-				if len(kids) == 2:
+				if len(entry.contents) == 2:
 					newDiv = soup.new_tag("div")
 					newDiv.string = " "
 					newDiv['class'] = ["_2ph_", "_a6-h"]
 					entry.insert(0, newDiv)
-					kids = list(entry.children)
 				entry.insert(1, a6o[0].extract())
-				if len(kids) == 3:
+				if len(entry.contents) == 3:
 					addClass(kids[0], "_top4")
 					addClass(kids[2], "_top0")
 
@@ -410,7 +414,8 @@ def processData():
 		re.compile(".* shared an album\."),
 		re.compile(".* added a new video.*\."),
 		re.compile(".* added a new photo.*\."),
-		re.compile(".* shared a memory\.")
+		re.compile(".* shared a memory\."),
+		re.compile(".* posted something via Facebook.*\.")
 	])
 	for heading in headings:
 		heading.string.replace_with("")
@@ -422,33 +427,39 @@ def processData():
 		Ok = 0
 		Remove = 1
 		Unwrap = 2
+		Merge = 3
+
+	simpleDivCount = 0
 
 	def cleanTag(tag, indent=0):
-		kids = list(tag.children)
+		nonlocal simpleDivCount
+
 		classCount = 0
-		try:
-			classCount = len(tag['class'])
-		except KeyError:
-			pass
-		haveString = False
-		for subTag in reversed(kids):
-			if isinstance(subTag, NavigableString):
-				haveString = True
-			else:
+		classes = tag.get('class')
+		if classes:
+			classCount = len(classes)
+		for subTag in reversed(tag.contents):
+			if not isinstance(subTag, NavigableString):
 				result = cleanTag(subTag, indent+1)
 				if result == Clean.Remove:
 					subTag.decompose()
 				elif result == Clean.Unwrap:
 					subTag.unwrap()
-		count = len(list(tag.children))
-		if tag.name == "div" and count == 0 and classCount == 0:
+		count = len(tag.contents)
+		if tag.name == "div" and count == 0:
 			return Clean.Remove
-		elif tag.name == "div" and count == 1  and classCount == 0 and not haveString:
+		elif tag.name == "div" and classCount == 0:
 			return Clean.Unwrap
+		elif tag.name == "div" and count == 1 and tag.contents[0].name == "div":
+			simpleDivCount += 1
+			addClass(tag, tag.contents[0]['class'])
+			tag.contents[0].unwrap()			
+			return Clean.Ok
 		else:
 			return Clean.Ok
 
 	cleanTag(soup.body)
+	print("Cleaned", simpleDivCount, "simple divs")
 
 	# --------------------------------------------------
 	print("Add entry numbers")
@@ -475,39 +486,95 @@ def processData():
 		item.decompose()
 
 	# --------------------------------------------------
+	print("Remove Updated... strings")
+
+	isUpdated = re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m")
+	pin2s = soup.find_all("div", class_="_2pin")
+	for pin in pin2s:
+		for string in reversed(list(pin.strings)):
+			if isUpdated.match(string):
+				string.extract()
+
+	# --------------------------------------------------
+
+	def removeEmptyStrings():
+		print("Remove sequential and starting/ending empty strings")
+
+		emptyStringCount = 0
+
+		def isEmptyString(tag):
+			if isinstance(tag, NavigableString):
+				return tag.string == "" or tag.string == " "
+			else:
+				return tag.name and tag.name == "br"
+
+		entries = soup.find_all("div", class_="_a6-g")
+		for entry in entries:
+			pin2s = entry.find_all("div", class_="_2pin")
+			for pin in pin2s:
+				for i in range(len(pin.contents)-2, 0, -1):
+					if isEmptyString(pin.contents[i]) and isEmptyString(pin.contents[i+1]):
+						pin.contents[i].extract()
+						emptyStringCount += 1
+						
+				if len(pin.contents) > 0 and isEmptyString(pin.contents[0]):
+					pin.contents[0].extract()
+					emptyStringCount += 1
+				if len(pin.contents) > 0 and isEmptyString(pin.contents[-1]):
+					pin.contents[-1].extract()
+					emptyStringCount += 1
+		
+		print("Removed", emptyStringCount, "empty strings")
+
+	removeEmptyStrings()
+
+	# --------------------------------------------------
 	print("Remove duplicate and birthday tags")
 
+	isBirthday = re.compile("^ha+p{2,}y .*birthday.*", re.IGNORECASE)
+
 	entries = soup.find_all("div", class_="_a6-g")
-	toDelete = []
+	toDelete = set()
 	for entry in entries:
 		pin2 = entry.find_all("div", class_="_2pin")
 		for item in pin2:
-			div1 = item.find("div")
-			if div1 != None:
-				divs = div1.find_all("div")
-				if len(divs)==2:
-					if str(divs[0].string)==str(divs[1].string):
+			divs = item.find_all("div")
+			if len(divs)==2:
+				str1 = "".join(divs[0].stripped_strings)
+				if len(str1) > 0:
+					str2 = "".join(divs[1].stripped_strings)
+					if str1 == str2:
 						divs[1].decompose()
-				if not args.birthdays:
-					for string in div1.strings:
-						if re.match("^ha+p{2,}y .*birthday.*", string, re.IGNORECASE):
-							toDelete.append(entry)
-							break
+			if not args.birthdays:
+				for string in item.strings:
+					if isBirthday.match(string):
+						toDelete.add(entry)
+						break
+		atags = entry.find_all("a")
+		if len(atags) == 2:
+			if atags[0].string and len(atags[0].string) > 0 and atags[0].string == atags[1].string:
+				a0ParentString = "".join(atags[0].parent.stripped_strings)
+				a1ParentString = "".join(atags[1].parent.stripped_strings)
+				if len(a0ParentString) < len(a1ParentString):
+					atags[0].parent.decompose()
+				else:
+					atags[1].parent.decompose()
+
 	for item in toDelete:
 		item.decompose()
-		entries.remove(item)
 
 	print("Deleted", len(toDelete), "birthday entries")
 
 	# --------------------------------------------------
-	print("Remove Updated... strings")
-
-	pin2s = soup.find_all("div", string=re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m"))
-	for pin in pin2s:
-		pin.decompose()
-
-	# --------------------------------------------------
 	print("Clean up titles")
+
+	def tagIsEmpty(tag):
+		if len(tag.contents) == 0:
+			return True
+		elif len(tag.contents) == 1 and isinstance(tag.contents[0], NavigableString) and tag.contents[0].string == "":
+			return True
+		else:
+			return False
 
 	if isFacebook:
 		entries = soup.find_all("div", class_="_a6-g")
@@ -516,28 +583,35 @@ def processData():
 			a6p = entry.find("div", class_="_a6-p")
 			if a6h != None and a6p != None:
 				if a6h.string == "" or a6h.string == " ":
-					pin2s = a6p.find_all("div", class_="_2pin")
+					pin2s = entry.find_all("div", class_="_2pin")
 					if len(pin2s) > 0 and len(pin2s) <= 2:
-						last = len(pin2s) - 1
-						if pin2s[last].string != None:
-							a6h.string.replace_with(pin2s[last].string)
-							pin2s[last].decompose()
-						else:
-							newParts = []
-							for string in list(pin2s[last].strings):
-								if not string.startswith("http"):
-									if len(string)>0 and string != " ":
-										newParts.append(str(string))
-									string.extract()
-							if (len(newParts)):
-								a6h.string.replace_with(" ".join(newParts))
-							pin2s[last].decompose()
+						foundStrings = []
+						stringsToRemove = []
+						foundTitle = ""
+						for p2 in pin2s:
+							p2.smooth()
+							for string in list(p2.strings):
+								if len(string) > 0 and string != " " and not string.startswith("http"):
+									text = str(string)
+									if foundTitle == "":
+										foundTitle = text
+										foundStrings.append(text)
+										stringsToRemove.append(string)
+									elif text in foundStrings:
+										stringsToRemove.append(string)
+									else:
+										foundStrings.append(text)
+						if foundTitle != "":
+							a6h.string.replace_with(foundTitle)
+							for string in stringsToRemove:
+								string.extract()
+				if tagIsEmpty(a6h) and tagIsEmpty(a6p):
+					entry.decompose()
 			else:
-				clist = list(entry.children)
-				if len(clist) == 2:
+				if len(entry.contents) == 2:
 					pin2s = entry.find_all("div", class_="_2pin")
 					if len(pin2s) == 2 and pin2s[1].string != None:
-						second = clist[1]
+						second = entry.contents[1]
 						second.extract()
 						entry.insert(0, second)
 						newDiv = soup.new_tag("div")
@@ -545,6 +619,8 @@ def processData():
 						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
 						pin2s[1].decompose()
 						entry.insert(0, newDiv)	
+
+	removeEmptyStrings()
 
 	# --------------------------------------------------
 	print("Count tags")
@@ -598,7 +674,7 @@ def processData():
 
 	createFolder(os.path.join(dstFolder, mediaFolder))
 
-	srcMediaPath = "/".join(srcFolder.split("/")[:-1])
+	srcMediaPath = os.path.dirname(srcFolder)
 	
 	copyCount = 0
 
@@ -625,6 +701,23 @@ def processData():
 		else:
 			return 0, 0
 
+	def extractFirstFrameToFile(videoPath, posterPath):
+		vidcap = cv2.VideoCapture(videoPath)
+
+		fps = vidcap.get(cv2.CAP_PROP_FPS)
+		frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+		durationMS = frame_count * 1000 / fps
+		posterTimeMS = int(min(1000, durationMS / 2))
+		vidcap.set(cv2.CAP_PROP_POS_MSEC, posterTimeMS)
+
+		success, image = vidcap.read()
+		if success:
+			cv2.imwrite(posterPath, image)  # Save the frame as an image
+			return True
+		else:
+			return False
+
+	entries = soup.find_all("div", class_="_a6-g")
 	for entry in entries:
 		date = entry.itemdate
 		yearMonth = date.year*100 + date.month
@@ -643,26 +736,34 @@ def processData():
 					extension = oldName.split(".")[-1]
 					newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
 					newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
+					posterName = newName.replace("mp4", "jpg")
 					index = 2
-					while newName in allNewNames:
+					while newName in allNewNames or posterName in allNewNames:
 						newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+						posterName = newName.replace("mp4", "jpg")
 						index += 1
 					allNewNames.add(newName)
 					fileRename[oldName] = newName
 					tagimg['src'] = newName
 					destPath = os.path.join(dstFolder, newName)
 					copyFile(os.path.join(srcMediaPath, oldName), destPath)
-						# print(f"Copied {oldName} to {newName}")
 					width = 0
 					height = 0
 					if tagimg.name == 'img':
 						width, height = dimensionsOfImage(destPath)
+						tagimg['loading'] = "lazy"
 					elif tagimg.name == 'video':
 						width, height = dimensionsOfVideo(destPath)
+						width = int(width)
+						height = int(height)
+						if not extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
+							print(f"\nUnable to get poster frame for{destPath}\n")
+						tagimg['preload'] = "none"
+						tagimg['poster'] = posterName
+
 					if width > 0:
 						tagimg['width'] = width
 						tagimg['style'] = f"aspect-ratio:{width}/{height};"
-						tagimg['loading'] = "lazy"
 					copyCount += 1
 					if copyCount % 10 == 1:
 						print(".", end="", flush=True)
@@ -728,12 +829,6 @@ def processData():
 		newdiv.extend(items)
 		htmlBlocks.append(newdiv)
 	htmlBlocks[0] = soup
-
-	print("Number of entries:", len(entries))
-	print("Number of blocks:", len(htmlBlocks))
-	print("Block counts:", blockCounts)
-	print("Media items:", len(fileRename))
-	print("Total name usage went from", oldNameTotal, "to", newNameTotal)
 
 	# --------------------------------------------------
 	print("Fix styles")
@@ -819,8 +914,9 @@ def processData():
 		items = styleDict[key]
 		for itemKey in items.keys():
 			itemList.append(itemKey + ":" + items[itemKey])
-		listStr = ";".join(itemList)
-		styleList.append(key+"{"+listStr)
+		if len(itemList) > 0:
+			listStr = ";".join(itemList)
+			styleList.append(key+"{"+listStr)
 
 	styleList.append("")
 	newStyle = "}".join(styleList)
@@ -871,6 +967,13 @@ def processData():
 			with open(os.path.join(entriesPath, entryName.format(str(i))), "w") as f:
 				totalBytes += f.write(str(htmlBlocks[i]))
 
+	print("Number of entries:", len(entries))
+	print("Number of blocks:", len(htmlBlocks))
+	print("Block counts:", blockCounts)
+	print("Media items:", len(fileRename))
+	print("Total name usage went from", oldNameTotal, "to", newNameTotal)
+
+	print("Read", srcDataCount, "bytes")
 	print("Wrote", totalBytes, "bytes")
 
 if __name__ == '__main__':
