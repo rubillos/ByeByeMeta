@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Screen Div</title>
     <style>
+        body {
+            overflow: hidden;
+            /* overflow-y: hidden; */
+        }
         html, body {
             height: 100%;
             margin: 0;
         }
         .full-screen-div {
-            height: 100%;
-            width: 100%;
+            position: absolute;
+            height: 100dvh;
+            width: 100dvw;
             background-color: gray;
         }
         .full-screen-img {
@@ -20,6 +25,16 @@
             height: 100%;
             width: 100%;
             object-fit: contain;
+        }
+        #left-img {
+            position: absolute;
+            left: -100dvw;
+            cursor: pointer;
+        }
+        #right-img {
+            position: absolute;
+            right: -100dvw;
+            cursor: pointer;
         }
         .close-x {
             position: absolute;
@@ -36,9 +51,87 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const imgSrc = urlParams.get('src');
+            var imgSrc = urlParams.get('src');
             if (imgSrc) {
                 document.getElementById('main-img').src = "../" + imgSrc;
+            }
+            var imgUrls = sessionStorage.getItem('img_urls');
+            imgUrls = imgUrls.split(",");
+            function nextImage() {
+                var currentIndex = imgUrls.indexOf(imgSrc);
+                if (currentIndex < imgUrls.length - 1) {
+                    imgSrc = imgUrls[currentIndex + 1];
+                    document.getElementById('main-img').src = "../" + imgSrc;
+                }
+            }
+            function previousImage() {
+                var currentIndex = imgUrls.indexOf(imgSrc);
+                if (currentIndex > 0) {
+                    imgSrc = imgUrls[currentIndex - 1];
+                    document.getElementById('main-img').src = "../" + imgSrc;
+                }
+            }
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' || event.key === 'Enter') {
+                    window.close();
+                }
+                else if (imgUrls) {
+                    var currentIndex = imgUrls.indexOf(imgSrc);
+                    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                        previousImage();
+                    } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === ' ') {
+                        nextImage();
+                    }
+                }
+            });
+
+            document.addEventListener('touchstart', handleTouchStart, false);
+            document.addEventListener('touchend', handleTouchEnd, false);
+
+            var xDown = null;
+            var yDown = null;
+
+            function getTouches(evt) {
+                return evt.touches || evt.originalEvent.touches;
+            }
+
+            function handleTouchStart(evt) {
+                const firstTouch = getTouches(evt)[0];
+                xDown = firstTouch.clientX;
+                yDown = firstTouch.clientY;
+            }
+
+            function handleTouchEnd(evt) {
+                if (!xDown || !yDown) {
+                    return;
+                }
+
+                var touches = evt.changedTouches;
+
+                if (touches.length == 1) {
+                    var xUp = touches[0].clientX;
+                    var yUp = touches[0].clientY;
+
+                    var xDiff = xDown - xUp;
+                    var yDiff = yDown - yUp;
+
+                    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                        if (xDiff > -20) {
+                            nextImage();
+                        } else {
+                            previousImage();
+                        }
+                    } else {
+                        if (yDiff > -20) {
+                            nextImage();
+                        } else {
+                            previousImage();
+                        }
+                    }
+                }
+
+                xDown = null;
+                yDown = null;
             }
         });
     </script>
@@ -48,7 +141,9 @@
         <div class="close-x" onclick="window.close()">
             ⓧ
         </div>
+        <!-- <img id="left-img" alt="Full Screen Image" class="full-screen-img"> -->
         <img id="main-img" alt="Full Screen Image" class="full-screen-img">
+        <!-- <img id="right-img" alt="Full Screen Image" class="full-screen-img"> -->
     </div>
 </body>
 </html>
