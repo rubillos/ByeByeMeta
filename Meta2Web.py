@@ -11,7 +11,7 @@
 # for Windows only:
 # pip3 install windows-filedialogs
 
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, NavigableString, Tag
 import re
 from dateutil.parser import parse
 from enum import Enum
@@ -48,18 +48,26 @@ igPostsName = "posts_1.html"
 
 staticPrefix = "https://static."
 
+bannerFormat = "$N - $M Posts - $S to $E"
+
 parser = argparse.ArgumentParser(description='Process FB Data Download')
 
 parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activity folder>", type=str, default=None)
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
-parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with excluded entries", action="store_true")
+parser.add_argument("-si", "--show-indexes", dest="showIndexes", help="Always show the index numbers for entries", action="store_true")
+parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with the excluded entries", action="store_true")
 
-group = parser.add_argument_group("exclusion options")
-parser.add_argument("-x", "--exclude", dest="exclude", help="List of comma separated numbers to exclude", type=str, default="")
-parser.add_argument("-xfb", "--exclude-fb", dest="excludefb", help="List of comma separated numbers to exclude from Facebook data", type=str, default="")
-parser.add_argument("-xig", "--exclude-ig", dest="excludeig", help="List of comma separated numbers to exclude from Instagram data", type=str, default="")
+group = parser.add_argument_group("exclusion list")
+group.add_argument("-x", "--exclude", dest="exclude", help="Comma separated list of numbers to exclude", type=str, default="")
+group.add_argument("-xfb", "--exclude-fb", dest="excludefb", help="Comma separated list of numbers to exclude from Facebook data", type=str, default="")
+group.add_argument("-xig", "--exclude-ig", dest="excludeig", help="Comma separated list of numbers to exclude from Instagram data", type=str, default="")
+
+group = parser.add_argument_group("banner options")
+group.add_argument("-nb", "--no-banner", dest="noBanner", help="Suppress banner at top of entry list", type=str, default="")
+group.add_argument("-u", "--user-name", dest="userName", help="Name for banner, if omitted will be inferred from data", type=str, default="")
+group.add_argument("-bf", "--banner-format", dest="bannerFormat", help=f"Banner format string, use $N for name, $M for facebook/instagram, $S for start date, $E for end date - defaults to '{bannerFormat}'", type=str, default=bannerFormat)
 
 args = parser.parse_args()
 
@@ -346,6 +354,9 @@ def processData():
 	thirdDiv = secondDiv.find("div")
 	removeClass(thirdDiv, "_li")
 
+	firstDate = None
+	lastDate = None
+
 	entries = soup.find_all("div", class_="_a6-g")
 	entryOuter = entries[0].parent
 	for entry in entries:
@@ -402,6 +413,11 @@ def processData():
 					addClass(kids[2], "_top0")
 
 		entry.extract()
+		itemDate = entry.itemdate
+		if firstDate == None or itemDate < firstDate:
+			firstDate = itemDate
+		if lastDate == None or itemDate > lastDate:
+			lastDate = itemDate
 
 	# --------------------------------------------------
 	print("Sort entries")
@@ -412,18 +428,49 @@ def processData():
 	# --------------------------------------------------
 	print("Remove unneeded headings")
 
-	headings = soup.find_all("div", string=[
-		re.compile(".* shared a link\."),
-		re.compile(".* updated .* status\."),
-		re.compile(".* shared a post\."),
-		re.compile(".* shared an album\."),
-		re.compile(".* added a new video.*\."),
-		re.compile(".* added a new photo.*\."),
-		re.compile(".* shared a memory\."),
-		re.compile(".* posted something via Facebook.*\.")
-	])
+	userName = args.userName
+
+	patterns = [
+		re.compile("(.*) shared a link\."),
+		re.compile("(.*) updated .* status\."),
+		re.compile("(.*) shared a post\."),
+		re.compile("(.*) shared an album\."),
+		re.compile("(.*) added a new video.*\."),
+		re.compile("(.*) added a new photo.*\."),
+		re.compile("(.*) shared a memory\."),
+		re.compile("(.*) posted something via Facebook.*\.")
+	]
+
+	headings = soup.find_all("div", string=patterns)
 	for heading in headings:
+		if not args.noBanner and userName == "":
+			for pattern in patterns:
+				match = pattern.match(heading.string)
+				if match:
+					userName = match.group(1)
+					break
 		heading.string.replace_with("")
+
+	# --------------------------------------------------
+	didBanner = False
+
+	if not args.noBanner:
+		a706 = soup.find("div", class_="_a706")
+		if a706 != None:
+			print("Create banner")
+
+			newDiv = soup.new_tag("div")
+			newDiv['class'] = "banner"
+
+			typeString = "Facebook" if isFacebook else "Instagram"
+			startDate = firstDate.strftime("%b %d, %Y")
+			endDate = lastDate.strftime("%b %d, %Y")
+			format = args.bannerFormat
+
+			bannerText = format.replace("$N", userName).replace("$M", typeString).replace("$S", startDate).replace("$E", endDate)
+			newDiv.string = bannerText
+			a706.insert_before(newDiv)
+			didBanner = True
 
 	# --------------------------------------------------
 	print("Clean up tags")
@@ -616,23 +663,17 @@ def processData():
 	allNames = set()
 	allIDs = set()
 	for item in soup.descendants:
-		try:
-			for c in item['class']:
-				allClasses.add(f'.{c}')
-		except:
-			pass
-
-		try:
+		if isinstance(item, Tag):
+			classes = item.get('class')
+			if classes:
+				if not isinstance(classes, list):
+					classes = [classes]
+				for c in classes:
+					allClasses.add(f'.{c}')
 			if item.name and item.name not in allNames:
 				allNames.add(item.name)
-		except:
-			pass
-
-		try:
-			if item['id']:
+			if item.get('id'):
 				allIDs.add(item['id'])
-		except:
-			pass
 
 	print("There are", len(allNames), "tags")
 	print("There are", len(allClasses), "classes")
@@ -828,7 +869,6 @@ def processData():
 			print("External file:", src)
 
 	# --------------------------------------------------
-
 	if args.exlist:
 		excludeEntries()
 
@@ -911,6 +951,13 @@ def processData():
 	addStyle("._top0", "padding-top", "0px", styleDict)
 	addStyle("._a706", 'margin-top', '-12px', styleDict)
 	addStyle("._a705", 'max-width', '800px', styleDict)
+	addStyle("._a705", 'padding-left', 'calc(var(--nav-width,0))', styleDict)
+
+	if didBanner:
+		addStyle(".banner", 'padding', '20px', styleDict)
+		addStyle(".banner", 'text-align', 'center', styleDict)
+		addStyle(".banner", 'font-weight', '600', styleDict)
+		addStyle(".banner", 'font-size', '18px', styleDict)
 
 	keysToDelete = []
 	for key in styleDict.keys():
@@ -972,7 +1019,10 @@ def processData():
 	varString = f"var numSrcFiles = {str(len(htmlBlocks)-1)};" \
 				f"var allYears = [{','.join(map(str, years))}];" \
 				f"var yearCounts = [{','.join(map(str, yearCounts))}];" \
-				f"var numEntries = {str(len(entries))};"
+				f"var numEntries = {str(len(entries))};" \
+				
+	if args.showIndexes:
+		varString += f"var showIndexes = true;"
 	
 	scripttag.append(varString)
 	soup.head.append(scripttag)
