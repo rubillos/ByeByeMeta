@@ -484,7 +484,6 @@ def processData():
 				string.extract()
 
 	# --------------------------------------------------
-
 	def removeEmptyStrings():
 		print("Remove sequential and starting/ending empty strings")
 
@@ -640,19 +639,21 @@ def processData():
 	print("There are", len(allIDs), "ids")
 
 	# --------------------------------------------------
-	print("Remove img href wrappers")
+	print("Remove img/video <a> wrappers")
 
 	alist = soup.find_all("a")
-	for a in alist:
-		imgs = a.find_all("img")
+	for a in reversed(alist):
+		imgs = a.find_all(["img", "video"])
 		if len(imgs) == 1:
 			img = imgs[0]
 			if img.parent.name == "a":
 				img.parent.unwrap()
+		elif len(imgs) == 0 and (a.string == "" or a.string == " " or a.string == None):
+			a.decompose()
+		elif len(imgs) == 0 and a.get('href') != None and "your_facebook" in a['href']:
+			a.decompose()
 
 	# --------------------------------------------------
-	print("Renaming and organizing media files", end="", flush=True)
-
 	yearCounts = {}
 
 	fileRename = {}
@@ -733,6 +734,9 @@ def processData():
 
 	if not args.exlist:
 		excludeEntries()
+
+	# --------------------------------------------------
+	print("Renaming and organizing media files", end="", flush=True)
 
 	entries = soup.find_all("div", class_="_a6-g")
 	for entry in entries:
