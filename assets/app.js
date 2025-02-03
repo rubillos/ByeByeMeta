@@ -81,6 +81,16 @@ function finalMemoriesCleanup() {
 	}
 }
 
+function createRoundedRectPath(x, y, width, height, llRadius, lrRadius, vOffset) {
+	width = parseInt(width);
+	height = parseInt(height);
+	llRadius = parseInt(Math.min(llRadius, height));
+	lrRadius = parseInt(Math.min(lrRadius, height));
+	return (
+		`M${x},${(y-vOffset)}h${width}v${(height+vOffset-lrRadius)}a${lrRadius},${lrRadius} 0 0 1 ${-lrRadius},${lrRadius}h${(lrRadius + llRadius - width)}a${-llRadius},${-llRadius} 0 0 1 ${-llRadius},${-llRadius}v${(llRadius-vOffset-height)}z`
+	);
+}
+
 const getOffsetForNav = interpolate(navOffsets, yearOffsets);
 const getNavForOffset = interpolate(yearOffsets, navOffsets);
 
@@ -88,8 +98,13 @@ function updateYearBackground(durationMS) {
 	if (yearsReady) {
 		const background = document.getElementById('year-background');
 		const numEntries = parseInt(window.numEntries);
-		background.style.transition = `height ${(durationMS / 1000.0)}s linear`;
-		background.style.height = (entryCount/numEntries*100) + '%';
+		if (background.offsetHeight == 0) {
+			background.style.height = "100%";
+		}
+		var height = entryCount/numEntries*background.offsetHeight;
+		var path = createRoundedRectPath(0, 0, background.offsetWidth, height, 30, 40, 10);
+		background.style.transition = `clip-path ${(durationMS / 1000.0)}s linear`;
+		background.style.clipPath = `path('${path}')`;
 	}
 }
 
@@ -149,6 +164,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	yearBackBottom.style.transition = 'display 0.3s';
 
 	yearBack.style.setProperty('--bar-display', 'none');
+	yearBack.style.removeProperty('clip-path');
 	yearBack.classList.remove('back-blue');
 	yearBack.classList.add('back-gray');
 	yearBackTop.classList.remove('back-blue');
@@ -300,8 +316,7 @@ function setupContent() {
 			navOffsets.push(i / yearCount);
 		}
 
-		document.getElementById('year-background').style.width = yearColumn.offsetWidth * 2.0 + 'px';
-		document.querySelector('._a705').style.setProperty('padding-left', yearColumn.offsetWidth * 2.0 + 'px');
+		document.documentElement.style.setProperty('--nav-width', `${(yearColumn.offsetWidth * 2.0)}px`);
 
 		yearsReady = true;
 		entryCount += document.querySelector('._a706').children.length;

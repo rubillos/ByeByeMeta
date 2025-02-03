@@ -48,7 +48,6 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
-	--indicator: 0;
 }
 
 .back-gray {
@@ -60,26 +59,18 @@
 	);
 }
 
-.back-blue {
-	background-image: repeating-linear-gradient(
-		to right,
-		deepskyblue 0,
-		deepskyblue 60%,
-		transparent
-	);
-}
-
 #year-background {
 	position: absolute;
 	top: 0;
 	left: 0;
 	padding: 0;
 	margin: 0;
-	width: 100%;
+	width: calc(var(--nav-width , 100%));
+	height: 0;
 	--bar-display: block;
 }
 
-#year-background:after {
+.back-blue:after {
 	display: var(--bar-display);
 	content: "";
 	position: absolute;
@@ -87,13 +78,15 @@
 	background-image: repeating-linear-gradient(
 		to bottom, 
 		transparent 0px, 
-		rgba(255, 255, 255, .2) 100px, 
+		rgba(233, 235, 238, .5) 100px, 
 		transparent 200px, 
-		rgba(255, 255, 255, .2) 300px, 
+		rgba(233, 235, 238, .5) 300px, 
 		transparent 400px
 	);
 	z-index: 1;
 	animation: move 2s linear infinite;
+	background-size: auto 400px;
+	background-blend-mode: lighten;
 	overflow: hidden;
 }
 
@@ -151,15 +144,25 @@
 	.year-text {
 		scale: 2.0 3.0;
 	}
-
 	._a705 {
 		max-width: 88vw;
+	}
+	.back-blue {
+		background-color: deepskyblue;
 	}
 }
 
 @media (orientation: landscape) {
 	.year-text {
-		scale: calc((clamp(0, 0.2 - abs(var(--pos) - var(--indicator)), 0.2) / 0.2) * 1.0 + 1);
+		scale: calc((clamp(0, 0.2 - abs(var(--pos) - var(--indicator, 0)), 0.2) / 0.2) * 1.0 + 1);
+	}
+	.back-blue {
+		background-image: repeating-linear-gradient(
+			to right,
+			deepskyblue 0,
+			deepskyblue 60%,
+			transparent
+		);
 	}
 }
 
