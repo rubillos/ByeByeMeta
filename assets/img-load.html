@@ -1,149 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Screen Div</title>
-    <style>
-        body {
-            overflow: hidden;
-            /* overflow-y: hidden; */
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        .full-screen-div {
-            position: absolute;
-            height: 100dvh;
-            width: 100dvw;
-            background-color: gray;
-        }
-        .full-screen-img {
-            display: block;
-            margin: auto;
-            height: 100%;
-            width: 100%;
-            object-fit: contain;
-        }
-        #left-img {
-            position: absolute;
-            left: -100dvw;
-            cursor: pointer;
-        }
-        #right-img {
-            position: absolute;
-            right: -100dvw;
-            cursor: pointer;
-        }
-        .close-x {
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 4px 10px;
-            font-size: 36px;
-            color: white;
-            text-shadow: -1px -1px 0 gray, 1px -1px 0 gray, -1px 1px 0 gray, 1px 1px 0 gray;
-            cursor: pointer;
-            font-family: sans-serif;
-        }
-    </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            var imgSrc = urlParams.get('src');
-            if (imgSrc) {
-                document.getElementById('main-img').src = "../" + imgSrc;
-            }
-            var imgUrls = sessionStorage.getItem('img_urls');
-            imgUrls = imgUrls.split(",");
-            function nextImage() {
-                var currentIndex = imgUrls.indexOf(imgSrc);
-                if (currentIndex < imgUrls.length - 1) {
-                    imgSrc = imgUrls[currentIndex + 1];
-                    document.getElementById('main-img').src = "../" + imgSrc;
-                }
-            }
-            function previousImage() {
-                var currentIndex = imgUrls.indexOf(imgSrc);
-                if (currentIndex > 0) {
-                    imgSrc = imgUrls[currentIndex - 1];
-                    document.getElementById('main-img').src = "../" + imgSrc;
-                }
-            }
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' || event.key === 'Enter') {
-                    window.close();
-                }
-                else if (imgUrls) {
-                    var currentIndex = imgUrls.indexOf(imgSrc);
-                    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-                        previousImage();
-                    } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === ' ') {
-                        nextImage();
-                    }
-                }
-            });
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Full Screen Div</title>
+	<style>
+		body {
+			overflow: hidden;
+			/* overflow-y: hidden; */
+		}
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.full-screen-div {
+			position: absolute;
+			height: 100dvh;
+			width: 100dvw;
+			background-color: gray;
+		}
+		.full-screen-img {
+			display: block;
+			margin: auto;
+			height: 100%;
+			width: 100%;
+			object-fit: contain;
+		}
+		#left-img {
+			position: absolute;
+			left: -100dvw;
+			cursor: pointer;
+		}
+		#right-img {
+			position: absolute;
+			right: -100dvw;
+			cursor: pointer;
+		}
+		.close-x {
+			position: absolute;
+			top: 0;
+			left: 0;
+			padding: 4px 10px;
+			font-size: 36px;
+			color: white;
+			text-shadow: -1px -1px 0 gray, 1px -1px 0 gray, -1px 1px 0 gray, 1px 1px 0 gray;
+			cursor: pointer;
+			font-family: sans-serif;
+		}
+	</style>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const urlParams = new URLSearchParams(window.location.search);
+			const mainImg = document.getElementById('main-img');
+			var imgSrc = urlParams.get('src');
+			if (imgSrc) {
+				mainImg.src = "../" + imgSrc;
+			}
+			var imgUrls = sessionStorage.getItem('img_urls');
+			imgUrls = imgUrls.split(",");
 
-            document.addEventListener('touchstart', handleTouchStart, false);
-            document.addEventListener('touchend', handleTouchEnd, false);
+			function nextImage() {
+				var currentIndex = imgUrls.indexOf(imgSrc);
+				if (currentIndex < imgUrls.length - 1) {
+					imgSrc = imgUrls[currentIndex + 1];
+					mainImg.src = "../" + imgSrc;
+				}
+			}
 
-            var xDown = null;
-            var yDown = null;
+			function previousImage() {
+				var currentIndex = imgUrls.indexOf(imgSrc);
+				if (currentIndex > 0) {
+					imgSrc = imgUrls[currentIndex - 1];
+					mainImg.src = "../" + imgSrc;
+				}
+			}
 
-            function getTouches(evt) {
-                return evt.touches || evt.originalEvent.touches;
-            }
+			mainImg.addEventListener('click', nextImage);
 
-            function handleTouchStart(evt) {
-                const firstTouch = getTouches(evt)[0];
-                xDown = firstTouch.clientX;
-                yDown = firstTouch.clientY;
-            }
+			document.addEventListener('keydown', function(event) {
+				const closeKeys = ['Escape', 'Enter'];
+				const nextKeys = ['ArrowUp', 'ArrowRight', ' '];
+				const prevKeys = ['ArrowDown', 'ArrowLeft'];
 
-            function handleTouchEnd(evt) {
-                if (!xDown || !yDown) {
-                    return;
-                }
+				if (closeKeys.includes(event.key)) {
+					window.close();
+				}
+				else if (imgUrls) {
+					if (prevKeys.includes(event.key)) {
+						previousImage();
+					} else if (nextKeys.includes(event.key)) {
+						nextImage();
+					}
+				}
+			});
 
-                var touches = evt.changedTouches;
+			document.addEventListener('touchstart', handleTouchStart, false);
+			document.addEventListener('touchend', handleTouchEnd, false);
 
-                if (touches.length == 1) {
-                    var xUp = touches[0].clientX;
-                    var yUp = touches[0].clientY;
+			var xDown = null;
+			var yDown = null;
 
-                    var xDiff = xDown - xUp;
-                    var yDiff = yDown - yUp;
+			function getTouches(evt) {
+				return evt.touches || evt.originalEvent.touches;
+			}
 
-                    if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                        if (xDiff > -20) {
-                            nextImage();
-                        } else {
-                            previousImage();
-                        }
-                    } else {
-                        if (yDiff > -20) {
-                            nextImage();
-                        } else {
-                            previousImage();
-                        }
-                    }
-                }
+			function handleTouchStart(evt) {
+				const firstTouch = getTouches(evt)[0];
+				xDown = firstTouch.clientX;
+				yDown = firstTouch.clientY;
+			}
 
-                xDown = null;
-                yDown = null;
-            }
-        });
-    </script>
+			function handleTouchEnd(evt) {
+				if (!xDown || !yDown) {
+					return;
+				}
+
+				var touches = evt.changedTouches;
+
+				if (touches.length == 1) {
+					var xUp = touches[0].clientX;
+					var yUp = touches[0].clientY;
+
+					var xDiff = xDown - xUp;
+					var yDiff = yDown - yUp;
+
+					if (Math.abs(xDiff) > Math.abs(yDiff)) {
+						if (xDiff > -20) {
+							nextImage();
+						} else {
+							previousImage();
+						}
+					} else {
+						if (yDiff > -20) {
+							nextImage();
+						} else {
+							previousImage();
+						}
+					}
+				}
+
+				xDown = null;
+				yDown = null;
+			}
+		});
+	</script>
 </head>
 <body>
-    <div class="full-screen-div">
-        <div class="close-x" onclick="window.close()">
-            ⓧ
-        </div>
-        <!-- <img id="left-img" alt="Full Screen Image" class="full-screen-img"> -->
-        <img id="main-img" alt="Full Screen Image" class="full-screen-img">
-        <!-- <img id="right-img" alt="Full Screen Image" class="full-screen-img"> -->
-    </div>
+	<div class="full-screen-div">
+		<div class="close-x" onclick="window.close()">
+			ⓧ
+		</div>
+		<!-- <img id="left-img" alt="Full Screen Image" class="full-screen-img"> -->
+		<img id="main-img" alt="Full Screen Image" class="full-screen-img">
+		<!-- <img id="right-img" alt="Full Screen Image" class="full-screen-img"> -->
+	</div>
 </body>
 </html>
