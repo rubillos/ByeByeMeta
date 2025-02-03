@@ -1,5 +1,3 @@
-console.log("Load remaining entries");
-
 var yearsReady = false;
 var entryCount = 0;
 var navOffsets = [0];
@@ -7,7 +5,7 @@ var yearOffsets = [0];
 
 const showMemories = new URLSearchParams(window.location.search).has('memories');
 const currentDate = new Date();
-const currentMonthDay = (currentDate.getMonth() + 1) * 100 + currentDate.getDate();
+const monthDayID = `d${(currentDate.getMonth() + 1) * 100 + currentDate.getDate()}`;
 
 function interpolate(inputValues, outputValues) {
 	return function(value) {
@@ -23,13 +21,61 @@ function interpolate(inputValues, outputValues) {
 	};
 }
 
+function isYearMark(element) {
+	return element.classList.contains('year-mark');
+}
+
+function visibleElements(classes = '.year-mark, ._a6-g') {
+	const elements = document.querySelectorAll(classes);
+	var visList = [];
+	for (let i = 0; i < elements.length; i++) {
+		if (elements[i].style.display != "none") {
+			visList.push(elements[i]);
+		}
+	}
+	return visList;
+}
+
 function hideShowMemories(containerDiv) {
 	if (showMemories) {
-		for (entry in containerDiv.children) {
-			var monthDay = entry.getAttribute('monthday');
-			monthDay = (monthDay) ? parseInt(entry.getAttribute('monthday')) : 0;
-			if (currentMonthDay = monthDay) {
-				entry.style.display = "none";
+		for (const element of containerDiv.children) {
+			const classes = element.classList;
+			if (!classes.contains('year-mark') && !classes.contains(monthDayID)) {
+				element.style.display = "none";
+			}
+		}
+
+		const visList = visibleElements();
+		for (let i = visList.length - 3; i >= 0; i--) {
+			if (isYearMark(visList[i]) && isYearMark(visList[i + 1]) && !isYearMark(visList[i + 2])) {
+				var index = (i == 0) ? 1 : i;
+				visList[index].style.display = "none";
+				visList.splice(index, 1);
+			}
+		}
+	}
+}
+
+function initialMemoriesSetup() {
+	if (showMemories) {
+		const yearElements = visibleElements('.year-mark');
+		if (yearElements.length > 0) {
+			const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			const month = monthNames[currentDate.getMonth()];
+			const day = currentDate.getDate();
+			yearElements[0].textContent = `Memories - ${month} ${day}`;
+		}
+	}
+}
+
+function finalMemoriesCleanup() {
+	if (showMemories) {
+		const visList = visibleElements();
+		for (let i = visList.length - 2; i >= 0; i--) {
+			if (isYearMark(visList[i]) && isYearMark(visList[i + 1])) {
+				var index = (i == 0) ? 1 : i;
+				visList[index].style.display = "none";
+				visList.splice(index, 1);
 			}
 		}
 	}
@@ -52,31 +98,34 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	var index = 1;
 	var checkDom = true;
 	var startTime = Date.now();
-	var targetDiv = document.querySelector('._a706');
-
-	hideShowMemories(targetDiv);
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(htmlText, 'text/html');
 			var entriesDiv = doc.querySelector('div');
-			var targetDiv = document.querySelector('._a706');
 
-			if (priorTask !== null) {
-				await priorTask;
-			}
-			
 			if (checkDom) {
 				await domDone;
 				checkDom = false;
 			}
 
+			const targetDiv = document.querySelector('._a706');
+
+			if (index == 1 && showMemories) {
+				initialMemoriesSetup();
+				hideShowMemories(targetDiv);
+			}
+
+			if (priorTask !== null) {
+				await priorTask;
+			}
+			
 			hideShowMemories(entriesDiv);
 			targetDiv.appendChild(entriesDiv);
 			entryCount += entriesDiv.children.length;
 			var curTime = Date.now();
-			updateYearBackground((index<filePaths.length-1) ? curTime - startTime : 0.2);
+			updateYearBackground((index<filePaths.length) ? (curTime - startTime) * 0.8 : 0.2);
 			startTime = curTime;
 		};
 
@@ -92,38 +141,34 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	yearBack = document.getElementById('year-background');
 	yearBackTop = document.getElementById('year-back-top');
 	yearBackBottom = document.getElementById('year-back-bottom');
+	
+	yearBack.style.transition = 'background-image 0.3s';
+	yearBackTop.style.transition = 'background-image 0.3s';
+	yearBackBottom.style.transition = 'display 0.3s';
 
-	yearBack.style.transition = 'background-color 300ms';
-	yearBackTop.style.transition = 'background-color 300ms';
-	yearBackBottom.style.transition = 'display 300ms';
-
-	yearBack.style.backgroundColor = 'lightgray';
-	yearBackTop.style.backgroundColor = 'lightgray';
+	yearBack.style.setProperty('--bar-display', 'none');
+	yearBack.classList.remove('back-blue');
+	yearBack.classList.add('back-gray');
+	yearBackTop.classList.remove('back-blue');
+	yearBackTop.classList.add('back-gray');
 	yearBackBottom.style.display = "block";
 
-	const yearElements = document.querySelectorAll('.year-mark');
+	finalMemoriesCleanup();
 
+	const yearElements = document.querySelectorAll('.year-mark');
 	yearElements.forEach((mark, index) => {
 		if (index > 0) {
 			yearOffsets.push(mark.offsetTop);
-		}
-		if (showMemories) {
-			if (index == 0) {
-				const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-				const month = monthNames[currentDate.getMonth()];
-				const day = currentDate.getDate();
-				mark.textContent = `Memories - ${month} ${day}`;
-			}
-			else {
-				mark.style.display = "none";
-			}
 		}
 	});
 	yearOffsets.push(document.body.scrollHeight);
 
 	indicator.style.display = "flex";
 	updateIndicatorPosition();
+	setupEntryEvents();
+}
 
+function setupEntryEvents() {
 	document.querySelectorAll('._a6-g').forEach(element => {
 		element.onmouseenter = showEIndex;
 	});
@@ -132,7 +177,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	});
 
 	const imgUrls = [];
-	document.querySelectorAll('img').forEach(img => {
+	document.querySelectorAll('img:not([src*="static"])').forEach(img => {
 		imgUrls.push(img.getAttribute('src'));
 	});
 	sessionStorage.setItem('img_urls', imgUrls);;
@@ -255,9 +300,7 @@ function setupContent() {
 			navOffsets.push(i / yearCount);
 		}
 
-		const background = document.getElementById('year-background');
-		background.style.width = yearColumn.offsetWidth * 2.0 + 'px';
-
+		document.getElementById('year-background').style.width = yearColumn.offsetWidth * 2.0 + 'px';
 		document.querySelector('._a705').style.setProperty('padding-left', yearColumn.offsetWidth * 2.0 + 'px');
 
 		yearsReady = true;
@@ -394,10 +437,15 @@ function updateIndicatorPosition() {
 	}
 }
 
-document.addEventListener("DOMContentLoaded", setupContent);
+if (window.numSrcFiles !== undefined) {
+	document.addEventListener("DOMContentLoaded", setupContent);
 
-var filePaths = [];
-for (var i = 1; i <= window.numSrcFiles; i++) {
-	filePaths.push('entries/entries' + i + '.html');
+	var filePaths = [];
+	for (var i = 1; i <= window.numSrcFiles; i++) {
+		filePaths.push('entries/entries' + i + '.html');
+	}
+	loadAndInsertDivsSequentially(filePaths, domReady());
 }
-loadAndInsertDivsSequentially(filePaths, domReady());
+else {
+	document.addEventListener("DOMContentLoaded", setupEntryEvents);
+}

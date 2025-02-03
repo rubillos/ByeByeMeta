@@ -51,6 +51,24 @@
 	--indicator: 0;
 }
 
+.back-gray {
+	background-image: repeating-linear-gradient(
+		to right, 
+		#c0c0c0 0,
+		#c0c0c0 60%,
+		transparent
+	);
+}
+
+.back-blue {
+	background-image: repeating-linear-gradient(
+		to right,
+		deepskyblue 0,
+		deepskyblue 60%,
+		transparent
+	);
+}
+
 #year-background {
 	position: absolute;
 	top: 0;
@@ -58,9 +76,36 @@
 	padding: 0;
 	margin: 0;
 	width: 100%;
-	background-color: deepskyblue;
+	--bar-display: block;
 }
 
+#year-background:after {
+	display: var(--bar-display);
+	content: "";
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	background-image: repeating-linear-gradient(
+		to bottom, 
+		transparent 0px, 
+		rgba(255, 255, 255, .2) 100px, 
+		transparent 200px, 
+		rgba(255, 255, 255, .2) 300px, 
+		transparent 400px
+	);
+	z-index: 1;
+	animation: move 2s linear infinite;
+	overflow: hidden;
+}
+
+@keyframes move {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 0 400px;
+	}
+}
+  
 #year-back-top {
 	position: absolute;
 	top: -10px;
@@ -69,7 +114,6 @@
 	margin: 0;
 	width: 100%;
 	height: 10px;
-	background-color: deepskyblue;
 }
 
 #year-back-bottom {
@@ -81,7 +125,6 @@
 	margin: 0;
 	width: 100%;
 	height: 10px;
-	background-color: lightgray;
 }
 
 .year-div {
@@ -121,7 +164,7 @@
 }
 
 .year-div:not(:last-child) {
-    border-bottom: 1px solid #000; /* Apply border-bottom to all except the last child */
+    border-bottom: 1px solid #000;
 }
 
 .year-mark {
