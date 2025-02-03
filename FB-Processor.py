@@ -21,12 +21,14 @@ import argparse
 from PIL import Image
 import cv2
 import platform
+import copy
 
 assetsFolder = "assets"
 entryFolder = "entries"
 mediaFolder = "media"
 staticImageFolder = "static"
 indexName = "index.html"
+excludedName = "excluded.html"
 entryName = "entries{}.html"
 appName = "app.js"
 styleName = "style.css"
@@ -52,6 +54,7 @@ parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activit
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
+parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with excluded entries", action="store_true")
 
 group = parser.add_argument_group("exclusion options")
 parser.add_argument("-x", "--exclude", dest="exclude", help="List of comma separated numbers to exclude", type=str, default="")
@@ -157,14 +160,16 @@ def processData():
 	# --------------------------------------------------
 	print("Cleaning destination folder...")
 
+	folderList = [entryFolder, assetsFolder, mediaFolder]
+	fileList = [indexName, excludedName]
 	foldersRemoved = 0
 	filesRemoved = 0
 	for name in os.listdir(dstFolder):
 		path = os.path.join(dstFolder, name)
-		if name==entryFolder or name==assetsFolder or name==mediaFolder:
+		if name in folderList:
 			shutil.rmtree(path)
 			foldersRemoved += 1
-		elif name==indexName:
+		elif name in fileList:
 			os.remove(path)
 			filesRemoved += 1
 	if filesRemoved>0 or foldersRemoved>0:
@@ -464,26 +469,9 @@ def processData():
 	# --------------------------------------------------
 	print("Add entry numbers")
 
-	xstring = ""
-
-	if isFacebook:
-		xstring = args.excludefb
-	else:
-		xstring = args.excludeig
-
-	if xstring == "":
-		xstring = args.exclude
-
-	xlist = xstring.split(",")
-	toDelete = []
 	entries = soup.find_all("div", class_="_a6-g")
 	for i, entry in enumerate(entries):
-		entry['eix'] = i
-		if str(i) in xlist:
-			toDelete.append(entry)
-
-	for item in toDelete:
-		item.decompose()
+		entry['eix'] = str(i)
 
 	# --------------------------------------------------
 	print("Remove Updated... strings")
@@ -534,7 +522,7 @@ def processData():
 	isBirthday = re.compile("^ha+p{2,}y .*birthday.*", re.IGNORECASE)
 
 	entries = soup.find_all("div", class_="_a6-g")
-	toDelete = set()
+	deletedEntries = set()
 	for entry in entries:
 		pin2 = entry.find_all("div", class_="_2pin")
 		for item in pin2:
@@ -548,7 +536,7 @@ def processData():
 			if not args.birthdays:
 				for string in item.strings:
 					if isBirthday.match(string):
-						toDelete.add(entry)
+						deletedEntries.add(entry)
 						break
 		atags = entry.find_all("a")
 		if len(atags) == 2:
@@ -560,10 +548,10 @@ def processData():
 				else:
 					atags[1].parent.decompose()
 
-	for item in toDelete:
+	for item in deletedEntries:
 		item.decompose()
 
-	print("Deleted", len(toDelete), "birthday entries")
+	print("Deleted", len(deletedEntries), "birthday entries")
 
 	# --------------------------------------------------
 	print("Clean up titles")
@@ -717,6 +705,35 @@ def processData():
 		else:
 			return False
 
+	# --------------------------------------------------
+	# Exclusion List
+
+	deletedEntries = []
+	xstring = ""
+
+	if isFacebook:
+		xstring = args.excludefb
+	else:
+		xstring = args.excludeig
+
+	if xstring == "":
+		xstring = args.exclude
+
+	def excludeEntries():
+		if xstring != "":
+			print("Remove excluded entries")
+			xlist = xstring.split(",")
+			entries = soup.find_all("div", class_="_a6-g")
+			for i, entry in enumerate(entries):
+				if entry['eix'] in xlist:
+					deletedEntries.append(entry)
+
+			for item in deletedEntries:
+				item.extract()
+
+	if not args.exlist:
+		excludeEntries()
+
 	entries = soup.find_all("div", class_="_a6-g")
 	for entry in entries:
 		date = entry.itemdate
@@ -805,6 +822,11 @@ def processData():
 				print("Unknown static image type:", src)
 		elif src.startswith("http"):
 			print("External file:", src)
+
+	# --------------------------------------------------
+
+	if args.exlist:
+		excludeEntries()
 
 	# --------------------------------------------------
 	print("Split entries into blocks")
@@ -931,6 +953,12 @@ def processData():
 	soup.head.append(linkTag)
 
 	# --------------------------------------------------
+	excludeSoup = None
+	if args.exlist:
+		print("Copy structure for exluded entries page")
+		excludeSoup = copy.copy(soup)
+
+	# --------------------------------------------------
 	print("Add computed values")
 
 	years = sorted(yearCounts.keys())
@@ -948,10 +976,26 @@ def processData():
 	# --------------------------------------------------
 	print("Add scripts")
 
-	scripttag = soup.new_tag("script")
-	scripttag['src'] = os.path.join(assetsFolder, appName)
-	soup.head.append(scripttag)
+	def addMainScript(sp):
+		scripttag = sp.new_tag("script")
+		scripttag['src'] = os.path.join(assetsFolder, appName)
+		sp.head.append(scripttag)
 
+	addMainScript(soup)
+
+	# --------------------------------------------------
+	if args.exlist and excludeSoup != None:
+		print("Create excluded entries page")
+		addMainScript(excludeSoup)
+		wrapper = excludeSoup.find("div", class_="_a706")
+		if wrapper != None:
+			for entry in reversed(wrapper.contents):
+				entry.decompose()
+			for entry in deletedEntries:
+				wrapper.append(entry)
+			with open(os.path.join(dstFolder, excludedName), "w") as f:
+				f.write(str(excludeSoup))
+		
 	# --------------------------------------------------
 	print("Write html files")
 	totalBytes = 0
