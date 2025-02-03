@@ -11,7 +11,7 @@ var showIndexes = window.numSrcFiles === undefined;
 if (window.showIndexes !== undefined) {
 	showIndexes |= window.showIndexes;
 }
-if (new URLSearchParams(window.location.search).has('showindexes')) {
+if (new URLSearchParams(window.location.search).has('indexes')) {
 	showIndexes = true;
 }
 

@@ -1,4 +1,4 @@
-# Meta2Web - Facebook/Instagram Data Cleaner
+# ByeByeMeta - Facebook/Instagram Data Cleaner
 [Background](#background)<br>
 [Features](#features)<br>
 [Getting your data from Facebook/Instagram](#data)<br>
@@ -14,7 +14,7 @@ With the moderation changes and general move towards the far-right of Meta's pro
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
 
-Below are instructions for downloading your posts from Facebook/Instagram and for running the Meta2Web script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
+Below are instructions for downloading your posts from Facebook/Instagram and for running the ByeByeMeta script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
 
 **Note:** This script has been tested on a Mac. There is code to handle Windows, but it is untested. If someone tries it on Windows, let me know how it goes!
 
@@ -53,7 +53,7 @@ You'll now see a page saying that your information has been requested. It will t
 
 ## <a name="script"></a>Getting the script
 
-1. Go to the <a href="https://github.com/rubillos/Meta2Web/releases" target="_blank">Releases page on Github</a>
+1. Go to the <a href="https://github.com/rubillos/ByeByeMeta/releases" target="_blank">Releases page on Github</a>
 2. If no files are shown below "Assets", click the triangle.
 3. Click the `Source code (zip)` link
 
@@ -68,7 +68,7 @@ This should download a file to your computer. Double click the file to un-zip it
 1. Locate the app "Terminal" in the Utilities folder in the Applications folder; double click it.
 2. From the Script folder, drag the file `install-packages.sh` to the Terminal window.
 3. Bring the Terminal window to the front and press `return`. This will install necessary libraries.
-4. From the Script folder, drag the file `Meta2Web.py` to the Terminal window.
+4. From the Script folder, drag the file `ByeByeMeta.py` to the Terminal window.
 5. Bring the Terminal window to the front and press `return`.
 
 You will be presented with two `Open File` dialogs.
@@ -89,13 +89,13 @@ There may be entries that you'd prefer not to have included. For me these were i
 
 To omit these you just need to find the "entry numbers". Hold down the option key as you move the mouse over the entry you'd like to omit. It's "entry number" will show at the top center of the entry. Make a note of this number.
 
-Once you have a list of entry numbers to omit, you can re-run the Meta2Web script:
+Once you have a list of entry numbers to omit, you can re-run the ByeByeMeta script:
 
 1. Bring the Terminal window to the front.
 2. Press the `up-arrow` - this will show the previous command that was run.
 3. Type a space, followed by `-x`, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas. There should be only numbers and commas in this list, no additional spaces. You can use the arrow and delete keys to edit the line. It should look something like:
 ```
-/Users/randy/Downloads/Meta2Web-1.0.0/Meta2Web.py -x 10,11,12,118,119,188,260
+/Users/randy/Downloads/ByeByeMeta-1.0.0/ByeByeMeta.py -x 10,11,12,118,119,188,260
 ```
 4. Press `return`.
 
