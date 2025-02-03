@@ -7,6 +7,14 @@ const showMemories = new URLSearchParams(window.location.search).has('memories')
 const currentDate = new Date();
 const monthDayID = `d${(currentDate.getMonth() + 1) * 100 + currentDate.getDate()}`;
 
+var showIndexes = window.numSrcFiles === undefined;
+if (window.showIndexes !== undefined) {
+	showIndexes |= window.showIndexes;
+}
+if (new URLSearchParams(window.location.search).has('showindexes')) {
+	showIndexes = true;
+}
+
 function interpolate(inputValues, outputValues) {
 	return function(value) {
 		if (value <= inputValues[0]) return outputValues[0];
@@ -27,10 +35,21 @@ function isYearMark(element) {
 
 function visibleElements(classes = '.year-mark, ._a6-g') {
 	const elements = document.querySelectorAll(classes);
-	var visList = [];
+	const visList = [];
 	for (let i = 0; i < elements.length; i++) {
 		if (elements[i].style.display != "none") {
 			visList.push(elements[i]);
+		}
+	}
+	return visList;
+}
+
+function cleanHeadings() {
+	const visList = visibleElements();
+	for (let i = visList.length - 2; i >= 0; i--) {
+		if (isYearMark(visList[i]) && isYearMark(visList[i + 1])) {
+			visList[i].style.display = "none";
+			visList.splice(i, 1);
 		}
 	}
 	return visList;
@@ -44,39 +63,27 @@ function hideShowMemories(containerDiv) {
 				element.style.display = "none";
 			}
 		}
-
-		const visList = visibleElements();
-		for (let i = visList.length - 3; i >= 0; i--) {
-			if (isYearMark(visList[i]) && isYearMark(visList[i + 1]) && !isYearMark(visList[i + 2])) {
-				var index = (i == 0) ? 1 : i;
-				visList[index].style.display = "none";
-				visList.splice(index, 1);
-			}
-		}
+		cleanHeadings();
 	}
 }
 
 function initialMemoriesSetup() {
 	if (showMemories) {
-		const yearElements = visibleElements('.year-mark');
-		if (yearElements.length > 0) {
+		const banner = document.querySelector('.banner');
+		if (banner) {
 			const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			const month = monthNames[currentDate.getMonth()];
 			const day = currentDate.getDate();
-			yearElements[0].textContent = `Memories - ${month} ${day}`;
+			banner.textContent = `Memories - ${month} ${day}`;
 		}
 	}
 }
 
 function finalMemoriesCleanup() {
 	if (showMemories) {
-		const visList = visibleElements();
-		for (let i = visList.length - 2; i >= 0; i--) {
-			if (isYearMark(visList[i]) && isYearMark(visList[i + 1])) {
-				var index = (i == 0) ? 1 : i;
-				visList[index].style.display = "none";
-				visList.splice(index, 1);
-			}
+		const visList = cleanHeadings();
+		if (visList.length == 1 && isYearMark(visList[0])) {
+			visList[0].style.display = "none";
 		}
 	}
 }
@@ -101,8 +108,8 @@ function updateYearBackground(durationMS) {
 		if (background.offsetHeight == 0) {
 			background.style.height = "100%";
 		}
-		var height = entryCount/numEntries*background.offsetHeight;
-		var path = createRoundedRectPath(0, 0, background.offsetWidth, height, 30, 40, 10);
+		const height = entryCount/numEntries*background.offsetHeight;
+		const path = createRoundedRectPath(0, 0, background.offsetWidth, height, 30, 40, 10);
 		background.style.transition = `clip-path ${(durationMS / 1000.0)}s linear`;
 		background.style.clipPath = `path('${path}')`;
 	}
@@ -118,7 +125,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 		const parseTask = async (htmlText, priorTask, index) => {
 			const startTrim = "<div>".length;
 			const endTrim = "</div>".length;
-			var entriesDiv = document.createElement('div');
+			const entriesDiv = document.createElement('div');
 
 			entriesDiv.innerHTML = htmlText.slice(startTrim, -endTrim);
 
@@ -141,7 +148,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 			hideShowMemories(entriesDiv);
 			targetDiv.appendChild(entriesDiv);
 			entryCount += entriesDiv.children.length;
-			var curTime = Date.now();
+			const curTime = Date.now();
 			updateYearBackground((index<filePaths.length) ? (curTime - startTime) * 0.8 : 0.2);
 			startTime = curTime;
 		};
@@ -187,9 +194,14 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 }
 
 function setupEntryEvents() {
-	document.querySelectorAll('._a6-g').forEach(element => {
-		element.onmouseenter = showEIndex;
-	});
+	if (showIndexes) {
+		addAllIndexes();
+	}
+	else {
+		document.querySelectorAll('._a6-g').forEach(element => {
+			element.onmouseenter = showEIndex;
+		});
+	}
 	document.querySelectorAll('img._a6_o').forEach(element => {
 		element.onclick = showImage;
 	});
@@ -225,14 +237,27 @@ function setupEntryEvents() {
 	});
 }
 
+function addIndexTo(element) {
+	const eindex = element.getAttribute('eix');
+	const tooltip = document.createElement('div');
+	tooltip.className = 'tooltip';
+	tooltip.textContent = eindex;
+	element.appendChild(tooltip);
+	return tooltip;
+}
+
+function addAllIndexes() {
+	if (showIndexes) {
+		document.querySelectorAll('._a6-g').forEach(element => {
+			addIndexTo(element);
+		});
+	}
+}
+
 function showEIndex(event) {
 	if (event.altKey) {
 		const element = event.currentTarget;
-		const eindex = element.getAttribute('eix');
-		const tooltip = document.createElement('div');
-		tooltip.className = 'tooltip';
-		tooltip.textContent = eindex;
-		element.appendChild(tooltip);
+		const tooltip = addIndexTo(element);
 
 		element.onmouseleave = () => {
 			element.removeChild(tooltip);
@@ -325,13 +350,6 @@ function setupContent() {
 
 	var lastMouseY = 0;
 
-	function indMouseDown(e) {
-		e.preventDefault();
-		lastMouseY = e.clientY;
-		mouseIsDown = true;
-		document.body.onmousemove = elementDrag;
-	}
-  
 	function navMouseDown(e) {
 		if (!e.defaultPrevented) {
 			e.preventDefault();
@@ -340,7 +358,7 @@ function setupContent() {
 
 			indicator.style.top = (lastMouseY - (indicator.offsetHeight / 2) - 10) + "px";
 
-			var scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
+			const scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
 			window.scrollTo(0, scrollPosition);
 
 			updateIndicatorVar();
@@ -351,12 +369,12 @@ function setupContent() {
   
 	function elementDrag(e) {
 		e.preventDefault();
-		var curY = e.clientY;
-		var deltaY = curY - lastMouseY;
+		const curY = e.clientY;
+		const deltaY = curY - lastMouseY;
 		lastMouseY = curY;
 		var newTop = parseInt(indicator.style.top, 10) + deltaY;
-		var minTop = 0 - (indicator.offsetHeight / 2);
-		var maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
+		const minTop = 0 - (indicator.offsetHeight / 2);
+		const maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
 
 		if (newTop < minTop) {
 			newTop = minTop;
@@ -366,7 +384,7 @@ function setupContent() {
 
 		indicator.style.top = newTop + "px";
 
-		var scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
+		const scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
 		window.scrollTo(0, scrollPosition);
 
 		updateIndicatorVar();
@@ -383,14 +401,14 @@ function setupContent() {
 	var scrollID = null;
 
 	function performScrollToY(y) {
-		var newTop = y - (indicator.offsetHeight / 2) - 10;
-		var minTop = 0 - (indicator.offsetHeight / 2);
-		var maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
+		const newTop = y - (indicator.offsetHeight / 2) - 10;
+		const minTop = 0 - (indicator.offsetHeight / 2);
+		const maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
 
 		if (newTop >= minTop && newTop <= maxTop) {
 			indicator.style.top = newTop + "px";
 
-			var scrollPos = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
+			const scrollPos = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
 			window.scrollTo(0, scrollPos);	
 			updateIndicatorVar();
 			scrollY = y;
@@ -418,7 +436,7 @@ function setupContent() {
   
 	function touchMove(e) {
 		e.preventDefault();
-		var newY = e.touches[0].clientY;
+		const newY = e.touches[0].clientY;
 		if (newY != scrollY) {
 			if (scrollID) {
 				nextScrollY = newY;
@@ -446,7 +464,7 @@ function updateIndicatorVar() {
 
 function updateIndicatorPosition() {
 	if (!mouseIsDown) {
-		var newTop = getNavForOffset(window.scrollY) * indicator.parentElement.offsetHeight - indicator.offsetHeight/2;
+		const newTop = getNavForOffset(window.scrollY) * indicator.parentElement.offsetHeight - indicator.offsetHeight/2;
 		indicator.style.top = newTop + "px";
 		updateIndicatorVar();
 	}
@@ -455,7 +473,7 @@ function updateIndicatorPosition() {
 if (window.numSrcFiles !== undefined) {
 	document.addEventListener("DOMContentLoaded", setupContent);
 
-	var filePaths = [];
+	const filePaths = [];
 	for (var i = 1; i <= window.numSrcFiles; i++) {
 		filePaths.push('entries/entries' + i + '.html');
 	}
