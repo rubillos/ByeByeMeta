@@ -101,9 +101,11 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(htmlText, 'text/html');
-			var entriesDiv = doc.querySelector('div');
+			const startTrim = "<div>".length;
+			const endTrim = "</div>".length;
+			var entriesDiv = document.createElement('div');
+
+			entriesDiv.innerHTML = htmlText.slice(startTrim, -endTrim);
 
 			if (checkDom) {
 				await domDone;
@@ -270,8 +272,6 @@ function setupContent() {
 				}
 				else {
 					nav.onmousedown = navMouseDown;
-
-					document.getElementById('indicator').onmousedown = indMouseDown;
 					document.onmouseup = endDrag;		
 				}
 			}
