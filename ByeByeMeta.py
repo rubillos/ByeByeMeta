@@ -7,6 +7,8 @@
 # pip3 install requests
 # pip3 install Pillow
 # pip3 install opencv-python
+# pip3 install rich
+# pip3 install textual textual-dev
 
 # for Windows only:
 # pip3 install windows-filedialogs
@@ -22,6 +24,18 @@ from PIL import Image
 import cv2
 import platform
 import copy
+from rich.console import Console
+from rich.progress import Progress, BarColumn, TimeElapsedColumn, Task
+from rich.text import Text
+from rich.padding import Padding
+from rich.theme import Theme
+from rich.panel import Panel
+
+from textual.app import App, ComposeResult, RenderResult
+from textual.screen import Screen
+from textual.widgets import Button, Digits, Footer, Header, Label, ProgressBar, Input, Placeholder, Static, Checkbox, Switch
+from textual.containers import Horizontal, Vertical
+from textual.widget import Widget
 
 assetsFolder = "assets"
 entryFolder = "entries"
@@ -73,6 +87,69 @@ args = parser.parse_args()
 
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 
+theme = Theme({
+			"progress.percentage": "white",
+			"progress.remaining": "green",
+			"progress.elapsed": "cyan",
+			"bar.complete": "green",
+			"bar.finished": "green",
+			"bar.pulse": "green",
+			"repr.ellipsis": "white",
+			"repr.number": "white",
+			"repr.path": "white",
+			"repr.filename": "white"
+			# "progress.data.speed": "white",
+			# "progress.description": "none",
+			# "progress.download": "white",
+			# "progress.filesize": "white",
+			# "progress.filesize.total": "white",
+			# "progress.spinner": "white",
+			})
+
+prog_description = "[progress.description]{task.description}"
+prog_percentage = "[progress.percentage]{task.percentage:>3.0f}% "
+
+console = Console(theme=theme)
+
+def pluralize(str, count, pad=False):
+	return "{:d} {}{}".format(count, str, "s" if count!=1 else " " if pad else "")
+
+def printNow(str):
+	console.print(str, end="")
+
+def printError(*args, dest_console=console):
+	message = args[0] if len(args) >= 1 else None
+	item = args[1] if len(args) >= 2 else None
+	error_message = args[2] if len(args) >= 3 else None
+
+	if item and not isinstance(item, str):
+		item = str(item)
+	if error_message and not isinstance(error_message, str):
+		error_message = str(error_message)
+
+	error_color = "[bold red]"
+	error_item_color = "[magenta]"
+	error_message_color = "[yellow]"
+
+	parts = []
+	if message:
+		parts.extend([error_color, message])
+	if item:
+		parts.extend([error_item_color, item])
+	if error_message:
+		if len(parts)>0:
+			parts.extend([error_color, " - "]) 
+		parts.extend([error_message_color, error_message]) 
+
+	dest_console.print("".join(parts))
+
+	# with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
+		# with Progress(prog_description, BarColumn(), prog_percentage, StyledElapsedColumn(), prog_rate, console=console) as progress:
+		# 	task = progress.add_task("Creating {}".format(pluralize("image", image_count)), total=image_count, ips=0, color="conceal")
+		# 			image_rate = completed_count / (time.time() - image_process_start)
+		# 			progress.update(task, advance=1, ips=image_rate, color="bright_green")
+		# 	progress.update(task, refresh=True, color="conceal")
+
 def getFolder(message):
 	path = None
 
@@ -104,7 +181,7 @@ def createFolder(path):
 		os.makedirs(path, exist_ok=True)
 		return True
 	except OSError as e:
-		print(f"Error creating folder '{path}': {e}")
+		console.print(f"Error creating folder '{path}': {e}")
 		return False
 
 def copyFile(srcPath, dstPath):
@@ -114,7 +191,7 @@ def copyFile(srcPath, dstPath):
 			shutil.copy(srcPath, dstPath)
 			return True
 		except OSError as e:
-			print(f"Error copying '{srcPath}' to '{dstPath}' - {e}")
+			console.print(f"Error copying '{srcPath}' to '{dstPath}' - {e}")
 			return False
 	else:
 		return False
@@ -136,23 +213,23 @@ def processData():
 	if dstFolder == None:
 		return
 
-	print(f"src={srcFolder}\ndst={dstFolder}")
+	console.print(f"src={srcFolder}\ndst={dstFolder}")
 
 	# --------------------------------------------------
-	print("Check Data Type")
+	console.print("Check Data Type")
 
 	if os.path.basename(srcFolder) == fbFolderName:
-		print("Processing Facebook Data")
+		console.print("Processing Facebook Data")
 		isFacebook = True
 	elif os.path.basename(srcFolder) == igFolderName:
-		print("Processing Instagram Data")
+		console.print("Processing Instagram Data")
 		isFacebook = False
 	else:
-		print("Unknown source data folder!")
+		console.print("Unknown source data folder!")
 		return
 
 	# --------------------------------------------------
-	print("Open Main Data File")
+	console.print("Open Main Data File")
 
 	srcDataCount = 0
 
@@ -166,7 +243,7 @@ def processData():
 		soup = BeautifulSoup(fp, 'lxml')
 
 	# --------------------------------------------------
-	print("Cleaning destination folder...")
+	console.print("Cleaning destination folder...")
 
 	folderList = [entryFolder, assetsFolder, mediaFolder]
 	fileList = [indexName, excludedName]
@@ -181,12 +258,12 @@ def processData():
 			os.remove(path)
 			filesRemoved += 1
 	if filesRemoved>0 or foldersRemoved>0:
-		print(" removed {} and {}.".format(pluralize("folder", foldersRemoved), pluralize("file", filesRemoved)))
+		console.print(f"removed {foldersRemoved} folders and {filesRemoved} files.")
 	else:
-		print(" done.")
+		console.print("done.")
 
 	# --------------------------------------------------
-	print("Copying Assets folder...")
+	console.print("Copying Assets folder...")
 
 	destAssetsPath = os.path.join(dstFolder, assetsFolder)
 	if os.path.isdir(destAssetsPath):
@@ -195,12 +272,12 @@ def processData():
 		srcAssetsPath = os.path.join(scriptPath, assetsFolder)
 		try:
 			shutil.copytree(srcAssetsPath, destAssetsPath)
-			print(" done.")
+			console.print(" done.")
 		except OSError as e:
-			print("\nError copying: ", destAssetsPath, e)
+			console.print(f"\nError copying: {destAssetsPath}, {e}");
 
 	# --------------------------------------------------
-	print("Build used file list")
+	console.print("Build used file list")
 
 	usedFiles = set()
 
@@ -246,7 +323,7 @@ def processData():
 						entry.insert(0, newDiv)
 					mainEntries.append(entry)
 					addedCount += 1
-			print("Added", addedCount, "out of", listCount, "entries from the album", name)
+			console.print(f"Added {addedCount} out of {listCount} entries from the album '{name}'")
 
 	def mergeSoupFile(soupPath):
 		nonlocal srcDataCount
@@ -256,24 +333,24 @@ def processData():
 			mergeAlbumSoup(soup2, os.path.basename(soupPath))
 
 	if isFacebook:
-		print("Merge Photos")
+		console.print("Merge Photos")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
 
-		print("Merge Videos")
+		console.print("Merge Videos")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
 
-		print("Merge Other Posts")
+		console.print("Merge Other Posts")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
 
 		albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
 		albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
 
-		print("Merge", len(albumFiles), "albums")
+		console.print(f"Merge {len(albumFiles)} albums")
 		for albumFile in albumFiles:
 			mergeSoupFile(os.path.join(albumsFolder, albumFile))
 
 	# --------------------------------------------------
-	print("Remove unneeded elements")
+	console.print("Remove unneeded elements")
 
 	del soup.head.base['href']
 
@@ -294,7 +371,7 @@ def processData():
 			heading.decompose()
 
 	# --------------------------------------------------
-	print("Remove Facebook links")
+	console.print("Remove Facebook links")
 
 	fblinks = soup.find_all("a", href=re.compile(".*facebook\.com"))
 	for flink in fblinks:
@@ -303,7 +380,7 @@ def processData():
 		p.smooth()
 
 	# --------------------------------------------------
-	print("Remove GPS coordinates")
+	console.print("Remove GPS coordinates")
 
 	def isAPlace(tag):
 		if (tag.name == "div"):
@@ -318,14 +395,14 @@ def processData():
 		place.unwrap()
 
 	# --------------------------------------------------
-	print("Remove Addresses")
+	console.print("Remove Addresses")
 
 	addresses = soup.find_all("div", string=re.compile("^Address: "))
 	for address in addresses:
 		address.decompose()
 
 	# --------------------------------------------------
-	print("Reformat entries")
+	console.print("Reformat entries")
 
 	def addClass(tag, c):
 		if isinstance(c, list):
@@ -420,13 +497,13 @@ def processData():
 			lastDate = itemDate
 
 	# --------------------------------------------------
-	print("Sort entries")
+	console.print("Sort entries")
 
 	entries.sort(key=lambda x: x.itemdate, reverse=True)
 	entryOuter.extend(entries)
 
 	# --------------------------------------------------
-	print("Remove unneeded headings")
+	console.print("Remove unneeded headings")
 
 	userName = args.userName
 
@@ -457,7 +534,7 @@ def processData():
 	if not args.noBanner:
 		a706 = soup.find("div", class_="_a706")
 		if a706 != None:
-			print("Create banner")
+			console.print("Create banner")
 
 			newDiv = soup.new_tag("div")
 			newDiv['class'] = "banner"
@@ -473,7 +550,7 @@ def processData():
 			didBanner = True
 
 	# --------------------------------------------------
-	print("Clean up tags")
+	console.print("Clean up tags")
 
 	class Clean(Enum):
 		Ok = 0
@@ -511,17 +588,17 @@ def processData():
 			return Clean.Ok
 
 	cleanTag(soup.body)
-	print("Cleaned", simpleDivCount, "simple divs")
+	console.print(f"Cleaned {simpleDivCount} simple divs")
 
 	# --------------------------------------------------
-	print("Add entry numbers")
+	console.print("Add entry numbers")
 
 	entries = soup.find_all("div", class_="_a6-g")
 	for i, entry in enumerate(entries):
 		entry['eix'] = str(i)
 
 	# --------------------------------------------------
-	print("Remove Updated... strings")
+	console.print("Remove Updated... strings")
 
 	isUpdated = re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m")
 	pin2s = soup.find_all("div", class_="_2pin")
@@ -532,7 +609,7 @@ def processData():
 
 	# --------------------------------------------------
 	def removeEmptyStrings():
-		print("Remove sequential and starting/ending empty strings")
+		console.print("Remove sequential and starting/ending empty strings")
 
 		emptyStringCount = 0
 
@@ -558,12 +635,12 @@ def processData():
 					pin.contents[-1].extract()
 					emptyStringCount += 1
 		
-		print("Removed", emptyStringCount, "empty strings")
+		console.print(f"Removed {emptyStringCount} empty strings")
 
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	print("Remove duplicate and birthday tags")
+	console.print("Remove duplicate and birthday tags")
 
 	isBirthday = re.compile("^ha+p{2,}y .*birthday.*", re.IGNORECASE)
 
@@ -597,10 +674,10 @@ def processData():
 	for item in deletedEntries:
 		item.decompose()
 
-	print("Deleted", len(deletedEntries), "birthday entries")
+	console.print(f"Deleted {len(deletedEntries)} birthday entries")
 
 	# --------------------------------------------------
-	print("Clean up titles")
+	console.print("Clean up titles")
 
 	def tagIsEmpty(tag):
 		if len(tag.contents) == 0:
@@ -657,7 +734,7 @@ def processData():
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	print("Count tags")
+	console.print("Count tags")
 
 	allClasses = set()
 	allNames = set()
@@ -675,12 +752,12 @@ def processData():
 			if item.get('id'):
 				allIDs.add(item['id'])
 
-	print("There are", len(allNames), "tags")
-	print("There are", len(allClasses), "classes")
-	print("There are", len(allIDs), "ids")
+	console.print(f"There are {len(allNames)} tags")
+	console.print(f"There are {len(allClasses)} classes")
+	console.print(f"There are {len(allIDs)} ids")
 
 	# --------------------------------------------------
-	print("Remove img/video <a> wrappers")
+	console.print("Remove img/video <a> wrappers")
 
 	alist = soup.find_all("a")
 	for a in reversed(alist):
@@ -763,7 +840,7 @@ def processData():
 
 	def excludeEntries():
 		if xstring != "":
-			print("Remove excluded entries")
+			console.print("Remove excluded entries")
 			xlist = xstring.split(",")
 			entries = soup.find_all("div", class_="_a6-g")
 			for i, entry in enumerate(entries):
@@ -777,66 +854,69 @@ def processData():
 		excludeEntries()
 
 	# --------------------------------------------------
-	print("Renaming and organizing media files", end="", flush=True)
+	# console.print("Renaming and organizing media files")
 
-	entries = soup.find_all("div", class_="_a6-g")
-	for entry in entries:
-		date = entry.itemdate
-		yearMonth = date.year*100 + date.month
-		if date.year in yearCounts:
-			yearCounts[date.year] += 1
-		else:
-			yearCounts[date.year] = 1
-			entry.insert_before(yearDivWithYear(date.year))
-		addClass(entry, "d" + str(date.month*100 + date.day))
+	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
+		entries = soup.find_all("div", class_="_a6-g")
+		task = progress.add_task("Organizing Media...", total=len(entries))
 
-		imgs = entry.find_all(["img", "video"])
-		if (len(imgs) > 0):
-			for i, tagimg in enumerate(imgs):
-				oldName = tagimg['src']
-				if not oldName.startswith("http"):
-					extension = oldName.split(".")[-1]
-					newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
-					newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
-					posterName = newName.replace("mp4", "jpg")
-					index = 2
-					while newName in allNewNames or posterName in allNewNames:
-						newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+		for entry in entries:
+			date = entry.itemdate
+			yearMonth = date.year*100 + date.month
+			if date.year in yearCounts:
+				yearCounts[date.year] += 1
+			else:
+				yearCounts[date.year] = 1
+				entry.insert_before(yearDivWithYear(date.year))
+			addClass(entry, "d" + str(date.month*100 + date.day))
+
+			imgs = entry.find_all(["img", "video"])
+			if (len(imgs) > 0):
+				for i, tagimg in enumerate(imgs):
+					oldName = tagimg['src']
+					if not oldName.startswith("http"):
+						extension = oldName.split(".")[-1]
+						newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
+						newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
 						posterName = newName.replace("mp4", "jpg")
-						index += 1
-					allNewNames.add(newName)
-					fileRename[oldName] = newName
-					tagimg['src'] = newName
-					destPath = os.path.join(dstFolder, newName)
-					copyFile(os.path.join(srcMediaPath, oldName), destPath)
-					width = 0
-					height = 0
-					if tagimg.name == 'img':
-						width, height = dimensionsOfImage(destPath)
-						tagimg['loading'] = "lazy"
-					elif tagimg.name == 'video':
-						width, height = dimensionsOfVideo(destPath)
-						width = int(width)
-						height = int(height)
-						if not extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
-							print(f"\nUnable to get poster frame for{destPath}\n")
-						tagimg['preload'] = "none"
-						tagimg['poster'] = posterName
+						index = 2
+						while newName in allNewNames or posterName in allNewNames:
+							newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+							posterName = newName.replace("mp4", "jpg")
+							index += 1
+						allNewNames.add(newName)
+						fileRename[oldName] = newName
+						tagimg['src'] = newName
+						destPath = os.path.join(dstFolder, newName)
+						copyFile(os.path.join(srcMediaPath, oldName), destPath)
+						width = 0
+						height = 0
+						if tagimg.name == 'img':
+							width, height = dimensionsOfImage(destPath)
+							tagimg['loading'] = "lazy"
+						elif tagimg.name == 'video':
+							width, height = dimensionsOfVideo(destPath)
+							width = int(width)
+							height = int(height)
+							if not extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
+								console.print(f"\nUnable to get poster frame for{destPath}\n")
+							tagimg['preload'] = "none"
+							tagimg['poster'] = posterName
 
-					if width > 0:
-						tagimg['width'] = width
-						tagimg['style'] = f"aspect-ratio:{width}/{height};"
-					copyCount += 1
-					if copyCount % 10 == 1:
-						print(".", end="", flush=True)
-					oldNameTotal += len(oldName)
-					newNameTotal += len(newName)
+						if width > 0:
+							tagimg['width'] = width
+							tagimg['style'] = f"aspect-ratio:{width}/{height};"
+						copyCount += 1
+						oldNameTotal += len(oldName)
+						newNameTotal += len(newName)
+			progress.update(task, advance=1)
 
-	print("")
-	print("Copied", copyCount, "files")
+
+	# console.print("")
+	# console.print(f"Copied {copyCount} files")
 
 	# --------------------------------------------------
-	print("Retrieve static graphics")
+	console.print("Retrieve static graphics")
 
 	for img in soup.find_all("img"):
 		src = img['src']
@@ -856,24 +936,24 @@ def processData():
 						with open(destPath, 'wb') as f:
 							f.write(response.content)
 						img['src'] = newSrc
-						print(f"Downloaded {src} to {destPath}")
+						console.print(f"Downloaded {src} to {destPath}")
 					else:
-						print(f"Failed to download {src}")
+						console.print(f"Failed to download {src}")
 				width, height = dimensionsOfImage(destPath)
 				if width > 0:
 					img['width'] = width
 					img['style'] = f"aspect-ratio:{width}/{height};"
 			else:
-				print("Unknown static image type:", src)
+				console.print(f"Unknown static image type: {src}")
 		elif src.startswith("http"):
-			print("External file:", src)
+			console.print(f"External file: {src}")
 
 	# --------------------------------------------------
 	if args.exlist:
 		excludeEntries()
 
 	# --------------------------------------------------
-	print("Split entries into blocks")
+	console.print("Split entries into blocks")
 
 	entries = soup.find_all("div", class_=["_a6-g", "year-mark"])
 
@@ -897,7 +977,7 @@ def processData():
 	htmlBlocks[0] = soup
 
 	# --------------------------------------------------
-	print("Fix styles")
+	console.print("Fix styles")
 
 	styletag = soup.find("style")
 	sstyle = str(styletag.string)
@@ -979,7 +1059,7 @@ def processData():
 	for key in keysToDelete:
 		styleDict.pop(key)
 
-	print("Removed", len(keysToDelete), "styles")
+	console.print(f"Removed {len(keysToDelete)} styles")
 
 	styleList = []
 	for key in styleDict.keys():
@@ -997,7 +1077,7 @@ def processData():
 	styletag.string.replace_with(newStyle)
 
 	# --------------------------------------------------
-	print("Add style sheet")
+	console.print("Add style sheet")
 
 	linkTag = soup.new_tag("link", href=os.path.join(assetsFolder, styleName))
 	linkTag['rel'] = "stylesheet"
@@ -1006,11 +1086,11 @@ def processData():
 	# --------------------------------------------------
 	excludeSoup = None
 	if args.exlist:
-		print("Copy structure for exluded entries page")
+		console.print("Copy structure for exluded entries page")
 		excludeSoup = copy.copy(soup)
 
 	# --------------------------------------------------
-	print("Add computed values")
+	console.print("Add computed values")
 
 	years = sorted(yearCounts.keys())
 	yearCounts = [yearCounts[year] for year in years]
@@ -1028,7 +1108,7 @@ def processData():
 	soup.head.append(scripttag)
 
 	# --------------------------------------------------
-	print("Add scripts")
+	console.print("Add scripts")
 
 	def addMainScript(sp):
 		scripttag = sp.new_tag("script")
@@ -1039,7 +1119,7 @@ def processData():
 
 	# --------------------------------------------------
 	if args.exlist and excludeSoup != None:
-		print("Create excluded entries page")
+		console.print("Create excluded entries page")
 		addMainScript(excludeSoup)
 		wrapper = excludeSoup.find("div", class_="_a706")
 		if wrapper != None:
@@ -1051,7 +1131,7 @@ def processData():
 				f.write(str(excludeSoup))
 		
 	# --------------------------------------------------
-	print("Write html files")
+	console.print("Write html files")
 	totalBytes = 0
 
 	with open(os.path.join(dstFolder, indexName), "w") as f:
@@ -1065,14 +1145,212 @@ def processData():
 			with open(os.path.join(entriesPath, entryName.format(str(i))), "w") as f:
 				totalBytes += f.write(str(htmlBlocks[i]))
 
-	print("Number of entries:", len(entries))
-	print("Number of blocks:", len(htmlBlocks))
-	print("Block counts:", blockCounts)
-	print("Media items:", len(fileRename))
-	print("Total name usage went from", oldNameTotal, "to", newNameTotal)
+	console.print(f"Number of entries: {len(entries)}")
+	console.print(f"Number of blocks: {len(htmlBlocks)}")
+	console.print(f"Block counts: {blockCounts}")
+	console.print(f"Media items: {len(fileRename)}")
+	console.print(f"Total name usage went from {oldNameTotal}  to {newNameTotal}")
 
-	print("Read", srcDataCount, "bytes")
-	print("Wrote", totalBytes, "bytes")
+	console.print(f"Read {srcDataCount} bytes")
+	console.print(f"Wrote {totalBytes} bytes")
 
-if __name__ == '__main__':
-	processData()
+class DirectoryPicker(Widget):
+	DEFAULT_CSS = """
+	DirectoryPicker {
+		height: 1;
+	}
+	DirectoryPicker Button {
+		height: 1;
+		border: hidden;
+		padding: 0;
+		width: 12;
+		text-align: right;
+		padding-right: 2;
+	}
+	DirectoryPicker Label {
+		background: #337;
+		# color: white;
+		padding: 0;
+		height: 1;
+		width: 1fr;
+		margin-left: 2;
+	}
+	"""
+	def __init__(self, label: str, message: str = "", path: str = None) -> None:
+		self.label = label
+		self.message = message
+		self.path = None
+		super().__init__()
+
+	def compose(self) -> ComposeResult:
+		with Horizontal():
+			yield Button(self.label)
+			yield Label(self.path if self.path else "<no directory selected>")
+
+	def on_button_pressed(self, event: Button.Pressed) -> None:
+		self.path = getFolder(self.message)
+		display = self.query_one(Label)
+		display.update(self.path)
+
+class LabeledString(Widget):
+	DEFAULT_CSS = """
+	LabeledString {
+		width: 1fr;
+		height: 1;
+		margin: 1;
+	}
+	LabeledString Label {
+		padding: 0;
+		height: 1;
+		width: 16;
+		text-align: right;
+	}
+	LabeledString Input {
+		background: #333;
+		# color: white;
+		width: 1fr;
+		height: 1;
+		border: hidden;
+		margin-left: 2;
+		margin-right: 4;
+		padding: 0;
+	}
+	"""
+
+	def __init__(self, label: str, value: str = "") -> None:
+		self.label = label
+		self.value = value
+		super().__init__()
+
+	def compose(self) -> ComposeResult:  
+		with Horizontal():
+			yield Label(self.label)
+			yield Input(self.value)
+
+class ExclusionList(Widget):
+	DEFAULT_CSS = """
+	ExclusionList {
+		height: 3;
+		padding: 0;
+		border: hidden;
+	}
+	ExclusionList Label {
+		padding: 0;
+		width: 16;
+		padding-right: 3;
+		text-align: right;
+		content-align: center middle;
+	}
+	ExclusionList Input {
+		background: #333;
+		# color: white;
+		height: 3;
+		border: hidden;
+		margin-left: 2;
+		margin-right: 4;
+		padding: 0;
+	}
+	"""
+
+	def __init__(self, value: str = None) -> None:
+		self.value = value
+		super().__init__()
+
+	def compose(self) -> ComposeResult:  
+		with Horizontal():
+			yield Label("Exclude:")
+			yield Input(self.value if self.value else "Add excluded entry numbers here...")
+
+class ByeByeMeta(App):
+	CSS = """
+	Screen {
+		align: center middle;
+		padding: 0;
+	}
+	Header {
+		height: 3;
+		# background: blue;
+		# color: white;
+	}
+	Footer {
+		# background: blue;
+		# color: white;
+	}
+	ExclusionList {
+		width: 80%;
+		margin: 1;
+	}
+	DirectoryPicker {
+		margin: 1;
+		margin-right: 8;
+	}
+	Checkbox {
+		height: 1;
+		width: auto;
+		border: hidden;
+		padding: 0;
+		margin: 1;
+		margin-left: 4;
+	}
+	#buttons {
+		width: 30;
+		margin: 0;
+	}
+	#buttons Button {
+		width: 100%;
+		height: 20%;
+	}
+	#box1 {
+		margin: 1;
+		margin-left: 14;
+		margin-right: 40;
+		# height: 1;
+	}
+	.divider1 {
+		height: 2;
+	}
+	.margin1 {
+		margin: 1;
+	}
+	"""
+
+	def on_mount(self) -> None:
+		self.theme = "textual-dark"
+		# self.screen.styles.background = "#222"
+		# self.screen.styles.border = ("hidden", "white")
+
+	def compose(self) -> ComposeResult:
+		with Vertical():
+			yield Header()
+			with Horizontal():
+				with Vertical():
+					yield DirectoryPicker(label="Source:", message="Select the source folder")
+					yield DirectoryPicker(label="Output:", message="Select the output folder")
+					yield ExclusionList()
+					with Horizontal():
+						with Vertical():
+							yield LabeledString(label="User Name")
+							yield LabeledString(label="Banner Format")
+					with Horizontal(id="box1", classes="margin1"):
+							with Vertical():
+								yield Checkbox("Create Exclusion Page")
+								yield Checkbox("Add Banner")
+							with Vertical():
+								yield Checkbox("Include Birthday Posts")
+								yield Checkbox("Show Item Indexes")
+				with Vertical(id="buttons"):
+					yield Button("Process", variant="primary")
+					yield Button.success("Open Browser")
+					yield Button.error("Quit")
+					yield Static("", id="divider1")
+					yield Button.success("Show Log")
+					yield Button.success("Show Controls")
+			yield Footer()  
+
+if __name__ == "__main__":
+	app = ByeByeMeta()
+	app.run()
+
+# if __name__ == '__main__':
+# 	console.print(Panel("[green]Begin ByeByeMeta"))
+# 	processData()
