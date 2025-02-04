@@ -14,9 +14,13 @@
 ## <a name="background"></a>Background
 With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky - ubillos.bsky.social](https://bsky.app/profile/ubillos.bsky.social)
 
-But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.
+But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project. It takes the data download that you can request from Meta for your Facebook and/or Instagram posts and converts them into a single browsable page with a nice navigation bar. The data's internal structure is dramatically simplified and condensed. You can view the archive locally, or easily host it on your own website.
+
+You can see [my Facebook archive hosted on RickAndRandy.com](https://rickandrandy.com/fb/randy/).
 
 Below are instructions for downloading your posts from Facebook/Instagram and for running the ByeByeMeta script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
+
+(The files for this project are also [available on GitHub](https://github.com/rubillos/ByeByeMeta))
 
 **Note:** This script has been tested on a Mac. There is code to handle Windows, but it is untested. If someone tries it on Windows, let me know how it goes!
 
