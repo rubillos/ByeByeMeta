@@ -4,3 +4,4 @@
 localserver.command     export-ignore
 Workspace.code-workspace     export-ignore
 graphics/       export-ignore
+README.md       export-ignore

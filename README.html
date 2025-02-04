@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+        <title>README</title>
+        <style>:root
+{
+    --markdown-font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif;
+    --markdown-font-size: 14px;
+    --markdown-line-height: 1.6;
+    --vscode-font-family:"Segoe WPC", "Segoe UI", sans-serif;
+    --vscode-font-weight:normal;
+    --vscode-font-size:13px;
+    --vscode-editor-font-family:Consolas, "Courier New", monospace;
+    --vscode-editor-font-weight:normal;
+    --vscode-editor-font-size:14px;
+    --vscode-foreground:#616161;
+    --vscode-errorForeground:#a1260d;
+    --vscode-descriptionForeground:#717171;
+    --vscode-icon-foreground:#424242;
+    --vscode-focusBorder:#0090f1;
+    --vscode-textSeparator-foreground:rgba(0, 0, 0, 0.18);
+    --vscode-textLink-foreground:#006ab1;
+    --vscode-textLink-activeForeground:#006ab1;
+    --vscode-textPreformat-foreground:#a31515;
+    --vscode-textBlockQuote-background:rgba(127, 127, 127, 0.1);
+    --vscode-textBlockQuote-border:rgba(0, 122, 204, 0.5);
+    --vscode-textCodeBlock-background:rgba(220, 220, 220, 0.4);
+    --vscode-widget-shadow:#a8a8a8;
+    --vscode-input-background:#ffffff;
+    --vscode-input-foreground:#616161;
+    --vscode-inputOption-activeBorder:rgba(0, 122, 204, 0);
+    --vscode-inputOption-activeBackground:rgba(0, 144, 241, 0.2);
+    --vscode-inputOption-activeForeground:#000000;
+    --vscode-input-placeholderForeground:#767676;
+    --vscode-inputValidation-infoBackground:#d6ecf2;
+    --vscode-inputValidation-infoBorder:#007acc;
+    --vscode-inputValidation-warningBackground:#f6f5d2;
+    --vscode-inputValidation-warningBorder:#b89500;
+    --vscode-inputValidation-errorBackground:#f2dede;
+    --vscode-inputValidation-errorBorder:#be1100;
+    --vscode-dropdown-background:#ffffff;
+    --vscode-dropdown-border:#cecece;
+    --vscode-checkbox-background:#ffffff;
+    --vscode-checkbox-border:#cecece;
+    --vscode-button-foreground:#ffffff;
+    --vscode-button-background:#007acc;
+    --vscode-button-hoverBackground:#0062a3;
+    --vscode-button-secondaryForeground:#ffffff;
+    --vscode-button-secondaryBackground:#5f6a79;
+    --vscode-button-secondaryHoverBackground:#4c5561;
+    --vscode-badge-background:#c4c4c4;
+    --vscode-badge-foreground:#333333;
+    --vscode-scrollbar-shadow:#dddddd;
+    --vscode-scrollbarSlider-background:rgba(100, 100, 100, 0.4);
+    --vscode-scrollbarSlider-hoverBackground:rgba(100, 100, 100, 0.7);
+    --vscode-scrollbarSlider-activeBackground:rgba(0, 0, 0, 0.6);
+    --vscode-progressBar-background:#0e70c0;
+    --vscode-editorError-foreground:#e51400;
+    --vscode-editorWarning-foreground:#e9a700;
+    --vscode-editorInfo-foreground:#75beff;
+    --vscode-editorHint-foreground:#6c6c6c;
+    --vscode-editor-background:#ffffff;
+    --vscode-editor-foreground:#000000;
+    --vscode-editorWidget-background:#f3f3f3;
+    --vscode-editorWidget-foreground:#616161;
+    --vscode-editorWidget-border:#c8c8c8;
+    --vscode-quickInput-background:#f3f3f3;
+    --vscode-quickInput-foreground:#616161;
+    --vscode-quickInputTitle-background:rgba(0, 0, 0, 0.06);
+    --vscode-pickerGroup-foreground:#0066bf;
+    --vscode-pickerGroup-border:#cccedb;
+    --vscode-editor-selectionBackground:#add6ff;
+    --vscode-editor-inactiveSelectionBackground:#e5ebf1;
+    --vscode-editor-selectionHighlightBackground:rgba(173, 214, 255, 0.5);
+    --vscode-editor-findMatchBackground:#a8ac94;
+    --vscode-editor-findMatchHighlightBackground:rgba(234, 92, 0, 0.33);
+    --vscode-editor-findRangeHighlightBackground:rgba(180, 180, 180, 0.3);
+    --vscode-searchEditor-findMatchBackground:rgba(234, 92, 0, 0.22);
+    --vscode-editor-hoverHighlightBackground:rgba(173, 214, 255, 0.15);
+    --vscode-editorHoverWidget-background:#f3f3f3;
+    --vscode-editorHoverWidget-foreground:#616161;
+    --vscode-editorHoverWidget-border:#c8c8c8;
+    --vscode-editorHoverWidget-statusBarBackground:#e7e7e7;
+    --vscode-editorLink-activeForeground:#0000ff;
+    --vscode-editorLightBulb-foreground:#ddb100;
+    --vscode-editorLightBulbAutoFix-foreground:#007acc;
+    --vscode-diffEditor-insertedTextBackground:rgba(155, 185, 85, 0.2);
+    --vscode-diffEditor-removedTextBackground:rgba(255, 0, 0, 0.2);
+    --vscode-diffEditor-diagonalFill:rgba(34, 34, 34, 0.2);
+    --vscode-list-focusBackground:#d6ebff;
+    --vscode-list-activeSelectionBackground:#0074e8;
+    --vscode-list-activeSelectionForeground:#ffffff;
+    --vscode-list-inactiveSelectionBackground:#e4e6f1;
+    --vscode-list-hoverBackground:#e8e8e8;
+    --vscode-list-dropBackground:#d6ebff;
+    --vscode-list-highlightForeground:#0066bf;
+    --vscode-list-invalidItemForeground:#b89500;
+    --vscode-list-errorForeground:#b01011;
+    --vscode-list-warningForeground:#855f00;
+    --vscode-listFilterWidget-background:#efc1ad;
+    --vscode-listFilterWidget-outline:rgba(0, 0, 0, 0);
+    --vscode-listFilterWidget-noMatchesOutline:#be1100;
+    --vscode-list-filterMatchBackground:rgba(234, 92, 0, 0.33);
+    --vscode-tree-indentGuidesStroke:#a9a9a9;
+    --vscode-list-deemphasizedForeground:#8e8e90;
+    --vscode-menu-foreground:#616161;
+    --vscode-menu-background:#ffffff;
+    --vscode-menu-selectionForeground:#ffffff;
+    --vscode-menu-selectionBackground:#0074e8;
+    --vscode-menu-separatorBackground:#888888;
+    --vscode-editor-snippetTabstopHighlightBackground:rgba(10, 50, 100, 0.2);
+    --vscode-editor-snippetFinalTabstopHighlightBorder:rgba(10, 50, 100, 0.5);
+    --vscode-breadcrumb-foreground:rgba(97, 97, 97, 0.8);
+    --vscode-breadcrumb-background:#ffffff;
+    --vscode-breadcrumb-focusForeground:#4e4e4e;
+    --vscode-breadcrumb-activeSelectionForeground:#4e4e4e;
+    --vscode-breadcrumbPicker-background:#f3f3f3;
+    --vscode-merge-currentHeaderBackground:rgba(64, 200, 174, 0.5);
+    --vscode-merge-currentContentBackground:rgba(64, 200, 174, 0.2);
+    --vscode-merge-incomingHeaderBackground:rgba(64, 166, 255, 0.5);
+    --vscode-merge-incomingContentBackground:rgba(64, 166, 255, 0.2);
+    --vscode-merge-commonHeaderBackground:rgba(96, 96, 96, 0.4);
+    --vscode-merge-commonContentBackground:rgba(96, 96, 96, 0.16);
+    --vscode-editorOverviewRuler-currentContentForeground:rgba(64, 200, 174, 0.5);
+    --vscode-editorOverviewRuler-incomingContentForeground:rgba(64, 166, 255, 0.5);
+    --vscode-editorOverviewRuler-commonContentForeground:rgba(96, 96, 96, 0.4);
+    --vscode-editorOverviewRuler-findMatchForeground:rgba(209, 134, 22, 0.49);
+    --vscode-editorOverviewRuler-selectionHighlightForeground:rgba(160, 160, 160, 0.8);
+    --vscode-minimap-findMatchHighlight:#d18616;
+    --vscode-minimap-selectionHighlight:#add6ff;
+    --vscode-minimap-errorHighlight:rgba(255, 18, 18, 0.7);
+    --vscode-minimap-warningHighlight:#e9a700;
+    --vscode-minimapSlider-background:rgba(100, 100, 100, 0.2);
+    --vscode-minimapSlider-hoverBackground:rgba(100, 100, 100, 0.35);
+    --vscode-minimapSlider-activeBackground:rgba(0, 0, 0, 0.3);
+    --vscode-problemsErrorIcon-foreground:#e51400;
+    --vscode-problemsWarningIcon-foreground:#e9a700;
+    --vscode-problemsInfoIcon-foreground:#75beff;
+    --vscode-editor-lineHighlightBorder:#eeeeee;
+    --vscode-editor-rangeHighlightBackground:rgba(253, 255, 0, 0.2);
+    --vscode-editor-symbolHighlightBackground:rgba(234, 92, 0, 0.33);
+    --vscode-editorCursor-foreground:#000000;
+    --vscode-editorWhitespace-foreground:rgba(51, 51, 51, 0.2);
+    --vscode-editorIndentGuide-background:#d3d3d3;
+    --vscode-editorIndentGuide-activeBackground:#939393;
+    --vscode-editorLineNumber-foreground:#237893;
+    --vscode-editorActiveLineNumber-foreground:#0b216f;
+    --vscode-editorLineNumber-activeForeground:#0b216f;
+    --vscode-editorRuler-foreground:#d3d3d3;
+    --vscode-editorCodeLens-foreground:#999999;
+    --vscode-editorBracketMatch-background:rgba(0, 100, 0, 0.1);
+    --vscode-editorBracketMatch-border:#b9b9b9;
+    --vscode-editorOverviewRuler-border:rgba(127, 127, 127, 0.3);
+    --vscode-editorGutter-background:#ffffff;
+    --vscode-editorUnnecessaryCode-opacity:rgba(0, 0, 0, 0.47);
+    --vscode-editorOverviewRuler-rangeHighlightForeground:rgba(0, 122, 204, 0.6);
+    --vscode-editorOverviewRuler-errorForeground:rgba(255, 18, 18, 0.7);
+    --vscode-editorOverviewRuler-warningForeground:#e9a700;
+    --vscode-editorOverviewRuler-infoForeground:#75beff;
+    --vscode-editorOverviewRuler-bracketMatchForeground:#a0a0a0;
+    --vscode-symbolIcon-arrayForeground:#616161;
+    --vscode-symbolIcon-booleanForeground:#616161;
+    --vscode-symbolIcon-classForeground:#d67e00;
+    --vscode-symbolIcon-colorForeground:#616161;
+    --vscode-symbolIcon-constantForeground:#616161;
+    --vscode-symbolIcon-constructorForeground:#652d90;
+    --vscode-symbolIcon-enumeratorForeground:#d67e00;
+    --vscode-symbolIcon-enumeratorMemberForeground:#007acc;
+    --vscode-symbolIcon-eventForeground:#d67e00;
+    --vscode-symbolIcon-fieldForeground:#007acc;
+    --vscode-symbolIcon-fileForeground:#616161;
+    --vscode-symbolIcon-folderForeground:#616161;
+    --vscode-symbolIcon-functionForeground:#652d90;
+    --vscode-symbolIcon-interfaceForeground:#007acc;
+    --vscode-symbolIcon-keyForeground:#616161;
+    --vscode-symbolIcon-keywordForeground:#616161;
+    --vscode-symbolIcon-methodForeground:#652d90;
+    --vscode-symbolIcon-moduleForeground:#616161;
+    --vscode-symbolIcon-namespaceForeground:#616161;
+    --vscode-symbolIcon-nullForeground:#616161;
+    --vscode-symbolIcon-numberForeground:#616161;
+    --vscode-symbolIcon-objectForeground:#616161;
+    --vscode-symbolIcon-operatorForeground:#616161;
+    --vscode-symbolIcon-packageForeground:#616161;
+    --vscode-symbolIcon-propertyForeground:#616161;
+    --vscode-symbolIcon-referenceForeground:#616161;
+    --vscode-symbolIcon-snippetForeground:#616161;
+    --vscode-symbolIcon-stringForeground:#616161;
+    --vscode-symbolIcon-structForeground:#616161;
+    --vscode-symbolIcon-textForeground:#616161;
+    --vscode-symbolIcon-typeParameterForeground:#616161;
+    --vscode-symbolIcon-unitForeground:#616161;
+    --vscode-symbolIcon-variableForeground:#007acc;
+    --vscode-editor-foldBackground:rgba(173, 214, 255, 0.3);
+    --vscode-editorGutter-foldingControlForeground:#424242;
+    --vscode-editor-onTypeRenameBackground:rgba(255, 0, 0, 0.3);
+    --vscode-editorSuggestWidget-background:#f3f3f3;
+    --vscode-editorSuggestWidget-border:#c8c8c8;
+    --vscode-editorSuggestWidget-foreground:#000000;
+    --vscode-editorSuggestWidget-selectedBackground:#d6ebff;
+    --vscode-editorSuggestWidget-highlightForeground:#0066bf;
+    --vscode-editor-wordHighlightBackground:rgba(87, 87, 87, 0.25);
+    --vscode-editor-wordHighlightStrongBackground:rgba(14, 99, 156, 0.25);
+    --vscode-editorOverviewRuler-wordHighlightForeground:rgba(160, 160, 160, 0.8);
+    --vscode-editorOverviewRuler-wordHighlightStrongForeground:rgba(192, 160, 192, 0.8);
+    --vscode-peekViewTitle-background:#ffffff;
+    --vscode-peekViewTitleLabel-foreground:#333333;
+    --vscode-peekViewTitleDescription-foreground:rgba(97, 97, 97, 0.9);
+    --vscode-peekView-border:#007acc;
+    --vscode-peekViewResult-background:#f3f3f3;
+    --vscode-peekViewResult-lineForeground:#646465;
+    --vscode-peekViewResult-fileForeground:#1e1e1e;
+    --vscode-peekViewResult-selectionBackground:rgba(51, 153, 255, 0.2);
+    --vscode-peekViewResult-selectionForeground:#6c6c6c;
+    --vscode-peekViewEditor-background:#f2f8fc;
+    --vscode-peekViewEditorGutter-background:#f2f8fc;
+    --vscode-peekViewResult-matchHighlightBackground:rgba(234, 92, 0, 0.3);
+    --vscode-peekViewEditor-matchHighlightBackground:rgba(245, 216, 2, 0.87);
+    --vscode-editorMarkerNavigationError-background:#e51400;
+    --vscode-editorMarkerNavigationWarning-background:#e9a700;
+    --vscode-editorMarkerNavigationInfo-background:#75beff;
+    --vscode-editorMarkerNavigation-background:#ffffff;
+    --vscode-tab-activeBackground:#ffffff;
+    --vscode-tab-unfocusedActiveBackground:#ffffff;
+    --vscode-tab-inactiveBackground:#ececec;
+    --vscode-tab-unfocusedInactiveBackground:#ececec;
+    --vscode-tab-activeForeground:#333333;
+    --vscode-tab-inactiveForeground:rgba(51, 51, 51, 0.7);
+    --vscode-tab-unfocusedActiveForeground:rgba(51, 51, 51, 0.7);
+    --vscode-tab-unfocusedInactiveForeground:rgba(51, 51, 51, 0.35);
+    --vscode-tab-activeModifiedBorder:#33aaee;
+    --vscode-tab-inactiveModifiedBorder:rgba(51, 170, 238, 0.5);
+    --vscode-tab-unfocusedActiveModifiedBorder:rgba(51, 170, 238, 0.7);
+    --vscode-tab-unfocusedInactiveModifiedBorder:rgba(51, 170, 238, 0.25);
+    --vscode-tab-border:#f3f3f3;
+    --vscode-editorPane-background:#ffffff;
+    --vscode-editorGroupHeader-tabsBackground:#f3f3f3;
+    --vscode-editorGroupHeader-noTabsBackground:#ffffff;
+    --vscode-editorGroup-border:#e7e7e7;
+    --vscode-editorGroup-dropBackground:rgba(38, 119, 203, 0.18);
+    --vscode-imagePreview-border:rgba(128, 128, 128, 0.35);
+    --vscode-panel-background:#ffffff;
+    --vscode-panel-border:rgba(128, 128, 128, 0.35);
+    --vscode-panelTitle-activeForeground:#424242;
+    --vscode-panelTitle-inactiveForeground:rgba(66, 66, 66, 0.75);
+    --vscode-panelTitle-activeBorder:#424242;
+    --vscode-panelInput-border:#dddddd;
+    --vscode-panel-dropBorder:#424242;
+    --vscode-panelSection-dropBackground:rgba(38, 119, 203, 0.18);
+    --vscode-panelSectionHeader-background:rgba(128, 128, 128, 0.2);
+    --vscode-panelSection-border:rgba(128, 128, 128, 0.35);
+    --vscode-statusBar-foreground:#ffffff;
+    --vscode-statusBar-noFolderForeground:#ffffff;
+    --vscode-statusBar-background:#007acc;
+    --vscode-statusBar-noFolderBackground:#68217a;
+    --vscode-statusBarItem-activeBackground:rgba(255, 255, 255, 0.18);
+    --vscode-statusBarItem-hoverBackground:rgba(255, 255, 255, 0.12);
+    --vscode-statusBarItem-prominentForeground:#ffffff;
+    --vscode-statusBarItem-prominentBackground:rgba(0, 0, 0, 0.5);
+    --vscode-statusBarItem-prominentHoverBackground:rgba(0, 0, 0, 0.3);
+    --vscode-activityBar-background:#2c2c2c;
+    --vscode-activityBar-foreground:#ffffff;
+    --vscode-activityBar-inactiveForeground:rgba(255, 255, 255, 0.4);
+    --vscode-activityBar-activeBorder:#ffffff;
+    --vscode-activityBar-dropBorder:#ffffff;
+    --vscode-activityBarBadge-background:#007acc;
+    --vscode-activityBarBadge-foreground:#ffffff;
+    --vscode-statusBarItem-remoteBackground:#16825d;
+    --vscode-statusBarItem-remoteForeground:#ffffff;
+    --vscode-extensionBadge-remoteBackground:#007acc;
+    --vscode-extensionBadge-remoteForeground:#ffffff;
+    --vscode-sideBar-background:#f3f3f3;
+    --vscode-sideBarTitle-foreground:#6f6f6f;
+    --vscode-sideBar-dropBackground:rgba(38, 119, 203, 0.18);
+    --vscode-sideBarSectionHeader-background:rgba(0, 0, 0, 0);
+    --vscode-sideBarSectionHeader-border:rgba(97, 97, 97, 0.19);
+    --vscode-titleBar-activeForeground:#333333;
+    --vscode-titleBar-inactiveForeground:rgba(51, 51, 51, 0.6);
+    --vscode-titleBar-activeBackground:#dddddd;
+    --vscode-titleBar-inactiveBackground:rgba(221, 221, 221, 0.6);
+    --vscode-menubar-selectionForeground:#333333;
+    --vscode-menubar-selectionBackground:rgba(0, 0, 0, 0.1);
+    --vscode-notifications-foreground:#616161;
+    --vscode-notifications-background:#f3f3f3;
+    --vscode-notificationLink-foreground:#006ab1;
+    --vscode-notificationCenterHeader-background:#e7e7e7;
+    --vscode-notifications-border:#e7e7e7;
+    --vscode-notificationsErrorIcon-foreground:#e51400;
+    --vscode-notificationsWarningIcon-foreground:#e9a700;
+    --vscode-notificationsInfoIcon-foreground:#75beff;
+    --vscode-editorGutter-commentRangeForeground:#c5c5c5;
+    --vscode-editor-stackFrameHighlightBackground:rgba(255, 255, 102, 0.45);
+    --vscode-editor-focusedStackFrameHighlightBackground:rgba(206, 231, 206, 0.45);
+    --vscode-terminal-foreground:#333333;
+    --vscode-terminal-selectionBackground:rgba(0, 0, 0, 0.25);
+    --vscode-terminal-border:rgba(128, 128, 128, 0.35);
+    --vscode-statusBar-debuggingBackground:#cc6633;
+    --vscode-statusBar-debuggingForeground:#ffffff;
+    --vscode-settings-headerForeground:#444444;
+    --vscode-settings-modifiedItemIndicator:#66afe0;
+    --vscode-settings-dropdownBackground:#ffffff;
+    --vscode-settings-dropdownBorder:#cecece;
+    --vscode-settings-dropdownListBorder:#c8c8c8;
+    --vscode-settings-checkboxBackground:#ffffff;
+    --vscode-settings-checkboxBorder:#cecece;
+    --vscode-settings-textInputBackground:#ffffff;
+    --vscode-settings-textInputForeground:#616161;
+    --vscode-settings-textInputBorder:#cecece;
+    --vscode-settings-numberInputBackground:#ffffff;
+    --vscode-settings-numberInputForeground:#616161;
+    --vscode-settings-numberInputBorder:#cecece;
+    --vscode-debugExceptionWidget-border:#a31515;
+    --vscode-debugExceptionWidget-background:#f1dfde;
+    --vscode-editorGutter-modifiedBackground:#66afe0;
+    --vscode-editorGutter-addedBackground:#81b88b;
+    --vscode-editorGutter-deletedBackground:#ca4b51;
+    --vscode-minimapGutter-modifiedBackground:#66afe0;
+    --vscode-minimapGutter-addedBackground:#81b88b;
+    --vscode-minimapGutter-deletedBackground:#ca4b51;
+    --vscode-editorOverviewRuler-modifiedForeground:rgba(102, 175, 224, 0.6);
+    --vscode-editorOverviewRuler-addedForeground:rgba(129, 184, 139, 0.6);
+    --vscode-editorOverviewRuler-deletedForeground:rgba(202, 75, 81, 0.6);
+    --vscode-searchEditor-textInputBorder:#cecece;
+    --vscode-debugIcon-breakpointForeground:#e51400;
+    --vscode-debugIcon-breakpointDisabledForeground:#848484;
+    --vscode-debugIcon-breakpointUnverifiedForeground:#848484;
+    --vscode-debugIcon-breakpointCurrentStackframeForeground:#ffcc00;
+    --vscode-debugIcon-breakpointStackframeForeground:#89d185;
+    --vscode-debugToolBar-background:#f3f3f3;
+    --vscode-debugIcon-startForeground:#388a34;
+    --vscode-debugIcon-pauseForeground:#007acc;
+    --vscode-debugIcon-stopForeground:#a1260d;
+    --vscode-debugIcon-disconnectForeground:#a1260d;
+    --vscode-debugIcon-restartForeground:#388a34;
+    --vscode-debugIcon-stepOverForeground:#007acc;
+    --vscode-debugIcon-stepIntoForeground:#007acc;
+    --vscode-debugIcon-stepOutForeground:#007acc;
+    --vscode-debugIcon-continueForeground:#007acc;
+    --vscode-debugIcon-stepBackForeground:#007acc;
+    --vscode-debugTokenExpression-name:#9b46b0;
+    --vscode-debugTokenExpression-value:rgba(108, 108, 108, 0.8);
+    --vscode-debugTokenExpression-string:#a31515;
+    --vscode-debugTokenExpression-boolean:#0000ff;
+    --vscode-debugTokenExpression-number:#098658;
+    --vscode-debugTokenExpression-error:#e51400;
+    --vscode-debugView-exceptionLabelForeground:#ffffff;
+    --vscode-debugView-exceptionLabelBackground:#a31515;
+    --vscode-debugView-stateLabelForeground:#616161;
+    --vscode-debugView-stateLabelBackground:rgba(136, 136, 136, 0.27);
+    --vscode-debugView-valueChangedHighlight:#569cd6;
+    --vscode-debugConsole-infoForeground:#75beff;
+    --vscode-debugConsole-warningForeground:#e9a700;
+    --vscode-debugConsole-errorForeground:#a1260d;
+    --vscode-debugConsole-sourceForeground:#616161;
+    --vscode-debugConsoleInputIcon-foreground:#616161;
+    --vscode-extensionButton-prominentBackground:#327e36;
+    --vscode-extensionButton-prominentForeground:#ffffff;
+    --vscode-extensionButton-prominentHoverBackground:#28632b;
+    --vscode-notebook-cellBorderColor:#dae3e9;
+    --vscode-notebook-focusedEditorBorder:#0090f1;
+    --vscode-notebookStatusSuccessIcon-foreground:#388a34;
+    --vscode-notebookStatusErrorIcon-foreground:#a1260d;
+    --vscode-notebookStatusRunningIcon-foreground:#616161;
+    --vscode-notebook-outputContainerBackgroundColor:rgba(200, 221, 241, 0.31);
+    --vscode-notebook-cellToolbarSeparator:rgba(128, 128, 128, 0.35);
+    --vscode-notebook-focusedCellBackground:rgba(200, 221, 241, 0.31);
+    --vscode-notebook-cellHoverBackground:rgba(200, 221, 241, 0.22);
+    --vscode-notebook-focusedCellBorder:rgba(0, 0, 0, 0.12);
+    --vscode-notebook-cellStatusBarItemHoverBackground:rgba(0, 0, 0, 0.08);
+    --vscode-notebook-cellInsertionIndicator:#0090f1;
+    --vscode-notebookScrollbarSlider-background:rgba(100, 100, 100, 0.4);
+    --vscode-notebookScrollbarSlider-hoverBackground:rgba(100, 100, 100, 0.7);
+    --vscode-notebookScrollbarSlider-activeBackground:rgba(0, 0, 0, 0.6);
+    --vscode-notebook-symbolHighlightBackground:rgba(253, 255, 0, 0.2);
+    --vscode-scm-providerBorder:#c8c8c8;
+    --vscode-terminal-ansiBlack:#000000;
+    --vscode-terminal-ansiRed:#cd3131;
+    --vscode-terminal-ansiGreen:#00bc00;
+    --vscode-terminal-ansiYellow:#949800;
+    --vscode-terminal-ansiBlue:#0451a5;
+    --vscode-terminal-ansiMagenta:#bc05bc;
+    --vscode-terminal-ansiCyan:#0598bc;
+    --vscode-terminal-ansiWhite:#555555;
+    --vscode-terminal-ansiBrightBlack:#666666;
+    --vscode-terminal-ansiBrightRed:#cd3131;
+    --vscode-terminal-ansiBrightGreen:#14ce14;
+    --vscode-terminal-ansiBrightYellow:#b5ba00;
+    --vscode-terminal-ansiBrightBlue:#0451a5;
+    --vscode-terminal-ansiBrightMagenta:#bc05bc;
+    --vscode-terminal-ansiBrightCyan:#0598bc;
+    --vscode-terminal-ansiBrightWhite:#a5a5a5;
+    --vscode-gitDecoration-addedResourceForeground:#587c0c;
+    --vscode-gitDecoration-modifiedResourceForeground:#895503;
+    --vscode-gitDecoration-deletedResourceForeground:#ad0707;
+    --vscode-gitDecoration-untrackedResourceForeground:#007100;
+    --vscode-gitDecoration-ignoredResourceForeground:#8e8e90;
+    --vscode-gitDecoration-conflictingResourceForeground:#6c6cc4;
+    --vscode-gitDecoration-submoduleResourceForeground:#1258a7;
+    --vscode-gitlens-gutterBackgroundColor:rgba(0, 0, 0, 0.05);
+    --vscode-gitlens-gutterForegroundColor:#747474;
+    --vscode-gitlens-gutterUncommittedForegroundColor:rgba(0, 188, 242, 0.6);
+    --vscode-gitlens-trailingLineBackgroundColor:rgba(0, 0, 0, 0);
+    --vscode-gitlens-trailingLineForegroundColor:rgba(153, 153, 153, 0.35);
+    --vscode-gitlens-lineHighlightBackgroundColor:rgba(0, 188, 242, 0.2);
+    --vscode-gitlens-lineHighlightOverviewRulerColor:rgba(0, 188, 242, 0.6);
+    --vscode-issues-newIssueDecoration:rgba(0, 0, 0, 0.28);
+}
+
+body
+{
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    font-family: var(--vscode-font-family);
+    font-weight: var(--vscode-font-weight);
+    font-size: var(--vscode-font-size);
+    margin: 0;
+    padding: 0 20px;
+}
+
+img
+{
+    max-width: 100%;
+    max-height: 100%;
+}
+
+a
+{
+    color: var(--vscode-textLink-foreground);
+}
+
+a:hover
+{
+    color: var(--vscode-textLink-activeForeground);
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus
+{
+    outline: 1px solid -webkit-focus-ring-color;
+    outline-offset: -1px;
+}
+
+code
+{
+    color: var(--vscode-textPreformat-foreground);
+}
+
+blockquote
+{
+    background: var(--vscode-textBlockQuote-background);
+    border-color: var(--vscode-textBlockQuote-border);
+}
+
+kbd
+{
+    color: var(--vscode-editor-foreground);
+    border-radius: 3px;
+    vertical-align: middle;
+    padding: 1px 3px;
+
+    background-color: hsla(0,0%,50%,.17);
+    border: 1px solid rgba(71,71,71,.4);
+    border-bottom-color: rgba(88,88,88,.4);
+    box-shadow: inset 0 -1px 0 rgba(88,88,88,.4);
+}
+
+.vscode-light kbd
+{
+    background-color: hsla(0,0%,87%,.5);
+    border: 1px solid hsla(0,0%,80%,.7);
+    border-bottom-color: hsla(0,0%,73%,.7);
+    box-shadow: inset 0 -1px 0 hsla(0,0%,73%,.7);
+}
+
+::-webkit-scrollbar
+{
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-corner
+{
+    background-color: var(--vscode-editor-background);
+}
+
+::-webkit-scrollbar-thumb
+{
+    background-color: var(--vscode-scrollbarSlider-background);
+}
+::-webkit-scrollbar-thumb:hover
+{
+    background-color: var(--vscode-scrollbarSlider-hoverBackground);
+}
+::-webkit-scrollbar-thumb:active
+{
+    background-color: var(--vscode-scrollbarSlider-activeBackground);
+}
+
+.emoji
+{
+    height: 20px;
+}
+
+pre
+{
+    white-space: pre-wrap;
+}
+
+.page-break
+{
+    display: block;
+    page-break-after: always;
+}
+
+.no-page-break
+{
+    page-break-inside: avoid;
+}
+</style>
+<style>/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+</style>
+<style>/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+html, body {
+	font-family: var(--markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+body {
+	padding-top: 1em;
+}
+
+/* Reset margin top for elements */
+h1, h2, h3, h4, h5, h6,
+p, ol, ul, pre {
+	margin-top: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 600;
+	margin-top: 24px;
+	margin-bottom: 16px;
+	line-height: 1.25;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection :not(tr,ul,ol).code-active-line:before,
+body.showEditorSelection :not(tr,ul,ol).code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+.vscode-high-contrast.showEditorSelection  :not(tr,ul,ol).code-line .code-line:hover:before {
+	border-left: none;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+/* Prevent `sub` and `sup` elements from affecting line height */
+sub,
+sup {
+	line-height: 0;
+}
+
+ul ul:first-child,
+ul ol:first-child,
+ol ul:first-child,
+ol ol:first-child {
+	margin-bottom: 0;
+}
+
+img, video {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+p {
+	margin-bottom: 16px;
+}
+
+li p {
+	margin-bottom: 0.7em;
+}
+
+ul,
+ol {
+	margin-bottom: 0.7em;
+}
+
+hr {
+	border: 0;
+	height: 1px;
+	border-bottom: 1px solid;
+}
+
+h1 {
+	font-size: 2em;
+	margin-top: 0;
+	padding-bottom: 0.3em;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h2 {
+	font-size: 1.5em;
+	padding-bottom: 0.3em;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h3 {
+	font-size: 1.25em;
+}
+
+h4 {
+	font-size: 1em;
+}
+
+h5 {
+	font-size: 0.875em;
+}
+
+h6 {
+	font-size: 0.85em;
+}
+
+table {
+	border-collapse: collapse;
+	margin-bottom: 0.7em;
+}
+
+th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+th,
+td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0;
+	padding: 0px 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+	border-radius: 2px;
+}
+
+code {
+	font-family: var(--vscode-editor-font-family, "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace);
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	display: inline-block;
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+	background: none;
+}
+
+/** Theming */
+
+pre {
+	background-color: var(--vscode-textCodeBlock-background);
+	border: 1px solid var(--vscode-widget-border);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light h2,
+.vscode-light hr,
+.vscode-light td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark h2,
+.vscode-dark hr,
+.vscode-dark td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+</style>
+<style>/*
+https://raw.githubusercontent.com/isagalaev/highlight.js/master/src/styles/vs2015.css
+*/
+/*
+ * Visual Studio 2015 dark style
+ * Author: Nicolas LLOBERA <nllobera@gmail.com>
+ */
+
+
+.hljs-keyword,
+.hljs-literal,
+.hljs-symbol,
+.hljs-name {
+	color: #569CD6;
+}
+.hljs-link {
+	color: #569CD6;
+	text-decoration: underline;
+}
+
+.hljs-built_in,
+.hljs-type {
+	color: #4EC9B0;
+}
+
+.hljs-number,
+.hljs-class {
+	color: #B8D7A3;
+}
+
+.hljs-string,
+.hljs-meta-string {
+	color: #D69D85;
+}
+
+.hljs-regexp,
+.hljs-template-tag {
+	color: #9A5334;
+}
+
+.hljs-subst,
+.hljs-function,
+.hljs-title,
+.hljs-params,
+.hljs-formula {
+	color: #DCDCDC;
+}
+
+.hljs-comment,
+.hljs-quote {
+	color: #57A64A;
+	font-style: italic;
+}
+
+.hljs-doctag {
+	color: #608B4E;
+}
+
+.hljs-meta,
+.hljs-meta-keyword,
+.hljs-tag {
+	color: #9B9B9B;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+	color: #BD63C5;
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-builtin-name {
+	color: #9CDCFE;
+}
+
+.hljs-section {
+	color: gold;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+
+/*.hljs-code {
+	font-family:'Monospace';
+}*/
+
+.hljs-bullet,
+.hljs-selector-tag,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+	color: #D7BA7D;
+}
+
+.hljs-addition {
+	background-color: var(--vscode-diffEditor-insertedTextBackground, rgba(155, 185, 85, 0.2));
+	color: rgb(155, 185, 85);
+	display: inline-block;
+	width: 100%;
+}
+
+.hljs-deletion {
+	background: var(--vscode-diffEditor-removedTextBackground, rgba(255, 0, 0, 0.2));
+	color: rgb(255, 0, 0);
+	display: inline-block;
+	width: 100%;
+}
+
+
+/*
+From https://raw.githubusercontent.com/isagalaev/highlight.js/master/src/styles/vs.css
+*/
+/*
+
+Visual Studio-like style based on original C# coloring by Jason Diamond <jason@diamond.name>
+
+*/
+
+.vscode-light .hljs-function,
+.vscode-light .hljs-params,
+.vscode-light .hljs-number,
+.vscode-light .hljs-class  {
+	color: inherit;
+}
+
+.vscode-light .hljs-comment,
+.vscode-light .hljs-quote,
+.vscode-light .hljs-number,
+.vscode-light .hljs-class,
+.vscode-light .hljs-variable {
+	color: #008000;
+}
+
+.vscode-light .hljs-keyword,
+.vscode-light .hljs-selector-tag,
+.vscode-light .hljs-name,
+.vscode-light .hljs-tag {
+	color: #00f;
+}
+
+.vscode-light .hljs-built_in,
+.vscode-light .hljs-builtin-name {
+	color: #007acc;
+}
+
+.vscode-light .hljs-string,
+.vscode-light .hljs-section,
+.vscode-light .hljs-attribute,
+.vscode-light .hljs-literal,
+.vscode-light .hljs-template-tag,
+.vscode-light .hljs-template-variable,
+.vscode-light .hljs-type {
+	color: #a31515;
+}
+
+.vscode-light .hljs-subst,
+.vscode-light .hljs-selector-attr,
+.vscode-light .hljs-selector-pseudo,
+.vscode-light .hljs-meta,
+.vscode-light .hljs-meta-keyword {
+	color: #2b91af;
+}
+.vscode-light .hljs-title,
+.vscode-light .hljs-doctag {
+	color: #808080;
+}
+
+.vscode-light .hljs-attr {
+	color: #f00;
+}
+
+.vscode-light .hljs-symbol,
+.vscode-light .hljs-bullet,
+.vscode-light .hljs-link {
+	color: #00b0e8;
+}
+
+
+.vscode-light .hljs-emphasis {
+	font-style: italic;
+}
+
+.vscode-light .hljs-strong {
+	font-weight: bold;
+}
+</style>
+<style>@font-face{font-family:KaTeX_AMS;font-style:normal;font-weight:400;src:url(fonts/KaTeX_AMS-Regular.woff2) format("woff2"),url(fonts/KaTeX_AMS-Regular.woff) format("woff"),url(fonts/KaTeX_AMS-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Caligraphic;font-style:normal;font-weight:700;src:url(fonts/KaTeX_Caligraphic-Bold.woff2) format("woff2"),url(fonts/KaTeX_Caligraphic-Bold.woff) format("woff"),url(fonts/KaTeX_Caligraphic-Bold.ttf) format("truetype")}@font-face{font-family:KaTeX_Caligraphic;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Caligraphic-Regular.woff2) format("woff2"),url(fonts/KaTeX_Caligraphic-Regular.woff) format("woff"),url(fonts/KaTeX_Caligraphic-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Fraktur;font-style:normal;font-weight:700;src:url(fonts/KaTeX_Fraktur-Bold.woff2) format("woff2"),url(fonts/KaTeX_Fraktur-Bold.woff) format("woff"),url(fonts/KaTeX_Fraktur-Bold.ttf) format("truetype")}@font-face{font-family:KaTeX_Fraktur;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Fraktur-Regular.woff2) format("woff2"),url(fonts/KaTeX_Fraktur-Regular.woff) format("woff"),url(fonts/KaTeX_Fraktur-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Main;font-style:normal;font-weight:700;src:url(fonts/KaTeX_Main-Bold.woff2) format("woff2"),url(fonts/KaTeX_Main-Bold.woff) format("woff"),url(fonts/KaTeX_Main-Bold.ttf) format("truetype")}@font-face{font-family:KaTeX_Main;font-style:italic;font-weight:700;src:url(fonts/KaTeX_Main-BoldItalic.woff2) format("woff2"),url(fonts/KaTeX_Main-BoldItalic.woff) format("woff"),url(fonts/KaTeX_Main-BoldItalic.ttf) format("truetype")}@font-face{font-family:KaTeX_Main;font-style:italic;font-weight:400;src:url(fonts/KaTeX_Main-Italic.woff2) format("woff2"),url(fonts/KaTeX_Main-Italic.woff) format("woff"),url(fonts/KaTeX_Main-Italic.ttf) format("truetype")}@font-face{font-family:KaTeX_Main;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Main-Regular.woff2) format("woff2"),url(fonts/KaTeX_Main-Regular.woff) format("woff"),url(fonts/KaTeX_Main-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Math;font-style:italic;font-weight:700;src:url(fonts/KaTeX_Math-BoldItalic.woff2) format("woff2"),url(fonts/KaTeX_Math-BoldItalic.woff) format("woff"),url(fonts/KaTeX_Math-BoldItalic.ttf) format("truetype")}@font-face{font-family:KaTeX_Math;font-style:italic;font-weight:400;src:url(fonts/KaTeX_Math-Italic.woff2) format("woff2"),url(fonts/KaTeX_Math-Italic.woff) format("woff"),url(fonts/KaTeX_Math-Italic.ttf) format("truetype")}@font-face{font-family:"KaTeX_SansSerif";font-style:normal;font-weight:700;src:url(fonts/KaTeX_SansSerif-Bold.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Bold.woff) format("woff"),url(fonts/KaTeX_SansSerif-Bold.ttf) format("truetype")}@font-face{font-family:"KaTeX_SansSerif";font-style:italic;font-weight:400;src:url(fonts/KaTeX_SansSerif-Italic.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Italic.woff) format("woff"),url(fonts/KaTeX_SansSerif-Italic.ttf) format("truetype")}@font-face{font-family:"KaTeX_SansSerif";font-style:normal;font-weight:400;src:url(fonts/KaTeX_SansSerif-Regular.woff2) format("woff2"),url(fonts/KaTeX_SansSerif-Regular.woff) format("woff"),url(fonts/KaTeX_SansSerif-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Script;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Script-Regular.woff2) format("woff2"),url(fonts/KaTeX_Script-Regular.woff) format("woff"),url(fonts/KaTeX_Script-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Size1;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Size1-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size1-Regular.woff) format("woff"),url(fonts/KaTeX_Size1-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Size2;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Size2-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size2-Regular.woff) format("woff"),url(fonts/KaTeX_Size2-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Size3;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Size3-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size3-Regular.woff) format("woff"),url(fonts/KaTeX_Size3-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Size4;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Size4-Regular.woff2) format("woff2"),url(fonts/KaTeX_Size4-Regular.woff) format("woff"),url(fonts/KaTeX_Size4-Regular.ttf) format("truetype")}@font-face{font-family:KaTeX_Typewriter;font-style:normal;font-weight:400;src:url(fonts/KaTeX_Typewriter-Regular.woff2) format("woff2"),url(fonts/KaTeX_Typewriter-Regular.woff) format("woff"),url(fonts/KaTeX_Typewriter-Regular.ttf) format("truetype")}.katex{font:normal 1.21em KaTeX_Main,Times New Roman,serif;line-height:1.2;text-indent:0;text-rendering:auto}.katex *{-ms-high-contrast-adjust:none!important;border-color:currentColor}.katex .katex-version:after{content:"0.16.10"}.katex .katex-mathml{clip:rect(1px,1px,1px,1px);border:0;height:1px;overflow:hidden;padding:0;position:absolute;width:1px}.katex .katex-html>.newline{display:block}.katex .base{position:relative;white-space:nowrap;width:-webkit-min-content;width:-moz-min-content;width:min-content}.katex .base,.katex .strut{display:inline-block}.katex .textbf{font-weight:700}.katex .textit{font-style:italic}.katex .textrm{font-family:KaTeX_Main}.katex .textsf{font-family:KaTeX_SansSerif}.katex .texttt{font-family:KaTeX_Typewriter}.katex .mathnormal{font-family:KaTeX_Math;font-style:italic}.katex .mathit{font-family:KaTeX_Main;font-style:italic}.katex .mathrm{font-style:normal}.katex .mathbf{font-family:KaTeX_Main;font-weight:700}.katex .boldsymbol{font-family:KaTeX_Math;font-style:italic;font-weight:700}.katex .amsrm,.katex .mathbb,.katex .textbb{font-family:KaTeX_AMS}.katex .mathcal{font-family:KaTeX_Caligraphic}.katex .mathfrak,.katex .textfrak{font-family:KaTeX_Fraktur}.katex .mathboldfrak,.katex .textboldfrak{font-family:KaTeX_Fraktur;font-weight:700}.katex .mathtt{font-family:KaTeX_Typewriter}.katex .mathscr,.katex .textscr{font-family:KaTeX_Script}.katex .mathsf,.katex .textsf{font-family:KaTeX_SansSerif}.katex .mathboldsf,.katex .textboldsf{font-family:KaTeX_SansSerif;font-weight:700}.katex .mathitsf,.katex .textitsf{font-family:KaTeX_SansSerif;font-style:italic}.katex .mainrm{font-family:KaTeX_Main;font-style:normal}.katex .vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.katex .vlist-r{display:table-row}.katex .vlist{display:table-cell;position:relative;vertical-align:bottom}.katex .vlist>span{display:block;height:0;position:relative}.katex .vlist>span>span{display:inline-block}.katex .vlist>span>.pstrut{overflow:hidden;width:0}.katex .vlist-t2{margin-right:-2px}.katex .vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.katex .vbox{align-items:baseline;display:inline-flex;flex-direction:column}.katex .hbox{width:100%}.katex .hbox,.katex .thinbox{display:inline-flex;flex-direction:row}.katex .thinbox{max-width:0;width:0}.katex .msupsub{text-align:left}.katex .mfrac>span>span{text-align:center}.katex .mfrac .frac-line{border-bottom-style:solid;display:inline-block;width:100%}.katex .hdashline,.katex .hline,.katex .mfrac .frac-line,.katex .overline .overline-line,.katex .rule,.katex .underline .underline-line{min-height:1px}.katex .mspace{display:inline-block}.katex .clap,.katex .llap,.katex .rlap{position:relative;width:0}.katex .clap>.inner,.katex .llap>.inner,.katex .rlap>.inner{position:absolute}.katex .clap>.fix,.katex .llap>.fix,.katex .rlap>.fix{display:inline-block}.katex .llap>.inner{right:0}.katex .clap>.inner,.katex .rlap>.inner{left:0}.katex .clap>.inner>span{margin-left:-50%;margin-right:50%}.katex .rule{border:0 solid;display:inline-block;position:relative}.katex .hline,.katex .overline .overline-line,.katex .underline .underline-line{border-bottom-style:solid;display:inline-block;width:100%}.katex .hdashline{border-bottom-style:dashed;display:inline-block;width:100%}.katex .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.katex .fontsize-ensurer.reset-size1.size1,.katex .sizing.reset-size1.size1{font-size:1em}.katex .fontsize-ensurer.reset-size1.size2,.katex .sizing.reset-size1.size2{font-size:1.2em}.katex .fontsize-ensurer.reset-size1.size3,.katex .sizing.reset-size1.size3{font-size:1.4em}.katex .fontsize-ensurer.reset-size1.size4,.katex .sizing.reset-size1.size4{font-size:1.6em}.katex .fontsize-ensurer.reset-size1.size5,.katex .sizing.reset-size1.size5{font-size:1.8em}.katex .fontsize-ensurer.reset-size1.size6,.katex .sizing.reset-size1.size6{font-size:2em}.katex .fontsize-ensurer.reset-size1.size7,.katex .sizing.reset-size1.size7{font-size:2.4em}.katex .fontsize-ensurer.reset-size1.size8,.katex .sizing.reset-size1.size8{font-size:2.88em}.katex .fontsize-ensurer.reset-size1.size9,.katex .sizing.reset-size1.size9{font-size:3.456em}.katex .fontsize-ensurer.reset-size1.size10,.katex .sizing.reset-size1.size10{font-size:4.148em}.katex .fontsize-ensurer.reset-size1.size11,.katex .sizing.reset-size1.size11{font-size:4.976em}.katex .fontsize-ensurer.reset-size2.size1,.katex .sizing.reset-size2.size1{font-size:.83333333em}.katex .fontsize-ensurer.reset-size2.size2,.katex .sizing.reset-size2.size2{font-size:1em}.katex .fontsize-ensurer.reset-size2.size3,.katex .sizing.reset-size2.size3{font-size:1.16666667em}.katex .fontsize-ensurer.reset-size2.size4,.katex .sizing.reset-size2.size4{font-size:1.33333333em}.katex .fontsize-ensurer.reset-size2.size5,.katex .sizing.reset-size2.size5{font-size:1.5em}.katex .fontsize-ensurer.reset-size2.size6,.katex .sizing.reset-size2.size6{font-size:1.66666667em}.katex .fontsize-ensurer.reset-size2.size7,.katex .sizing.reset-size2.size7{font-size:2em}.katex .fontsize-ensurer.reset-size2.size8,.katex .sizing.reset-size2.size8{font-size:2.4em}.katex .fontsize-ensurer.reset-size2.size9,.katex .sizing.reset-size2.size9{font-size:2.88em}.katex .fontsize-ensurer.reset-size2.size10,.katex .sizing.reset-size2.size10{font-size:3.45666667em}.katex .fontsize-ensurer.reset-size2.size11,.katex .sizing.reset-size2.size11{font-size:4.14666667em}.katex .fontsize-ensurer.reset-size3.size1,.katex .sizing.reset-size3.size1{font-size:.71428571em}.katex .fontsize-ensurer.reset-size3.size2,.katex .sizing.reset-size3.size2{font-size:.85714286em}.katex .fontsize-ensurer.reset-size3.size3,.katex .sizing.reset-size3.size3{font-size:1em}.katex .fontsize-ensurer.reset-size3.size4,.katex .sizing.reset-size3.size4{font-size:1.14285714em}.katex .fontsize-ensurer.reset-size3.size5,.katex .sizing.reset-size3.size5{font-size:1.28571429em}.katex .fontsize-ensurer.reset-size3.size6,.katex .sizing.reset-size3.size6{font-size:1.42857143em}.katex .fontsize-ensurer.reset-size3.size7,.katex .sizing.reset-size3.size7{font-size:1.71428571em}.katex .fontsize-ensurer.reset-size3.size8,.katex .sizing.reset-size3.size8{font-size:2.05714286em}.katex .fontsize-ensurer.reset-size3.size9,.katex .sizing.reset-size3.size9{font-size:2.46857143em}.katex .fontsize-ensurer.reset-size3.size10,.katex .sizing.reset-size3.size10{font-size:2.96285714em}.katex .fontsize-ensurer.reset-size3.size11,.katex .sizing.reset-size3.size11{font-size:3.55428571em}.katex .fontsize-ensurer.reset-size4.size1,.katex .sizing.reset-size4.size1{font-size:.625em}.katex .fontsize-ensurer.reset-size4.size2,.katex .sizing.reset-size4.size2{font-size:.75em}.katex .fontsize-ensurer.reset-size4.size3,.katex .sizing.reset-size4.size3{font-size:.875em}.katex .fontsize-ensurer.reset-size4.size4,.katex .sizing.reset-size4.size4{font-size:1em}.katex .fontsize-ensurer.reset-size4.size5,.katex .sizing.reset-size4.size5{font-size:1.125em}.katex .fontsize-ensurer.reset-size4.size6,.katex .sizing.reset-size4.size6{font-size:1.25em}.katex .fontsize-ensurer.reset-size4.size7,.katex .sizing.reset-size4.size7{font-size:1.5em}.katex .fontsize-ensurer.reset-size4.size8,.katex .sizing.reset-size4.size8{font-size:1.8em}.katex .fontsize-ensurer.reset-size4.size9,.katex .sizing.reset-size4.size9{font-size:2.16em}.katex .fontsize-ensurer.reset-size4.size10,.katex .sizing.reset-size4.size10{font-size:2.5925em}.katex .fontsize-ensurer.reset-size4.size11,.katex .sizing.reset-size4.size11{font-size:3.11em}.katex .fontsize-ensurer.reset-size5.size1,.katex .sizing.reset-size5.size1{font-size:.55555556em}.katex .fontsize-ensurer.reset-size5.size2,.katex .sizing.reset-size5.size2{font-size:.66666667em}.katex .fontsize-ensurer.reset-size5.size3,.katex .sizing.reset-size5.size3{font-size:.77777778em}.katex .fontsize-ensurer.reset-size5.size4,.katex .sizing.reset-size5.size4{font-size:.88888889em}.katex .fontsize-ensurer.reset-size5.size5,.katex .sizing.reset-size5.size5{font-size:1em}.katex .fontsize-ensurer.reset-size5.size6,.katex .sizing.reset-size5.size6{font-size:1.11111111em}.katex .fontsize-ensurer.reset-size5.size7,.katex .sizing.reset-size5.size7{font-size:1.33333333em}.katex .fontsize-ensurer.reset-size5.size8,.katex .sizing.reset-size5.size8{font-size:1.6em}.katex .fontsize-ensurer.reset-size5.size9,.katex .sizing.reset-size5.size9{font-size:1.92em}.katex .fontsize-ensurer.reset-size5.size10,.katex .sizing.reset-size5.size10{font-size:2.30444444em}.katex .fontsize-ensurer.reset-size5.size11,.katex .sizing.reset-size5.size11{font-size:2.76444444em}.katex .fontsize-ensurer.reset-size6.size1,.katex .sizing.reset-size6.size1{font-size:.5em}.katex .fontsize-ensurer.reset-size6.size2,.katex .sizing.reset-size6.size2{font-size:.6em}.katex .fontsize-ensurer.reset-size6.size3,.katex .sizing.reset-size6.size3{font-size:.7em}.katex .fontsize-ensurer.reset-size6.size4,.katex .sizing.reset-size6.size4{font-size:.8em}.katex .fontsize-ensurer.reset-size6.size5,.katex .sizing.reset-size6.size5{font-size:.9em}.katex .fontsize-ensurer.reset-size6.size6,.katex .sizing.reset-size6.size6{font-size:1em}.katex .fontsize-ensurer.reset-size6.size7,.katex .sizing.reset-size6.size7{font-size:1.2em}.katex .fontsize-ensurer.reset-size6.size8,.katex .sizing.reset-size6.size8{font-size:1.44em}.katex .fontsize-ensurer.reset-size6.size9,.katex .sizing.reset-size6.size9{font-size:1.728em}.katex .fontsize-ensurer.reset-size6.size10,.katex .sizing.reset-size6.size10{font-size:2.074em}.katex .fontsize-ensurer.reset-size6.size11,.katex .sizing.reset-size6.size11{font-size:2.488em}.katex .fontsize-ensurer.reset-size7.size1,.katex .sizing.reset-size7.size1{font-size:.41666667em}.katex .fontsize-ensurer.reset-size7.size2,.katex .sizing.reset-size7.size2{font-size:.5em}.katex .fontsize-ensurer.reset-size7.size3,.katex .sizing.reset-size7.size3{font-size:.58333333em}.katex .fontsize-ensurer.reset-size7.size4,.katex .sizing.reset-size7.size4{font-size:.66666667em}.katex .fontsize-ensurer.reset-size7.size5,.katex .sizing.reset-size7.size5{font-size:.75em}.katex .fontsize-ensurer.reset-size7.size6,.katex .sizing.reset-size7.size6{font-size:.83333333em}.katex .fontsize-ensurer.reset-size7.size7,.katex .sizing.reset-size7.size7{font-size:1em}.katex .fontsize-ensurer.reset-size7.size8,.katex .sizing.reset-size7.size8{font-size:1.2em}.katex .fontsize-ensurer.reset-size7.size9,.katex .sizing.reset-size7.size9{font-size:1.44em}.katex .fontsize-ensurer.reset-size7.size10,.katex .sizing.reset-size7.size10{font-size:1.72833333em}.katex .fontsize-ensurer.reset-size7.size11,.katex .sizing.reset-size7.size11{font-size:2.07333333em}.katex .fontsize-ensurer.reset-size8.size1,.katex .sizing.reset-size8.size1{font-size:.34722222em}.katex .fontsize-ensurer.reset-size8.size2,.katex .sizing.reset-size8.size2{font-size:.41666667em}.katex .fontsize-ensurer.reset-size8.size3,.katex .sizing.reset-size8.size3{font-size:.48611111em}.katex .fontsize-ensurer.reset-size8.size4,.katex .sizing.reset-size8.size4{font-size:.55555556em}.katex .fontsize-ensurer.reset-size8.size5,.katex .sizing.reset-size8.size5{font-size:.625em}.katex .fontsize-ensurer.reset-size8.size6,.katex .sizing.reset-size8.size6{font-size:.69444444em}.katex .fontsize-ensurer.reset-size8.size7,.katex .sizing.reset-size8.size7{font-size:.83333333em}.katex .fontsize-ensurer.reset-size8.size8,.katex .sizing.reset-size8.size8{font-size:1em}.katex .fontsize-ensurer.reset-size8.size9,.katex .sizing.reset-size8.size9{font-size:1.2em}.katex .fontsize-ensurer.reset-size8.size10,.katex .sizing.reset-size8.size10{font-size:1.44027778em}.katex .fontsize-ensurer.reset-size8.size11,.katex .sizing.reset-size8.size11{font-size:1.72777778em}.katex .fontsize-ensurer.reset-size9.size1,.katex .sizing.reset-size9.size1{font-size:.28935185em}.katex .fontsize-ensurer.reset-size9.size2,.katex .sizing.reset-size9.size2{font-size:.34722222em}.katex .fontsize-ensurer.reset-size9.size3,.katex .sizing.reset-size9.size3{font-size:.40509259em}.katex .fontsize-ensurer.reset-size9.size4,.katex .sizing.reset-size9.size4{font-size:.46296296em}.katex .fontsize-ensurer.reset-size9.size5,.katex .sizing.reset-size9.size5{font-size:.52083333em}.katex .fontsize-ensurer.reset-size9.size6,.katex .sizing.reset-size9.size6{font-size:.5787037em}.katex .fontsize-ensurer.reset-size9.size7,.katex .sizing.reset-size9.size7{font-size:.69444444em}.katex .fontsize-ensurer.reset-size9.size8,.katex .sizing.reset-size9.size8{font-size:.83333333em}.katex .fontsize-ensurer.reset-size9.size9,.katex .sizing.reset-size9.size9{font-size:1em}.katex .fontsize-ensurer.reset-size9.size10,.katex .sizing.reset-size9.size10{font-size:1.20023148em}.katex .fontsize-ensurer.reset-size9.size11,.katex .sizing.reset-size9.size11{font-size:1.43981481em}.katex .fontsize-ensurer.reset-size10.size1,.katex .sizing.reset-size10.size1{font-size:.24108004em}.katex .fontsize-ensurer.reset-size10.size2,.katex .sizing.reset-size10.size2{font-size:.28929605em}.katex .fontsize-ensurer.reset-size10.size3,.katex .sizing.reset-size10.size3{font-size:.33751205em}.katex .fontsize-ensurer.reset-size10.size4,.katex .sizing.reset-size10.size4{font-size:.38572806em}.katex .fontsize-ensurer.reset-size10.size5,.katex .sizing.reset-size10.size5{font-size:.43394407em}.katex .fontsize-ensurer.reset-size10.size6,.katex .sizing.reset-size10.size6{font-size:.48216008em}.katex .fontsize-ensurer.reset-size10.size7,.katex .sizing.reset-size10.size7{font-size:.57859209em}.katex .fontsize-ensurer.reset-size10.size8,.katex .sizing.reset-size10.size8{font-size:.69431051em}.katex .fontsize-ensurer.reset-size10.size9,.katex .sizing.reset-size10.size9{font-size:.83317261em}.katex .fontsize-ensurer.reset-size10.size10,.katex .sizing.reset-size10.size10{font-size:1em}.katex .fontsize-ensurer.reset-size10.size11,.katex .sizing.reset-size10.size11{font-size:1.19961427em}.katex .fontsize-ensurer.reset-size11.size1,.katex .sizing.reset-size11.size1{font-size:.20096463em}.katex .fontsize-ensurer.reset-size11.size2,.katex .sizing.reset-size11.size2{font-size:.24115756em}.katex .fontsize-ensurer.reset-size11.size3,.katex .sizing.reset-size11.size3{font-size:.28135048em}.katex .fontsize-ensurer.reset-size11.size4,.katex .sizing.reset-size11.size4{font-size:.32154341em}.katex .fontsize-ensurer.reset-size11.size5,.katex .sizing.reset-size11.size5{font-size:.36173633em}.katex .fontsize-ensurer.reset-size11.size6,.katex .sizing.reset-size11.size6{font-size:.40192926em}.katex .fontsize-ensurer.reset-size11.size7,.katex .sizing.reset-size11.size7{font-size:.48231511em}.katex .fontsize-ensurer.reset-size11.size8,.katex .sizing.reset-size11.size8{font-size:.57877814em}.katex .fontsize-ensurer.reset-size11.size9,.katex .sizing.reset-size11.size9{font-size:.69453376em}.katex .fontsize-ensurer.reset-size11.size10,.katex .sizing.reset-size11.size10{font-size:.83360129em}.katex .fontsize-ensurer.reset-size11.size11,.katex .sizing.reset-size11.size11{font-size:1em}.katex .delimsizing.size1{font-family:KaTeX_Size1}.katex .delimsizing.size2{font-family:KaTeX_Size2}.katex .delimsizing.size3{font-family:KaTeX_Size3}.katex .delimsizing.size4{font-family:KaTeX_Size4}.katex .delimsizing.mult .delim-size1>span{font-family:KaTeX_Size1}.katex .delimsizing.mult .delim-size4>span{font-family:KaTeX_Size4}.katex .nulldelimiter{display:inline-block;width:.12em}.katex .delimcenter,.katex .op-symbol{position:relative}.katex .op-symbol.small-op{font-family:KaTeX_Size1}.katex .op-symbol.large-op{font-family:KaTeX_Size2}.katex .accent>.vlist-t,.katex .op-limits>.vlist-t{text-align:center}.katex .accent .accent-body{position:relative}.katex .accent .accent-body:not(.accent-full){width:0}.katex .overlay{display:block}.katex .mtable .vertical-separator{display:inline-block;min-width:1px}.katex .mtable .arraycolsep{display:inline-block}.katex .mtable .col-align-c>.vlist-t{text-align:center}.katex .mtable .col-align-l>.vlist-t{text-align:left}.katex .mtable .col-align-r>.vlist-t{text-align:right}.katex .svg-align{text-align:left}.katex svg{fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:block;height:inherit;position:absolute;width:100%}.katex svg path{stroke:none}.katex img{border-style:none;max-height:none;max-width:none;min-height:0;min-width:0}.katex .stretchy{display:block;overflow:hidden;position:relative;width:100%}.katex .stretchy:after,.katex .stretchy:before{content:""}.katex .hide-tail{overflow:hidden;position:relative;width:100%}.katex .halfarrow-left{left:0;overflow:hidden;position:absolute;width:50.2%}.katex .halfarrow-right{overflow:hidden;position:absolute;right:0;width:50.2%}.katex .brace-left{left:0;overflow:hidden;position:absolute;width:25.1%}.katex .brace-center{left:25%;overflow:hidden;position:absolute;width:50%}.katex .brace-right{overflow:hidden;position:absolute;right:0;width:25.1%}.katex .x-arrow-pad{padding:0 .5em}.katex .cd-arrow-pad{padding:0 .55556em 0 .27778em}.katex .mover,.katex .munder,.katex .x-arrow{text-align:center}.katex .boxpad{padding:0 .3em}.katex .fbox,.katex .fcolorbox{border:.04em solid;box-sizing:border-box}.katex .cancel-pad{padding:0 .2em}.katex .cancel-lap{margin-left:-.2em;margin-right:-.2em}.katex .sout{border-bottom-style:solid;border-bottom-width:.08em}.katex .angl{border-right:.049em solid;border-top:.049em solid;box-sizing:border-box;margin-right:.03889em}.katex .anglpad{padding:0 .03889em}.katex .eqn-num:before{content:"(" counter(katexEqnNo) ")";counter-increment:katexEqnNo}.katex .mml-eqn-num:before{content:"(" counter(mmlEqnNo) ")";counter-increment:mmlEqnNo}.katex .mtr-glue{width:50%}.katex .cd-vert-arrow{display:inline-block;position:relative}.katex .cd-label-left{display:inline-block;position:absolute;right:calc(50% + .3em);text-align:left}.katex .cd-label-right{display:inline-block;left:calc(50% + .3em);position:absolute;text-align:right}.katex-display{display:block;margin:1em 0;text-align:center}.katex-display>.katex{display:block;text-align:center;white-space:nowrap}.katex-display>.katex>.katex-html{display:block;position:relative}.katex-display>.katex>.katex-html>.tag{position:absolute;right:0}.katex-display.leqno>.katex>.katex-html>.tag{left:0;right:auto}.katex-display.fleqn>.katex{padding-left:2em;text-align:left}body{counter-reset:katexEqnNo mmlEqnNo}
+</style>
+<style>/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.katex-error {
+	color: var(--vscode-editorError-foreground);
+}
+</style>
+<style>.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body {
+  box-sizing: border-box;
+  min-width: 200px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote {
+  background-color: initial;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  color: initial;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body code {
+  color: inherit;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre code {
+  color: initial;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body code > div, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body code > div, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body code > div, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body code > div {
+  background: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table td {
+  border: 1px solid rgba(171, 178, 191, 0.5) !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body.showEditorSelection .code-active-line:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body.showEditorSelection .code-active-line:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body.showEditorSelection .code-active-line:before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body.showEditorSelection .code-active-line:before {
+  border-left: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body.showEditorSelection .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body.showEditorSelection .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body.showEditorSelection .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body.showEditorSelection .code-line:hover:before {
+  border-left: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body.showEditorSelection .code-line .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body.showEditorSelection .code-line .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body.showEditorSelection .code-line .code-line:hover:before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body.showEditorSelection .code-line .code-line:hover:before {
+  border-left: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+</style>
+<style>/* Generated from 'node_modules/github-markdown-css/github-markdown.css' */
+@font-face {
+  font-family: octicons-link;
+  src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM+8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB/aFGpk3jaTY6xa8JAGMW/O62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v+k/0an2i+itHDw3v2+9+DBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3/I7AtxEJLtzzuZfI+VVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy/Lt7Kc+0vWY/gAgIIEqAN9we0pwKXreiMasxvabDQMM4riO+qxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw+ymhce7vwM9jSqO8JyVd5RH9gyTt2+J/yUmYlIR0s04n6+7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv/ocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi+W2+MjCzMIDApSwvXzC97Z4Ig8N/BxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh/8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT+AEjAwuDFpBmA9KMDEwMCh9i/v8H8sH0/4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9/lqYwOGZxeUelN2U2R6+cArgtCJpauW7UQBqnFkUsjAY/kOU1cP+DAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl+vvmM/byA48e6tWrKArm4ZJlCbdsrxksL1AwWn/yBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO//sdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd/89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF+9JOS0nbaaYDCQfwCJ7Au3AHj+LO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm+EBXuAbHmIMSRMs+4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL+hD7C1xoaHeLJSEao0FEW14ckxC+TU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13/+lm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl+9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O/AdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB///AA8AAQAAAAAAAAAAAAAAAAABAAAAAA==) format("woff");
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  line-height: 1.5;
+  color: rgb(171, 178, 191);
+  line-height: 1.5;
+  word-wrap: break-word;
+  background: #282c34;
+  padding-top: 20px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-c, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-c, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-c, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-c {
+  color: #6a737d;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-c1, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-s .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-c1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-s .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-c1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-s .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-c1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-s .pl-v {
+  color: #005cc5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-e, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-e, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-e, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-e, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-en {
+  color: #6f42c1;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-smi, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-s .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-smi, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-s .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-smi, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-s .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-smi, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-s .pl-s1 {
+  color: #24292e;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-ent, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-ent, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-ent, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-ent {
+  color: #22863a;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-k, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-k, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-k, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-k {
+  color: #d73a49;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-s, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-pds, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-s .pl-pse .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sr, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sr .pl-sre, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sr .pl-sra, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-s, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-pds, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-s .pl-pse .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sr .pl-sre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sr .pl-sra, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-s, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-pds, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-s .pl-pse .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sr .pl-sre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sr .pl-sra, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-s, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-pds, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-s .pl-pse .pl-s1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sr .pl-sre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sr .pl-sra {
+  color: #032f62;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-smw, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-smw, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-smw, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-v, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-smw {
+  color: #e36209;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-bu, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-bu, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-bu, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-bu {
+  color: #b31d28;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-ii, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-ii, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-ii, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-ii {
+  color: #fafbfc;
+  background-color: #b31d28;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-c2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-c2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-c2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-c2 {
+  color: #fafbfc;
+  background-color: #d73a49;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-c2::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-c2::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-c2::before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-c2::before {
+  content: "^M";
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sr .pl-cce, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sr .pl-cce {
+  font-weight: bold;
+  color: #22863a;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-ml, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-ml, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-ml, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-ml {
+  color: #735c0f;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mh, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mh .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-ms, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mh, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mh .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-ms, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mh, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mh .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-ms, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mh, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mh .pl-en, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-ms {
+  font-weight: bold;
+  color: #005cc5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mi, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mi, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mi, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mi {
+  font-style: italic;
+  color: #24292e;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mb, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mb, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mb, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mb {
+  font-weight: bold;
+  color: #24292e;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-md, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-md, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-md, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-md {
+  color: #b31d28;
+  background-color: #ffeef0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mi1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mi1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mi1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mi1 {
+  color: #22863a;
+  background-color: #f0fff4;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mc, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mc, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mc, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mc {
+  color: #e36209;
+  background-color: #ffebda;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mi2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mi2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mi2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mi2 {
+  color: #f6f8fa;
+  background-color: #005cc5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-mdr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-mdr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-mdr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-mdr {
+  font-weight: bold;
+  color: #6f42c1;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-ba, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-ba, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-ba, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-ba {
+  color: #586069;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-sg, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-sg, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-sg, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-sg {
+  color: #959da5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-corl, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-corl, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-corl, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-corl {
+  text-decoration: underline;
+  color: #032f62;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .octicon {
+  display: inline-block;
+  vertical-align: text-top;
+  fill: currentColor;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a {
+  background-color: transparent;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a:active, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a:active, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a:active, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a:active, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a:hover {
+  outline-width: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body strong {
+  font-weight: inherit;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body strong {
+  font-weight: bolder;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1 {
+  margin: 0.67em 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body img {
+  border-style: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body input {
+  font: inherit;
+  margin: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body input {
+  overflow: visible;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body [type=checkbox], .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body [type=checkbox], .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body [type=checkbox], .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body [type=checkbox] {
+  box-sizing: border-box;
+  padding: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body *, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body *, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body *, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body * {
+  box-sizing: border-box;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body input, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body input {
+  font-family: inherit;
+  line-height: inherit;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a {
+  color: #528bff;
+  text-decoration: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a:hover, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a:hover {
+  text-decoration: underline;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body strong, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body strong {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #dfe2e5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr::before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr::before {
+  display: table;
+  content: "";
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr::after, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr::after, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr::after, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body td, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body th, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body td, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body th, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body td, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body th, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body td, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body th {
+  padding: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6 {
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote {
+  margin: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol {
+  padding-left: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul ol {
+  list-style-type: lower-roman;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dd, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dd, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dd, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dd {
+  margin-left: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .octicon, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .octicon {
+  vertical-align: text-bottom;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-0, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-0, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-0, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-0 {
+  padding-left: 0 !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-1 {
+  padding-left: 4px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-2 {
+  padding-left: 8px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-3, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-3, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-3, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-3 {
+  padding-left: 16px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-4, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-4, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-4, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-4 {
+  padding-left: 24px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-5, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-5, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-5, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-5 {
+  padding-left: 32px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .pl-6, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .pl-6, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .pl-6, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .pl-6 {
+  padding-left: 40px !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body::before, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body::before, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body::before {
+  display: table;
+  content: "";
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body::after, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body::after, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body::after, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body > *:first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body > *:first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body > *:first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body > *:first-child {
+  margin-top: 0 !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body > *:last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body > *:last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body > *:last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body a:not([href]), .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body a:not([href]), .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body a:not([href]), .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .anchor {
+  float: left;
+  padding-right: 4px;
+  margin-left: -20px;
+  line-height: 1;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .anchor:focus, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .anchor:focus, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .anchor:focus, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .anchor:focus {
+  outline: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body p, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote {
+  /* padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5; */
+  padding: 8.5px 17px;
+  margin: 1.5em 0;
+  color: #7c879c;
+  border-color: #4b5362;
+  border-width: 4px;
+  border-left: 5px solid #4b5362;
+  background: transparent;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote > :first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote > :first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote > :first-child, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote > :first-child {
+  margin-top: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body blockquote > :last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body blockquote > :last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body blockquote > :last-child, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  line-height: 10px;
+  color: #444d56;
+  vertical-align: middle;
+  background-color: #fafbfc;
+  border: solid 1px #c6cbd1;
+  border-bottom-color: #959da5;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #959da5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgb(240, 240, 240);
+  border-bottom: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5 .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6 .octicon-link {
+  color: #1b1f23;
+  vertical-align: middle;
+  visibility: hidden;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5:hover .anchor, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6:hover .anchor {
+  text-decoration: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h3:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h4:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h5:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h3:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h4:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h5:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h3:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h4:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h5:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h3:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h4:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h5:hover .anchor .octicon-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6:hover .anchor .octicon-link {
+  visibility: visible;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h1, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h1 {
+  padding-bottom: 0.3em;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h2, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h2 {
+  padding-bottom: 0.3em;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body h6, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body h6 {
+  color: #6a737d;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol {
+  padding-left: 2em;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body ol ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body ol ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul ul, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body ol ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul ul, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ul ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol ol, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body li, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body li, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body li, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body li {
+  word-wrap: break-all;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body li > p, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body li > p, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body li > p, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body li > p {
+  margin-top: 16px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body li + li, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body li + li, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body li + li, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body li + li {
+  margin-top: 0.25em;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dl, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dl {
+  padding: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dl dt, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dl dt, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dl dt, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-style: italic;
+  font-weight: 600;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body dl dd, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body dl dd, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body dl dd, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table th {
+  font-weight: 700;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body table td, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table th, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body table td {
+  padding: 6px 13px;
+  /* border: 1px solid #dfe2e5; */
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body img, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body img {
+  max-width: 100%;
+  box-sizing: content-box;
+  display: inline-block;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body img[align=right], .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body img[align=right], .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body img[align=right], .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body img[align=right] {
+  padding-left: 20px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body img[align=left], .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body img[align=left], .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body img[align=left], .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body img[align=left] {
+  padding-right: 20px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body code, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  background-color: #3a3f4b;
+  border-radius: 3px;
+  color: white;
+  margin: 0 1px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  word-wrap: normal;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre > code, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre > code, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre > code, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre > code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .highlight, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .highlight, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .highlight, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .highlight {
+  margin-bottom: 16px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .highlight pre, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre {
+  padding: 16px;
+  overflow: auto;
+  line-height: 1.45;
+  /* background-color: #f6f8fa; */
+  border-radius: 3px;
+  background-color: #31363f;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body pre code, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body pre code {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+  color: rgb(171, 178, 191);
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .full-commit .btn-outline:not(:disabled):hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .full-commit .btn-outline:not(:disabled):hover, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .full-commit .btn-outline:not(:disabled):hover, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .full-commit .btn-outline:not(:disabled):hover {
+  color: #005cc5;
+  border-color: #005cc5;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body kbd, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  line-height: 10px;
+  color: #444d56;
+  vertical-align: middle;
+  background-color: #fafbfc;
+  border: solid 1px #d1d5da;
+  border-bottom-color: #c6cbd1;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #c6cbd1;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body :checked + .radio-label, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body :checked + .radio-label, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body :checked + .radio-label, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body :checked + .radio-label {
+  position: relative;
+  z-index: 1;
+  border-color: #0366d6;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .task-list-item {
+  list-style-type: none;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .task-list-item + .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .task-list-item + .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .task-list-item + .task-list-item, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .task-list-item + .task-list-item {
+  margin-top: 3px;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body .task-list-item input, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body .task-list-item input, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body .task-list-item input, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body .task-list-item input {
+  margin: 0 0.2em 0.25em -1.6em;
+  vertical-align: middle;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"].vscode-body hr, .vscode-dark[data-vscode-theme-name="One Dark Pro"].vscode-body hr {
+  border-bottom-color: #eee;
+}
+</style>
+<style>/*
+
+Atom One Dark by Daniel Gamage
+Original One Dark Syntax theme from https://github.com/atom/one-dark-syntax
+
+base:    #282c34
+mono-1:  #abb2bf
+mono-2:  #818896
+mono-3:  #5c6370
+hue-1:   #56b6c2
+hue-2:   #61aeee
+hue-3:   #c678dd
+hue-4:   #98c379
+hue-5:   #e06c75
+hue-5-2: #be5046
+hue-6:   #d19a66
+hue-6-2: #e6c07b
+
+*/
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  color: #abb2bf;
+  background: #282c34;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-comment,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-quote, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-comment,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-quote, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-comment,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-quote, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-comment,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-quote {
+  color: #5c6370;
+  font-style: italic;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-doctag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-keyword,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-formula, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-doctag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-keyword,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-formula, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-doctag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-keyword,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-formula, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-doctag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-keyword,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-formula {
+  color: #c678dd;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-section,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-name,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-selector-tag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-deletion,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-subst, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-section,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-name,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-selector-tag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-deletion,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-subst, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-section,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-name,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-selector-tag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-deletion,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-subst, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-section,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-name,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-selector-tag,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-deletion,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-subst {
+  color: #e06c75;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-literal, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-literal, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-literal, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-literal {
+  color: #56b6c2;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-string,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-regexp,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-addition,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-attribute,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-meta-string, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-string,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-regexp,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-addition,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-attribute,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-meta-string, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-string,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-regexp,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-addition,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-attribute,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-meta-string, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-string,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-regexp,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-addition,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-attribute,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-meta-string {
+  color: #98c379;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-built_in,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-class .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-built_in,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-class .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-built_in,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-class .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-built_in,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-class .hljs-title {
+  color: #e6c07b;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-template-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-type,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-selector-class,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-selector-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-selector-pseudo,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-number, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-template-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-type,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-selector-class,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-selector-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-selector-pseudo,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-number, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-template-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-type,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-selector-class,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-selector-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-selector-pseudo,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-number, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-template-variable,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-type,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-selector-class,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-selector-attr,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-selector-pseudo,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-number {
+  color: #d19a66;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-symbol,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-bullet,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-link,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-meta,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-selector-id,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-symbol,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-bullet,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-link,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-meta,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-selector-id,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-symbol,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-bullet,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-link,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-meta,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-selector-id,
+.vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-title, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-symbol,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-bullet,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-link,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-meta,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-selector-id,
+.vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-title {
+  color: #61aeee;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-emphasis, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-emphasis, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-emphasis, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-emphasis {
+  font-style: italic;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-strong, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-strong, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-strong {
+  font-weight: bold;
+}
+.vscode-dark[data-vscode-theme-name="One Dark Pro Mix"] .hljs-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Flat"] .hljs-link, .vscode-dark[data-vscode-theme-name="One Dark Pro Darker"] .hljs-link, .vscode-dark[data-vscode-theme-name="One Dark Pro"] .hljs-link {
+  text-decoration: underline;
+}
+</style>
+
+    </head>
+    <body class="vscode-body vscode-light">
+        <p data-line="0" class="code-line" dir="auto"><img src="logo.png" alt="ByeByeMeta" data-src="logo.png"></p>
+<h1 data-line="2" class="code-line" dir="auto" id="facebookinstagram-data-cleaner" tabindex="-1">Facebook/Instagram Data Cleaner</h1>
+<p data-line="3" class="code-line" dir="auto"><a href="#background" data-href="#background">Background</a><br>
+<a href="#features" data-href="#features">Features</a><br>
+<a href="#data" data-href="#data">Getting your data from Facebook/Instagram</a><br>
+<a href="#outputfolder" data-href="#outputfolder">Making the Output folder</a><br>
+<a href="#script" data-href="#script">Getting the script</a><br>
+<a href="#running" data-href="#running">Running the script</a><br>
+<a href="#viewing" data-href="#viewing">Viewing your posts</a><br>
+<a href="#adjusting" data-href="#adjusting">Adjusting the results</a><br>
+<a href="#done" data-href="#done">Done!</a></p>
+<h2 data-line="13" class="code-line" dir="auto" id="background" tabindex="-1"><a name="background"></a>Background</h2>
+<p data-line="14" class="code-line" dir="auto">With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on <a href="https://bsky.app/profile/ubillos.bsky.social" data-href="https://bsky.app/profile/ubillos.bsky.social">BlueSky - ubillos.bsky.social</a></p>
+<p data-line="16" class="code-line" dir="auto">But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project.</p>
+<p data-line="18" class="code-line" dir="auto">Below are instructions for downloading your posts from Facebook/Instagram and for running the ByeByeMeta script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.</p>
+<p data-line="20" class="code-line" dir="auto"><strong>Note:</strong> This script has been tested on a Mac. There is code to handle Windows, but it is untested. If someone tries it on Windows, let me know how it goes!</p>
+<h2 data-line="22" class="code-line" dir="auto" id="features" tabindex="-1"><a name="features"></a>Features</h2>
+<ul data-line="23" class="code-line" dir="auto">
+<li data-line="23" class="code-line" dir="auto">Takes the data dump that you can download from Facebook/Instagram and turns it into a navigable web page where you can see and search all of your posts.</li>
+<li data-line="24" class="code-line" dir="auto">Merges posts, uncategorized entries, photos, and videos into a single collection.</li>
+<li data-line="25" class="code-line" dir="auto">Cleans up the HTML significantly</li>
+<li data-line="26" class="code-line" dir="auto">Provides a navigation bar for quickly getting to any portion of any year.</li>
+<li data-line="27" class="code-line" dir="auto">Removes duplicate entries.</li>
+<li data-line="28" class="code-line" dir="auto">Provides a method for omitting specific posts.</li>
+<li data-line="29" class="code-line" dir="auto">You can see "Memories" - posts with today's month and year by appending "?memories" to the URL.</li>
+</ul>
+<h2 data-line="31" class="code-line" dir="auto" id="getting-your-data-from-facebookinstagram" tabindex="-1"><a name="data"></a>Getting your data from Facebook/Instagram</h2>
+<p data-line="32" class="code-line" dir="auto">From your Facebook page on a Mac browser:</p>
+<ol data-line="33" class="code-line" dir="auto">
+<li data-line="33" class="code-line" dir="auto">Click you account icon in the uper right corner.</li>
+<li data-line="34" class="code-line" dir="auto">Click "Settings &amp; privacy"</li>
+<li data-line="35" class="code-line" dir="auto">Click "Settings"</li>
+<li data-line="36" class="code-line" dir="auto">Under "Accounts Center" click "See more in Accounts Center"</li>
+<li data-line="37" class="code-line" dir="auto">Click "Your information and permissions"</li>
+<li data-line="38" class="code-line" dir="auto">Click "Download your information"</li>
+<li data-line="39" class="code-line" dir="auto">Click "Download or transfer information"</li>
+<li data-line="40" class="code-line" dir="auto">Click the checkbox next to your Facebook/Instagram account that you want to download</li>
+<li data-line="41" class="code-line" dir="auto">Click "Next"</li>
+<li data-line="42" class="code-line" dir="auto">Click "Specific types of information"</li>
+<li data-line="43" class="code-line" dir="auto">Click the "Posts" checkbox</li>
+<li data-line="44" class="code-line" dir="auto">Select "Download to device"</li>
+<li data-line="45" class="code-line" dir="auto">Click "Date range:, then click "All time", then "Save"</li>
+<li data-line="46" class="code-line" dir="auto">Make sure "Format" is set to "HTML"</li>
+<li data-line="47" class="code-line" dir="auto">Click "Media quality", then click "High", then "Save"</li>
+</ol>
+<p data-line="49" class="code-line" dir="auto">You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usuualy just a few minutes. You'll get an email and a notification when your data is ready. When you receive it, select the notification, then:</p>
+<ol data-line="51" class="code-line" dir="auto">
+<li data-line="51" class="code-line" dir="auto">Follow the notification and click the "Download" button.</li>
+<li data-line="52" class="code-line" dir="auto">Locate the downloaded .zip file and double click it.</li>
+<li data-line="53" class="code-line" dir="auto">You should now have a folder named something like "facebook-username-date-someletters" or "instagram-username-date-someletters".</li>
+</ol>
+<h2 data-line="55" class="code-line" dir="auto" id="getting-the-script" tabindex="-1"><a name="script"></a>Getting the script</h2>
+<ol data-line="57" class="code-line" dir="auto">
+<li data-line="57" class="code-line" dir="auto">Go to the <a href="https://github.com/rubillos/ByeByeMeta/releases" target="_blank">Releases page on Github</a></li>
+<li data-line="58" class="code-line" dir="auto">If no files are shown below "Assets", click the triangle.</li>
+<li data-line="59" class="code-line" dir="auto">Click the <code>Source code (zip)</code> link</li>
+</ol>
+<p data-line="61" class="code-line" dir="auto">This should download a file to your computer. Double click the file to un-zip it. The resulting folder is the <code>Script Folder</code>, double click it to open it.</p>
+<h2 data-line="63" class="code-line" dir="auto" id="making-the-output-folder" tabindex="-1"><a name="outputfolder"></a>Making the Output folder</h2>
+<ul data-line="65" class="code-line" dir="auto">
+<li data-line="65" class="code-line" dir="auto">Create a folder somplace convenient (like on your Desktop) to hold the converted files. Name it something obvious, like <code>YourLastName-FB-Files</code></li>
+</ul>
+<h2 data-line="67" class="code-line" dir="auto" id="running-the-script" tabindex="-1"><a name="running"></a>Running the script</h2>
+<ol data-line="69" class="code-line" dir="auto">
+<li data-line="69" class="code-line" dir="auto">Locate the app "Terminal" in the Utilities folder in the Applications folder; double click it.</li>
+<li data-line="70" class="code-line" dir="auto">From the Script folder, drag the file <code>install-packages.sh</code> to the Terminal window.</li>
+<li data-line="71" class="code-line" dir="auto">Bring the Terminal window to the front and press <code>return</code>. This will install necessary libraries.</li>
+<li data-line="72" class="code-line" dir="auto">From the Script folder, drag the file <code>ByeByeMeta.py</code> to the Terminal window.</li>
+<li data-line="73" class="code-line" dir="auto">Bring the Terminal window to the front and press <code>return</code>.</li>
+</ol>
+<p data-line="75" class="code-line" dir="auto">You will be presented with two <code>Open File</code> dialogs.</p>
+<ul data-line="76" class="code-line" dir="auto">
+<li data-line="76" class="code-line" dir="auto">The first one asks you to locate the <code>your_facebook_activity</code> or <code>your_instagram_activity</code> folder inside the data download folder.</li>
+<li data-line="77" class="code-line" dir="auto">The second asks you to locate the <code>Output Folder</code> you created above.</li>
+</ul>
+<p data-line="79" class="code-line" dir="auto">At this point the script will run, printing out progress information and copying/renaming the media files.</p>
+<h2 data-line="81" class="code-line" dir="auto" id="viewing-your-posts" tabindex="-1"><a name="viewing"></a>Viewing your posts</h2>
+<p data-line="83" class="code-line" dir="auto">When the script is done, inside your <code>Output Folder</code> you should have three folders, <code>assets</code>, <code>entries</code>, and <code>media</code>, along with a file named <code>index.html</code>. Double clicking the <code>index.html</code> file should open it into your browser.</p>
+<p data-line="85" class="code-line" dir="auto">You can use the navigation bar at the left to jump to any portion of any year.</p>
+<h2 data-line="87" class="code-line" dir="auto" id="adjusting-the-results" tabindex="-1"><a name="adjusting"></a>Adjusting the results</h2>
+<p data-line="89" class="code-line" dir="auto">There may be entries that you'd prefer not to have included. For me these were images that were used as heading for events I made.</p>
+<p data-line="91" class="code-line" dir="auto">To omit these you just need to find the "entry numbers". Hold down the option key as you move the mouse over the entry you'd like to omit. It's "entry number" will show at the top center of the entry. Make a note of this number.</p>
+<p data-line="93" class="code-line" dir="auto">Once you have a list of entry numbers to omit, you can re-run the ByeByeMeta script:</p>
+<ol data-line="95" class="code-line" dir="auto">
+<li data-line="95" class="code-line" dir="auto">Bring the Terminal window to the front.</li>
+<li data-line="96" class="code-line" dir="auto">Press the <code>up-arrow</code> - this will show the previous command that was run.</li>
+<li data-line="97" class="code-line" dir="auto">Type a space, followed by <code>-x</code>, followed by a space and then type in the entry numbers that you'd like to omit, separated by commas. There should be only numbers and commas in this list, no additional spaces. You can use the arrow and delete keys to edit the line. It should look something like:</li>
+</ol>
+<pre><code data-line="98" class="code-line" dir="auto">/Users/randy/Downloads/ByeByeMeta-1.0.0/ByeByeMeta.py -x 10,11,12,118,119,188,260
+</code></pre>
+<ol start="4" data-line="101" class="code-line" dir="auto">
+<li data-line="101" class="code-line" dir="auto">Press <code>return</code>.</li>
+</ol>
+<p data-line="103" class="code-line" dir="auto">The script will run again, omitting the specified entries. Once it has finished you can refresh the browser page, or double click <code>index.html</code> again. The specified entries should no longer be included on the page.</p>
+<p data-line="105" class="code-line" dir="auto">You can repeat steps 1 through 4 above, editing the list of omitted entries as desired to curate your final page.</p>
+<h2 data-line="107" class="code-line" dir="auto" id="done" tabindex="-1"><a name="done"></a>Done!</h2>
+<p data-line="108" class="code-line" dir="auto">You now have an archive of your Facebook/Instagram posts that you can look at locally on your computer, or you can host it on the web through a hosting provider.</p>
+
+        <script>var Be=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var Me=Be((Lt,Ne)=>{var xe="Expected a function",Ae=NaN,Qe="[object Symbol]",Ze=/^\s+|\s+$/g,et=/^[-+]0x[0-9a-f]+$/i,tt=/^0b[01]+$/i,nt=/^0o[0-7]+$/i,rt=parseInt,it=typeof global=="object"&&global&&global.Object===Object&&global,at=typeof self=="object"&&self&&self.Object===Object&&self,ot=it||at||Function("return this")(),st=Object.prototype,lt=st.toString,ct=Math.max,ut=Math.min,ue=function(){return ot.Date.now()};function dt(e,t,n){var r,i,a,s,u,m,d=0,p=!1,b=!1,T=!0;if(typeof e!="function")throw new TypeError(xe);t=Le(t)||0,te(n)&&(p=!!n.leading,b="maxWait"in n,a=b?ct(Le(n.maxWait)||0,t):a,T="trailing"in n?!!n.trailing:T);function E(v){var A=r,_=i;return r=i=void 0,d=v,s=e.apply(_,A),s}function N(v){return d=v,u=setTimeout(L,t),p?E(v):s}function g(v){var A=v-m,_=v-d,h=t-A;return b?ut(h,a-_):h}function S(v){var A=v-m,_=v-d;return m===void 0||A>=t||A<0||b&&_>=a}function L(){var v=ue();if(S(v))return U(v);u=setTimeout(L,g(v))}function U(v){return u=void 0,T&&r?E(v):(r=i=void 0,s)}function R(){u!==void 0&&clearTimeout(u),d=0,r=m=i=u=void 0}function Y(){return u===void 0?s:U(ue())}function I(){var v=ue(),A=S(v);if(r=arguments,i=this,m=v,A){if(u===void 0)return N(m);if(b)return u=setTimeout(L,t),E(m)}return u===void 0&&(u=setTimeout(L,t)),s}return I.cancel=R,I.flush=Y,I}function ft(e,t,n){var r=!0,i=!0;if(typeof e!="function")throw new TypeError(xe);return te(n)&&(r="leading"in n?!!n.leading:r,i="trailing"in n?!!n.trailing:i),dt(e,t,{leading:r,maxWait:t,trailing:i})}function te(e){var t=typeof e;return!!e&&(t=="object"||t=="function")}function mt(e){return!!e&&typeof e=="object"}function gt(e){return typeof e=="symbol"||mt(e)&&lt.call(e)==Qe}function Le(e){if(typeof e=="number")return e;if(gt(e))return Ae;if(te(e)){var t=typeof e.valueOf=="function"?e.valueOf():e;e=te(t)?t+"":t}if(typeof e!="string")return e===0?e:+e;e=e.replace(Ze,"");var n=tt.test(e);return n||nt.test(e)?rt(e.slice(2),n?2:8):et.test(e)?Ae:+e}Ne.exports=ft});var pe="code-line",F=class{constructor(t,n,r){this.element=t;this.line=n;this.codeElement=r;this._detailParentElements=Array.from(Re(t,"DETAILS"))}get isVisible(){return!this._detailParentElements.some(t=>!t.open)}},ae=(()=>{let e,t=-1;return n=>{if(!e||n!==t){t=n,e=[new F(document.body,-1)];for(let r of document.getElementsByClassName(pe)){if(!(r instanceof HTMLElement))continue;let i=+r.getAttribute("data-line");isNaN(i)||(r.tagName==="CODE"&&r.parentElement&&r.parentElement.tagName==="PRE"?e.push(new F(r.parentElement,i,r)):r.tagName==="UL"||r.tagName==="OL"||e.push(new F(r,i)))}}return e}})();function oe(e,t){let n=Math.floor(e),r=ae(t),i=r[0]||null;for(let a of r){if(a.line===n)return{previous:a,next:void 0};if(a.line>n)return{previous:i,next:a};i=a}return{previous:i}}function He(e,t){let n=ae(t).filter(m=>m.isVisible),r=e-window.scrollY,i=-1,a=n.length-1;for(;i+1<a;){let m=Math.floor((i+a)/2),d=W(n[m]);d.top+d.height>=r?a=m:i=m}let s=n[a],u=W(s);return a>=1&&u.top>r?{previous:n[i],next:s}:a>1&&a<n.length&&u.top+u.height>r?{previous:s,next:n[a+1]}:{previous:s}}function W({element:e}){let t=e.getBoundingClientRect(),n=e.querySelector(`.${pe}`);if(n){let r=n.getBoundingClientRect(),i=Math.max(1,r.top-t.top);return{top:t.top,height:i}}return t}function K(e,t,n){if(!n.settings?.scrollPreviewWithEditor)return;if(e<=0){window.scroll(window.scrollX,0);return}let{previous:r,next:i}=oe(e,t);if(!r)return;let a=0,s=W(r),u=s.top;if(i&&i.line!==r.line){let m=(e-r.line)/(i.line-r.line),d=u+s.height,p=i.element.getBoundingClientRect().top-d;a=d+m*p}else{let m=e-Math.floor(e);a=u+s.height*m}a=Math.abs(a)<1?Math.sign(a):a,window.scroll(window.scrollX,Math.max(1,window.scrollY+a))}function se(e,t){let{previous:n,next:r}=He(e,t);if(n){if(n.line<0)return 0;let i=W(n),a=e-window.scrollY-i.top;if(r){let s=a/(W(r).top-i.top);return n.line+s*(r.line-n.line)}else{let s=a/i.height;return n.line+s}}return null}function ve(e,t){return ae(t).find(n=>n.element.id===e)}function*Re(e,t){for(let n=e.parentElement;n;n=n.parentElement)n.tagName===t&&(yield n)}var J=class{onDidChangeTextEditorSelection(t,n){let{previous:r}=oe(t,n);this._update(r&&(r.codeElement||r.element))}_update(t){this._unmarkActiveElement(this._current),this._markActiveElement(t),this._current=t}_unmarkActiveElement(t){t&&t.classList.toggle("code-active-line",!1)}_markActiveElement(t){t&&t.classList.toggle("code-active-line",!0)}};function he(e){document.readyState==="loading"||document.readyState==="uninitialized"?document.addEventListener("DOMContentLoaded",e):e()}var be=(e,t)=>({postMessage(n,r){e.postMessage({type:n,source:t.settings.source,...r})}});function le(e){let t=document.getElementById("vscode-markdown-preview-data");if(t){let n=t.getAttribute(e);if(n)return JSON.parse(n)}throw new Error(`Could not load data for ${e}`)}var Q=class{constructor(){this._settings=le("data-settings")}get settings(){return this._settings}updateSettings(t){this._settings=t}};var ye=11;function ke(e,t){var n=t.attributes,r,i,a,s,u;if(!(t.nodeType===ye||e.nodeType===ye)){for(var m=n.length-1;m>=0;m--)r=n[m],i=r.name,a=r.namespaceURI,s=r.value,a?(i=r.localName||i,u=e.getAttributeNS(a,i),u!==s&&(r.prefix==="xmlns"&&(i=r.name),e.setAttributeNS(a,i,s))):(u=e.getAttribute(i),u!==s&&e.setAttribute(i,s));for(var d=e.attributes,p=d.length-1;p>=0;p--)r=d[p],i=r.name,a=r.namespaceURI,a?(i=r.localName||i,t.hasAttributeNS(a,i)||e.removeAttributeNS(a,i)):t.hasAttribute(i)||e.removeAttribute(i)}}var Z,Ue="http://www.w3.org/1999/xhtml",w=typeof document>"u"?void 0:document,Fe=!!w&&"content"in w.createElement("template"),We=!!w&&w.createRange&&"createContextualFragment"in w.createRange();function Ve(e){var t=w.createElement("template");return t.innerHTML=e,t.content.childNodes[0]}function je(e){Z||(Z=w.createRange(),Z.selectNode(w.body));var t=Z.createContextualFragment(e);return t.childNodes[0]}function qe(e){var t=w.createElement("body");return t.innerHTML=e,t.childNodes[0]}function Xe(e){return e=e.trim(),Fe?Ve(e):We?je(e):qe(e)}function ee(e,t){var n=e.nodeName,r=t.nodeName,i,a;return n===r?!0:(i=n.charCodeAt(0),a=r.charCodeAt(0),i<=90&&a>=97?n===r.toUpperCase():a<=90&&i>=97?r===n.toUpperCase():!1)}function Ye(e,t){return!t||t===Ue?w.createElement(e):w.createElementNS(t,e)}function ze(e,t){for(var n=e.firstChild;n;){var r=n.nextSibling;t.appendChild(n),n=r}return t}function ce(e,t,n){e[n]!==t[n]&&(e[n]=t[n],e[n]?e.setAttribute(n,""):e.removeAttribute(n))}var Te={OPTION:function(e,t){var n=e.parentNode;if(n){var r=n.nodeName.toUpperCase();r==="OPTGROUP"&&(n=n.parentNode,r=n&&n.nodeName.toUpperCase()),r==="SELECT"&&!n.hasAttribute("multiple")&&(e.hasAttribute("selected")&&!t.selected&&(e.setAttribute("selected","selected"),e.removeAttribute("selected")),n.selectedIndex=-1)}ce(e,t,"selected")},INPUT:function(e,t){ce(e,t,"checked"),ce(e,t,"disabled"),e.value!==t.value&&(e.value=t.value),t.hasAttribute("value")||e.removeAttribute("value")},TEXTAREA:function(e,t){var n=t.value;e.value!==n&&(e.value=n);var r=e.firstChild;if(r){var i=r.nodeValue;if(i==n||!n&&i==e.placeholder)return;r.nodeValue=n}},SELECT:function(e,t){if(!t.hasAttribute("multiple")){for(var n=-1,r=0,i=e.firstChild,a,s;i;)if(s=i.nodeName&&i.nodeName.toUpperCase(),s==="OPTGROUP")a=i,i=a.firstChild;else{if(s==="OPTION"){if(i.hasAttribute("selected")){n=r;break}r++}i=i.nextSibling,!i&&a&&(i=a.nextSibling,a=null)}e.selectedIndex=n}}},V=1,Ge=11,we=3,Ee=8;function B(){}function $e(e){if(e)return e.getAttribute&&e.getAttribute("id")||e.id}function Ke(e){return function(n,r,i){if(i||(i={}),typeof r=="string")if(n.nodeName==="#document"||n.nodeName==="HTML"||n.nodeName==="BODY"){var a=r;r=w.createElement("html"),r.innerHTML=a}else r=Xe(r);var s=i.getNodeKey||$e,u=i.onBeforeNodeAdded||B,m=i.onNodeAdded||B,d=i.onBeforeElUpdated||B,p=i.onElUpdated||B,b=i.onBeforeNodeDiscarded||B,T=i.onNodeDiscarded||B,E=i.onBeforeElChildrenUpdated||B,N=i.childrenOnly===!0,g=Object.create(null),S=[];function L(c){S.push(c)}function U(c,l){if(c.nodeType===V)for(var o=c.firstChild;o;){var f=void 0;l&&(f=s(o))?L(f):(T(o),o.firstChild&&U(o,l)),o=o.nextSibling}}function R(c,l,o){b(c)!==!1&&(l&&l.removeChild(c),T(c),U(c,o))}function Y(c){if(c.nodeType===V||c.nodeType===Ge)for(var l=c.firstChild;l;){var o=s(l);o&&(g[o]=l),Y(l),l=l.nextSibling}}Y(n);function I(c){m(c);for(var l=c.firstChild;l;){var o=l.nextSibling,f=s(l);if(f){var x=g[f];x&&ee(l,x)?(l.parentNode.replaceChild(x,l),A(x,l)):I(l)}else I(l);l=o}}function v(c,l,o){for(;l;){var f=l.nextSibling;(o=s(l))?L(o):R(l,c,!0),l=f}}function A(c,l,o){var f=s(l);f&&delete g[f],!(!o&&(d(c,l)===!1||(e(c,l),p(c),E(c,l)===!1)))&&(c.nodeName!=="TEXTAREA"?_(c,l):Te.TEXTAREA(c,l))}function _(c,l){var o=l.firstChild,f=c.firstChild,x,P,k,G,O;e:for(;o;){for(G=o.nextSibling,x=s(o);f;){if(k=f.nextSibling,o.isSameNode&&o.isSameNode(f)){o=G,f=k;continue e}P=s(f);var $=f.nodeType,D=void 0;if($===o.nodeType&&($===V?(x?x!==P&&((O=g[x])?k===O?D=!1:(c.insertBefore(O,f),P?L(P):R(f,c,!0),f=O):D=!1):P&&(D=!1),D=D!==!1&&ee(f,o),D&&A(f,o)):($===we||$==Ee)&&(D=!0,f.nodeValue!==o.nodeValue&&(f.nodeValue=o.nodeValue))),D){o=G,f=k;continue e}P?L(P):R(f,c,!0),f=k}if(x&&(O=g[x])&&ee(O,o))c.appendChild(O),A(O,o);else{var ie=u(o);ie!==!1&&(ie&&(o=ie),o.actualize&&(o=o.actualize(c.ownerDocument||w)),c.appendChild(o),I(o))}o=G,f=k}v(c,f,P);var ge=Te[c.nodeName];ge&&ge(c,l)}var h=n,z=h.nodeType,me=r.nodeType;if(!N){if(z===V)me===V?ee(n,r)||(T(n),h=ze(n,Ye(r.nodeName,r.namespaceURI))):h=r;else if(z===we||z===Ee){if(me===z)return h.nodeValue!==r.nodeValue&&(h.nodeValue=r.nodeValue),h;h=r}}if(h===r)T(n);else{if(r.isSameNode&&r.isSameNode(h))return;if(A(h,r,N),S)for(var ne=0,_e=S.length;ne<_e;ne++){var re=g[S[ne]];re&&R(re,re.parentNode,!1)}}return!N&&h!==n&&n.parentNode&&(h.actualize&&(h=h.actualize(n.ownerDocument||w)),n.parentNode.replaceChild(h,n)),h}}var Je=Ke(ke),Se=Je;var Ce=Me(),H=0,Pe=new J,y=new Q,M=0,j=y.settings.source,q=acquireVsCodeApi(),de=q.getState()??{},C={...de,...le("data-state")};typeof de.scrollProgress<"u"&&de?.resource!==C.resource&&(C.scrollProgress=0);q.setState(C);var X=be(q,y);window.cspAlerter.setPoster(X);window.styleLoadingMonitor.setPoster(X);function fe(e){let t=document.getElementsByTagName("img");if(t.length>0){let n=Array.from(t,r=>r.complete?Promise.resolve():new Promise(i=>{r.addEventListener("load",()=>i()),r.addEventListener("error",()=>i())}));Promise.all(n).then(()=>setTimeout(e,0))}else setTimeout(e,0)}he(()=>{let e=C.scrollProgress;if(Oe(),typeof e=="number"&&!y.settings.fragment){fe(()=>{H+=1;let t=Math.max(1,e*document.body.clientHeight);window.scrollTo(0,t)});return}y.settings.scrollPreviewWithEditor&&fe(()=>{if(y.settings.fragment){let t;try{t=encodeURIComponent(y.settings.fragment)}catch{t=y.settings.fragment}C.fragment=void 0,q.setState(C);let n=ve(t,M);n&&(H+=1,K(n.line,M,y))}else isNaN(y.settings.line)||(H+=1,K(y.settings.line,M,y))}),typeof y.settings.selectedLine=="number"&&Pe.onDidChangeTextEditorSelection(y.settings.selectedLine,M)});var pt=(()=>{let e=Ce(t=>{H+=1,fe(()=>K(t,M,y))},50);return t=>{isNaN(t)||(C.line=t,e(t))}})();window.addEventListener("resize",()=>{H+=1,Ie()},!0);function Oe(){let e=document.getElementsByTagName("img"),t=0;for(let n of e)n.id="image-"+t,t+=1,n.setAttribute("data-vscode-context",JSON.stringify({webviewSection:"image",id:n.id,preventDefaultContextMenuItems:!0,resource:j}))}async function De(e,t=5){if(!document.hasFocus()&&t>0){setTimeout(()=>{De(e,t-1)},20);return}try{await navigator.clipboard.write([new ClipboardItem({"image/png":new Promise(n=>{let r=document.createElement("canvas");r!==null&&(r.width=e.naturalWidth,r.height=e.naturalHeight,r.getContext("2d")?.drawImage(e,0,0)),r.toBlob(i=>{i&&n(i),r.remove()},"image/png")})})])}catch(n){console.error(n)}}window.addEventListener("message",async e=>{let t=e.data;switch(t.type){case"copyImage":{let n=document.getElementById(t.id);n instanceof HTMLImageElement&&De(n);return}case"onDidChangeTextEditorSelection":t.source===j&&Pe.onDidChangeTextEditorSelection(t.line,M);return;case"updateView":t.source===j&&pt(t.line);return;case"updateContent":{let n=document.querySelector(".markdown-body"),i=new DOMParser().parseFromString(t.content,"text/html");for(let a of Array.from(i.querySelectorAll("meta")))a.hasAttribute("http-equiv")&&a.remove();if(t.source!==j)n.replaceWith(i.querySelector(".markdown-body")),j=t.source;else{let a=["open"],s=(d,p)=>{if(d.isEqualNode(p))return!0;if(d.tagName!==p.tagName||d.textContent!==p.textContent)return!1;let b=[...d.attributes].filter(g=>!a.includes(g.name)),T=[...p.attributes].filter(g=>!a.includes(g.name));if(b.length!==T.length)return!1;for(let g=0;g<b.length;++g){let S=b[g],L=T[g];if(S.name!==L.name||S.value!==L.value&&S.name!=="data-line")return!1}let E=Array.from(d.children),N=Array.from(p.children);return E.length===N.length&&E.every((g,S)=>s(g,N[S]))},u=i.querySelector(".markdown-body"),m=u.querySelectorAll("link");for(let d of m)d.remove();u.prepend(...m),Se(n,u,{childrenOnly:!0,onBeforeElUpdated:(d,p)=>{if(s(d,p)){let b=d.querySelectorAll("[data-line]"),T=p.querySelectorAll("[data-line]");b.length!==T.length&&console.log("unexpected line number change");for(let E=0;E<b.length;++E){let N=b[E],g=T[E];g&&N.setAttribute("data-line",g.getAttribute("data-line"))}return!1}return d.tagName==="DETAILS"&&p.tagName==="DETAILS"&&d.hasAttribute("open")&&p.setAttribute("open",""),!0}})}++M,window.dispatchEvent(new CustomEvent("vscode.markdown.updateContent")),Oe();break}}},!1);document.addEventListener("dblclick",e=>{if(!y.settings.doubleClickToSwitchToEditor)return;for(let r=e.target;r;r=r.parentNode)if(r.tagName==="A")return;let t=e.pageY,n=se(t,M);typeof n=="number"&&!isNaN(n)&&X.postMessage("didClick",{line:Math.floor(n)})});var vt=["http:","https:","mailto:","vscode:","vscode-insiders:"];document.addEventListener("click",e=>{if(!e)return;let t=e.target;for(;t;){if(t.tagName&&t.tagName==="A"&&t.href){if(t.getAttribute("href").startsWith("#"))return;let n=t.getAttribute("data-href");if(!n&&(n=t.getAttribute("href"),vt.some(r=>n.startsWith(r))))return;if(!/^[a-z\-]+:/i.test(n)){X.postMessage("openLink",{href:n}),e.preventDefault(),e.stopPropagation();return}return}t=t.parentNode}},!0);window.addEventListener("scroll",Ce(()=>{if(Ie(),H>0)H-=1;else{let e=se(window.scrollY,M);typeof e=="number"&&!isNaN(e)&&X.postMessage("revealLine",{line:e})}},50));function Ie(){C.scrollProgress=window.scrollY/document.body.clientHeight,q.setState(C)}
+</script>
+
+    </body>
+</html>
