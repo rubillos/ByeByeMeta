@@ -29,12 +29,7 @@ from rich.text import Text
 from rich.padding import Padding
 from rich.theme import Theme
 from rich.panel import Panel
-
-from textual.app import App, ComposeResult, RenderResult
-from textual.screen import Screen
-from textual.widgets import Button, Digits, Footer, Header, Label, ProgressBar, Input, Placeholder, Static, Checkbox, Switch
-from textual.containers import Horizontal, Vertical
-from textual.widget import Widget
+import webbrowser
 
 assetsFolder = "assets"
 entryFolder = "entries"
@@ -71,6 +66,7 @@ parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=s
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
 parser.add_argument("-si", "--show-indexes", dest="showIndexes", help="Always show the index numbers for entries", action="store_true")
 parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with the excluded entries", action="store_true")
+parser.add_argument("-s", "--show-result", dest="showResult", help="Show the page in your browser", action="store_true")
 
 group = parser.add_argument_group("exclusion list")
 group.add_argument("-x", "--exclude", dest="exclude", help="Comma separated list of numbers to exclude", type=str, default="")
@@ -79,7 +75,7 @@ group.add_argument("-xig", "--exclude-ig", dest="excludeig", help="Comma separat
 
 group = parser.add_argument_group("banner options")
 group.add_argument("-nb", "--no-banner", dest="noBanner", help="Suppress banner at top of entry list", type=str, default="")
-group.add_argument("-u", "--user-name", dest="userName", help="Name for banner, if omitted will be inferred from data", type=str, default="")
+group.add_argument("-u", "--user-name", dest="userName", help="Name for banner, if omitted will be inferred from data. (Put double quotes around)", type=str, default="")
 group.add_argument("-bf", "--banner-format", dest="bannerFormat", help=f"Banner format string, use $N for name, $M for facebook/instagram, $S for start date, $E for end date - defaults to '{bannerFormat}'", type=str, default=bannerFormat)
 
 args = parser.parse_args()
@@ -104,45 +100,6 @@ prog_percentage = "[progress.percentage]{task.percentage:>3.0f}% "
 
 console = Console(theme=theme)
 
-def pluralize(str, count, pad=False):
-	return "{:d} {}{}".format(count, str, "s" if count!=1 else " " if pad else "")
-
-def printNow(str):
-	console.print(str, end="")
-
-def printError(*args, dest_console=console):
-	message = args[0] if len(args) >= 1 else None
-	item = args[1] if len(args) >= 2 else None
-	error_message = args[2] if len(args) >= 3 else None
-
-	if item and not isinstance(item, str):
-		item = str(item)
-	if error_message and not isinstance(error_message, str):
-		error_message = str(error_message)
-
-	error_color = "[bold red]"
-	error_item_color = "[magenta]"
-	error_message_color = "[yellow]"
-
-	parts = []
-	if message:
-		parts.extend([error_color, message])
-	if item:
-		parts.extend([error_item_color, item])
-	if error_message:
-		if len(parts)>0:
-			parts.extend([error_color, " - "]) 
-		parts.extend([error_message_color, error_message]) 
-
-	dest_console.print("".join(parts))
-
-	# with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
-		# with Progress(prog_description, BarColumn(), prog_percentage, StyledElapsedColumn(), prog_rate, console=console) as progress:
-		# 	task = progress.add_task("Creating {}".format(pluralize("image", image_count)), total=image_count, ips=0, color="conceal")
-		# 			image_rate = completed_count / (time.time() - image_process_start)
-		# 			progress.update(task, advance=1, ips=image_rate, color="bright_green")
-		# 	progress.update(task, refresh=True, color="conceal")
-
 def getFolder(message):
 	path = None
 
@@ -160,9 +117,6 @@ def getFolder(message):
 				path = "/"+"/".join(path.split(":")[1:-1])
 	
 	return path
-
-def pluralize(string, count, pad=False):
-	return "{:d} {}{}".format(count, string, "s" if count!=1 else " " if pad else "")
 
 def fileExists(path):
 	return os.path.isfile(path)
@@ -217,6 +171,14 @@ def processData():
 	elif os.path.basename(srcFolder) == igFolderName:
 		console.print("Processing Instagram Data")
 		isFacebook = False
+	elif os.path.isdir(os.path.join(srcFolder, fbFolderName)):
+		console.print("Processing Facebook Data")
+		isFacebook = True
+		srcFolder = os.path.join(srcFolder, fbFolderName)
+	elif os.path.isdir(os.path.join(srcFolder, igFolderName)):
+		console.print("Processing Instagram Data")
+		isFacebook = False
+		srcFolder = os.path.join(srcFolder, igFolderName)
 	else:
 		console.print("Unknown source data folder!")
 		return
@@ -479,8 +441,8 @@ def processData():
 					entry.insert(0, newDiv)
 				entry.insert(1, a6o[0].extract())
 				if len(entry.contents) == 3:
-					addClass(kids[0], "_top4")
-					addClass(kids[2], "_top0")
+					addClass(entry.contents[0], "_top4")
+					addClass(entry.contents[2], "_top0")
 
 		entry.extract()
 		itemDate = entry.itemdate
@@ -536,6 +498,9 @@ def processData():
 			startDate = firstDate.strftime("%b %d, %Y")
 			endDate = lastDate.strftime("%b %d, %Y")
 			format = args.bannerFormat
+
+			if userName == "":
+				format = format.replace("$N - ", "")
 
 			bannerText = format.replace("$N", userName).replace("$M", typeString).replace("$S", startDate).replace("$E", endDate)
 			newDiv.string = bannerText
@@ -904,7 +869,6 @@ def processData():
 						newNameTotal += len(newName)
 			progress.update(task, advance=1)
 
-
 	# console.print("")
 	# console.print(f"Copied {copyCount} files")
 
@@ -1146,6 +1110,10 @@ def processData():
 
 	console.print(f"Read {srcDataCount} bytes")
 	console.print(f"Wrote {totalBytes} bytes")
+
+	if args.showResult:
+		destUrl = "file://" + os.path.join(dstFolder, indexName)
+		webbrowser.open(destUrl)
 
 if __name__ == '__main__':
 	console.print(Panel("[green]Begin ByeByeMeta"))
