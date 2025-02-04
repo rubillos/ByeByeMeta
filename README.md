@@ -1,4 +1,6 @@
-# ByeByeMeta - Facebook/Instagram Data Cleaner
+![ByeByeMeta](/graphics/logo.png)
+
+# Facebook/Instagram Data Cleaner
 [Background](#background)<br>
 [Features](#features)<br>
 [Getting your data from Facebook/Instagram](#data)<br>
