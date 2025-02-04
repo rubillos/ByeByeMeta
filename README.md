@@ -1,4 +1,4 @@
-![ByeByeMeta](/graphics/logo.png)
+![ByeByeMeta](logo.png)
 
 # Facebook/Instagram Data Cleaner
 [Background](#background)<br>
