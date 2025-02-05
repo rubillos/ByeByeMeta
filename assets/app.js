@@ -9,7 +9,7 @@ const monthDayID = `d${(currentDate.getMonth() + 1) * 100 + currentDate.getDate(
 
 var showIndexes = window.numSrcFiles === undefined;
 if (window.showIndexes !== undefined) {
-	showIndexes |= window.showIndexes;
+	showIndexes = showIndexes || window.showIndexes;
 }
 if (new URLSearchParams(window.location.search).has('indexes')) {
 	showIndexes = true;
@@ -116,10 +116,10 @@ function updateYearBackground(durationMS) {
 }
 
 async function loadAndInsertDivsSequentially(filePaths, domDone) {
-	var activeTask = null;
-	var index = 1;
-	var checkDom = true;
-	var startTime = Date.now();
+	let activeTask = null;
+	let index = 1;
+	let checkDom = true;
+	let startTime = Date.now();
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
@@ -162,9 +162,9 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	await activeTask;
 
-	yearBack = document.getElementById('year-background');
-	yearBackTop = document.getElementById('year-back-top');
-	yearBackBottom = document.getElementById('year-back-bottom');
+	let yearBack = document.getElementById('year-background');
+	let yearBackTop = document.getElementById('year-back-top');
+	let yearBackBottom = document.getElementById('year-back-bottom');
 	
 	yearBack.style.transition = 'background-image 0.3s';
 	yearBackTop.style.transition = 'background-image 0.3s';
@@ -210,7 +210,21 @@ function setupEntryEvents() {
 	document.querySelectorAll('img:not([src*="static"])').forEach(img => {
 		imgUrls.push(img.getAttribute('src'));
 	});
-	sessionStorage.setItem('img_urls', imgUrls);;
+	localStorage.setItem('img_urls', imgUrls);
+	localStorage.setItem('last_url', "");
+
+	document.addEventListener('visibilitychange', function() {
+		if (document.visibilityState === 'visible') {
+			const lastUrl = localStorage.getItem('last_url');
+			if (lastUrl) {
+				const img = document.querySelector(`img[src="${lastUrl}"]`);
+				if (img) {
+					img.scrollIntoView({ behavior: 'instant', block: 'center' });
+				}
+				localStorage.setItem('last_url', "");
+			}
+		}
+	});
 
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Enter' || event.key === 'ArrowRight') {
@@ -348,7 +362,7 @@ function setupContent() {
 		updateYearBackground();
 	}
 
-	var lastMouseY = 0;
+	let lastMouseY = 0;
 
 	function navMouseDown(e) {
 		if (!e.defaultPrevented) {
@@ -372,7 +386,7 @@ function setupContent() {
 		const curY = e.clientY;
 		const deltaY = curY - lastMouseY;
 		lastMouseY = curY;
-		var newTop = parseInt(indicator.style.top, 10) + deltaY;
+		let newTop = parseInt(indicator.style.top, 10) + deltaY;
 		const minTop = 0 - (indicator.offsetHeight / 2);
 		const maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
 
@@ -396,9 +410,9 @@ function setupContent() {
 		mouseIsDown = false;
 	}
 
-	var scrollY;
-	var nextScrollY;
-	var scrollID = null;
+	let scrollY;
+	let nextScrollY;
+	let scrollID = null;
 
 	function performScrollToY(y) {
 		const newTop = y - (indicator.offsetHeight / 2) - 10;

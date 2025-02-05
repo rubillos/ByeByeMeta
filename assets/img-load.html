@@ -56,7 +56,7 @@
 			if (imgSrc) {
 				mainImg.src = "../" + imgSrc;
 			}
-			var imgUrls = sessionStorage.getItem('img_urls');
+			var imgUrls = localStorage.getItem('img_urls');
 			imgUrls = imgUrls.split(",");
 
 			function nextImage() {
@@ -64,6 +64,7 @@
 				if (currentIndex < imgUrls.length - 1) {
 					imgSrc = imgUrls[currentIndex + 1];
 					mainImg.src = "../" + imgSrc;
+					localStorage.setItem('last_url', imgSrc);
 				}
 			}
 
@@ -72,6 +73,7 @@
 				if (currentIndex > 0) {
 					imgSrc = imgUrls[currentIndex - 1];
 					mainImg.src = "../" + imgSrc;
+					localStorage.setItem('last_url', imgSrc);
 				}
 			}
 
