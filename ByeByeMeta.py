@@ -40,6 +40,7 @@ excludedName = "excluded.html"
 entryName = "entries{}.html"
 appName = "app.js"
 styleName = "style.css"
+excludesName = "excludes.txt"
 
 fbFolderName = "your_facebook_activity"
 igFolderName = "your_instagram_activity"
@@ -72,6 +73,7 @@ group = parser.add_argument_group("exclusion list")
 group.add_argument("-x", "--exclude", dest="exclude", help="Comma separated list of numbers to exclude", type=str, default="")
 group.add_argument("-xfb", "--exclude-fb", dest="excludefb", help="Comma separated list of numbers to exclude from Facebook data", type=str, default="")
 group.add_argument("-xig", "--exclude-ig", dest="excludeig", help="Comma separated list of numbers to exclude from Instagram data", type=str, default="")
+group.add_argument("-ux", "--existing-excludes", dest="useExcludesFile", help="Use any existing excludes folder", action="store_true")
 
 group = parser.add_argument_group("banner options")
 group.add_argument("-nb", "--no-banner", dest="noBanner", help="Suppress banner at top of entry list", type=str, default="")
@@ -198,15 +200,56 @@ def processData():
 		soup = BeautifulSoup(fp, 'lxml')
 
 	# --------------------------------------------------
+	def askToUseExcludesFile():
+		while True:
+			answer = input("Use the existing excludes file? (y/n): ").lower()
+			if answer == "y":
+				return True
+			elif answer == "n":
+				return False
+
+	xstring = ""
+
+	if isFacebook:
+		xstring = args.excludefb
+	else:
+		xstring = args.excludeig
+
+	if xstring == "":
+		xstring = args.exclude
+
+	excludePath = os.path.join(dstFolder, excludesName)
+	if xstring != "":
+		with open(excludePath, "w") as f:
+			f.write(xstring)
+		console.print(f"Exclusion list written to {excludePath}")
+	else:
+		if os.path.isfile(excludePath):
+			if args.useExcludesFile or askToUseExcludesFile():
+				with open(excludePath) as f:
+					xstring = f.read()
+				console.print(f"Exclusion list read from {excludePath}")
+
+	# --------------------------------------------------
 	console.print("Cleaning destination folder...")
 
-	folderList = [entryFolder, assetsFolder, mediaFolder]
+	folderList = [entryFolder, assetsFolder]
 	fileList = [indexName, excludedName]
 	foldersRemoved = 0
 	filesRemoved = 0
 	for name in os.listdir(dstFolder):
 		path = os.path.join(dstFolder, name)
-		if name in folderList:
+		if name == mediaFolder:	# remove all files except the static image folder
+			for mediaName in os.listdir(path):
+				if mediaName != staticImageFolder:
+					mediaPath = os.path.join(path, mediaName)
+					if os.path.isdir(mediaPath):
+						shutil.rmtree(mediaPath)
+						foldersRemoved += 1
+					else:
+						os.remove(mediaPath)
+						filesRemoved += 1
+		elif name in folderList:
 			shutil.rmtree(path)
 			foldersRemoved += 1
 		elif name in fileList:
@@ -786,15 +829,6 @@ def processData():
 	# Exclusion List
 
 	deletedEntries = []
-	xstring = ""
-
-	if isFacebook:
-		xstring = args.excludefb
-	else:
-		xstring = args.excludeig
-
-	if xstring == "":
-		xstring = args.exclude
 
 	def excludeEntries():
 		if xstring != "":
