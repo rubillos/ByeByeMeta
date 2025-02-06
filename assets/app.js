@@ -68,6 +68,7 @@ function hideShowMemories(containerDiv) {
 }
 
 function initialMemoriesSetup() {
+	const banner = document.querySelector('.banner');
 	if (showMemories) {
 		const banner = document.querySelector('.banner');
 		if (banner) {
@@ -77,6 +78,16 @@ function initialMemoriesSetup() {
 			banner.textContent = `Memories - ${month} ${day}`;
 		}
 	}
+	banner.addEventListener('click', () => {
+		const url = new URL(window.location);
+		if (url.searchParams.has('memories')) {
+			url.searchParams.delete('memories');
+		} else {
+			url.searchParams.set('memories', 'true');
+		}
+		window.location.href = url.toString();
+	});
+	banner.style.cursor = "pointer";
 }
 
 function finalMemoriesCleanup() {
@@ -139,7 +150,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 			const targetDiv = document.querySelector('._a706');
 
-			if (index == 1 && showMemories) {
+			if (index == 1) {
 				initialMemoriesSetup();
 				hideShowMemories(targetDiv);
 			}

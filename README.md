@@ -111,3 +111,7 @@ You can repeat steps 1 through 4 above, editing the list of omitted entries as d
 
 ## <a name="done"></a>Done!
 You now have an archive of your Facebook/Instagram posts that you can look at locally on your computer, or you can host it on the web through a hosting provider.
+
+You can drag the red line along the left edge to navigate through the years.
+
+You can click on the header to toggle viewing "Memories" - entries that match the current month and day.
