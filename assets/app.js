@@ -82,6 +82,9 @@ function initialMemoriesSetup() {
 function finalMemoriesCleanup() {
 	if (showMemories) {
 		const visList = cleanHeadings();
+		if (visList.length >= 1 && isYearMark(visList[visList.length - 1])) {
+			visList[visList.length - 1].style.display = "none";
+		}
 		if (visList.length == 1 && isYearMark(visList[0])) {
 			visList[0].style.display = "none";
 		}
