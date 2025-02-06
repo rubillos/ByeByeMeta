@@ -643,7 +643,17 @@ def processData():
 	# --------------------------------------------------
 	console.print("Remove duplicate and birthday tags")
 
-	isBirthday = re.compile("^ha+p{2,}y .*birthday.*", re.IGNORECASE)
+	birthdayMatches = [re.compile("^ha+p{2,}y .*birth.*y.*", re.IGNORECASE),
+			   re.compile("^joy.*x anniversaire.*", re.IGNORECASE),
+			   re.compile("^bon anniversaire.*", re.IGNORECASE),
+			   re.compile("^gefeliciteerd.*", re.IGNORECASE),
+			   re.compile("^feliz cu.*leaños.*", re.IGNORECASE)]
+
+	def isBirthdayString(string):
+		for match in birthdayMatches:
+			if match.match(string):
+				return True
+		return False
 
 	entries = soup.find_all("div", class_="_a6-g")
 	deletedEntries = set()
@@ -659,7 +669,7 @@ def processData():
 						divs[1].decompose()
 			if not args.birthdays:
 				for string in item.strings:
-					if isBirthday.match(string):
+					if isBirthdayString(string):
 						deletedEntries.add(entry)
 						break
 		atags = entry.find_all("a")
