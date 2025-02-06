@@ -155,6 +155,7 @@
 @media (orientation: landscape) {
 	.year-text {
 		scale: calc((clamp(0, 0.2 - abs(var(--pos) - var(--indicator, 0)), 0.2) / 0.2) * 1.0 + 1);
+		transition: scale 0.1s;
 	}
 	.back-blue {
 		background-image: repeating-linear-gradient(
