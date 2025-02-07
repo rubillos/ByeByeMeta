@@ -93,25 +93,24 @@ function hideShowMemories(containerDiv) {
 
 function initialMemoriesSetup() {
 	const banner = document.querySelector('.banner');
-	if (showMemories) {
-		const banner = document.querySelector('.banner');
-		if (banner) {
+	if (banner) {
+		if (showMemories) {
 			const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 			const month = monthNames[currentDate.getMonth()];
 			const day = currentDate.getDate();
 			banner.textContent = `Memories - ${month} ${day}`;
 		}
+		banner.addEventListener('click', () => {
+			const url = new URL(window.location);
+			if (url.searchParams.has('memories')) {
+				url.searchParams.delete('memories');
+			} else {
+				url.searchParams.set('memories', 'true');
+			}
+			window.location.href = url.toString();
+		});
+		banner.style.cursor = "pointer";
 	}
-	banner.addEventListener('click', () => {
-		const url = new URL(window.location);
-		if (url.searchParams.has('memories')) {
-			url.searchParams.delete('memories');
-		} else {
-			url.searchParams.set('memories', 'true');
-		}
-		window.location.href = url.toString();
-	});
-	banner.style.cursor = "pointer";
 }
 
 function finalMemoriesCleanup() {
