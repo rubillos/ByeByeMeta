@@ -1,32 +1,56 @@
 var yearsReady = false;
 var entryCount = 0;
-var navOffsets = [0];
-var yearOffsets = [0];
+var navOffsets = [];
+var yearOffsets = [];
+var adjustedYearOffsets = [];
 
-const showMemories = new URLSearchParams(window.location.search).has('memories');
-const currentDate = new Date();
+const search = new URLSearchParams(window.location.search);
+const showMemories = search.has('memories');
+let currentDate = new Date();
+if (search.has('day')) {
+	const days = search.get('day').replaceAll('-', '/').split('/');
+	if (days.length == 2) {
+		currentDate = new Date(currentDate.getFullYear(), parseInt(days[0]) - 1, parseInt(days[1]));
+	}
+}
+else if (search.has('offset')) {
+	const offset = parseInt(search.get('offset'));
+	currentDate = new Date(currentDate.getTime() + offset * 24 * 60 * 60 * 1000);
+}
 const monthDayID = `d${(currentDate.getMonth() + 1) * 100 + currentDate.getDate()}`;
 
 var showIndexes = window.numSrcFiles === undefined;
 if (window.showIndexes !== undefined) {
 	showIndexes = showIndexes || window.showIndexes;
 }
-if (new URLSearchParams(window.location.search).has('indexes')) {
+if (search.has('indexes')) {
 	showIndexes = true;
 }
 
-function interpolate(inputValues, outputValues) {
-	return function(value) {
-		if (value <= inputValues[0]) return outputValues[0];
-		if (value >= inputValues[inputValues.length - 1]) return outputValues[outputValues.length - 1];
+function interpolate(value, inputValues, outputValues) {
+	if (value <= inputValues[0]) return outputValues[0];
+	if (value >= inputValues[inputValues.length - 1]) return outputValues[outputValues.length - 1];
 
-		for (let i = 0; i < inputValues.length - 1; i++) {
-			if (value >= inputValues[i] && value <= inputValues[i + 1]) {
-				const t = (value - inputValues[i]) / (inputValues[i + 1] - inputValues[i]);
-				return outputValues[i] + t * (outputValues[i + 1] - outputValues[i]);
-			}
+	for (let i = 0; i < inputValues.length - 1; i++) {
+		if (value >= inputValues[i] && value <= inputValues[i + 1]) {
+			const t = (value - inputValues[i]) / (inputValues[i + 1] - inputValues[i]);
+			return outputValues[i] + t * (outputValues[i + 1] - outputValues[i]);
 		}
-	};
+	}
+}
+
+function makeAdjustedYearOffsets() {
+	for (let i = 0; i < yearOffsets.length; i++) {
+		adjustedYearOffsets.push(yearOffsets[i] - (yearOffsets[i] / yearOffsets[yearOffsets.length-1]) * window.innerHeight);
+	}
+}
+
+function getNavForOffset(offset) {
+	return interpolate(offset, adjustedYearOffsets, navOffsets);
+}
+
+function getOffsetForNav(nav) {
+	return interpolate(nav, navOffsets, adjustedYearOffsets);
 }
 
 function isYearMark(element) {
@@ -112,9 +136,6 @@ function createRoundedRectPath(x, y, width, height, llRadius, lrRadius, vOffset)
 	);
 }
 
-const getOffsetForNav = interpolate(navOffsets, yearOffsets);
-const getNavForOffset = interpolate(yearOffsets, navOffsets);
-
 function updateYearBackground(durationMS) {
 	if (yearsReady) {
 		const background = document.getElementById('year-background');
@@ -176,9 +197,9 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	await activeTask;
 
-	let yearBack = document.getElementById('year-background');
-	let yearBackTop = document.getElementById('year-back-top');
-	let yearBackBottom = document.getElementById('year-back-bottom');
+	const yearBack = document.getElementById('year-background');
+	const yearBackTop = document.getElementById('year-back-top');
+	const yearBackBottom = document.getElementById('year-back-bottom');
 	
 	yearBack.style.transition = 'background-image 0.3s';
 	yearBackTop.style.transition = 'background-image 0.3s';
@@ -194,13 +215,23 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	finalMemoriesCleanup();
 
-	const yearElements = document.querySelectorAll('.year-mark');
-	yearElements.forEach((mark, index) => {
-		if (index > 0) {
+	const navColumn = document.getElementById('year-column');
+	const columnHeight = navColumn.offsetHeight;
+	const navDivs = navColumn.children;
+	const yearMarks = document.querySelectorAll('.year-mark');
+	yearMarks.forEach((yearMark, i) => {
+		navDivs[i].style.display = yearMark.style.display;
+	});
+	navOffsets = [];
+	yearMarks.forEach((mark, index) => {
+		if (mark.style.display != "none") {
 			yearOffsets.push(mark.offsetTop);
+			navOffsets.push(navDivs[index].offsetTop / columnHeight);
 		}
 	});
 	yearOffsets.push(document.body.scrollHeight);
+	navOffsets.push(1);
+	makeAdjustedYearOffsets();
 
 	indicator.style.display = "flex";
 	updateIndicatorPosition();
@@ -216,13 +247,14 @@ function setupEntryEvents() {
 			element.onmouseenter = showEIndex;
 		});
 	}
-	document.querySelectorAll('img._a6_o').forEach(element => {
-		element.onclick = showImage;
-	});
 
 	const imgUrls = [];
-	document.querySelectorAll('img:not([src*="static"])').forEach(img => {
-		imgUrls.push(img.getAttribute('src'));
+	document.querySelectorAll('img._a6_o').forEach(img => {
+		let parentDiv = img.closest('div._a6-g');
+		if (parentDiv && parentDiv.style.display !== "none") {
+			img.onclick = showImage;
+			imgUrls.push(img.getAttribute('src'));
+		}
 	});
 	localStorage.setItem('img_urls', imgUrls);
 	localStorage.setItem('last_url', "");
@@ -240,6 +272,8 @@ function setupEntryEvents() {
 		}
 	});
 
+	window.addEventListener('resize', makeAdjustedYearOffsets);
+
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Enter' || event.key === 'ArrowRight') {
 			const images = document.querySelectorAll('img._a6_o');
@@ -249,12 +283,14 @@ function setupEntryEvents() {
 
 			images.forEach(img => {
 				const rect = img.getBoundingClientRect();
-				const imgMiddleY = rect.top + rect.height / 2;
-				const distance = Math.abs(imgMiddleY - middleY);
+				if (rect.height > 0) {
+					const imgMiddleY = rect.top + rect.height / 2;
+					const distance = Math.abs(imgMiddleY - middleY);
 
-				if (distance < closestDistance) {
-					closestDistance = distance;
-					closestImage = img;
+					if (distance < closestDistance) {
+						closestDistance = distance;
+						closestImage = img;
+					}
 				}
 			});
 
@@ -266,10 +302,9 @@ function setupEntryEvents() {
 }
 
 function addIndexTo(element) {
-	const eindex = element.getAttribute('eix');
 	const tooltip = document.createElement('div');
 	tooltip.className = 'tooltip';
-	tooltip.textContent = eindex;
+	tooltip.textContent = element.getAttribute('eix');
 	element.appendChild(tooltip);
 	return tooltip;
 }
@@ -365,10 +400,6 @@ function setupContent() {
 			yearColumn.appendChild(yearDiv);
 		});	
 
-		for (let i = 1; i <= yearCount; i++) {
-			navOffsets.push(i / yearCount);
-		}
-
 		document.documentElement.style.setProperty('--nav-width', `${(yearColumn.offsetWidth * 2.0)}px`);
 
 		yearsReady = true;
@@ -376,46 +407,30 @@ function setupContent() {
 		updateYearBackground();
 	}
 
-	let lastMouseY = 0;
+	function clampedIndicatorPosition(y) {
+		return Math.max(10, Math.min(y, indicator.parentElement.offsetHeight + 10));
+	}
+
+	function moveIndicator(y) {
+		y = clampedIndicatorPosition(y);
+		indicator.style.top = (y - (indicator.offsetHeight / 2) - 10) + "px";
+		const scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
+		window.scrollTo(0, scrollPosition);		
+		updateIndicatorVar();
+	}
 
 	function navMouseDown(e) {
 		if (!e.defaultPrevented) {
 			e.preventDefault();
-			lastMouseY = e.clientY;
+			moveIndicator(e.clientY);
 			mouseIsDown = true;
-
-			indicator.style.top = (lastMouseY - (indicator.offsetHeight / 2) - 10) + "px";
-
-			const scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
-			window.scrollTo(0, scrollPosition);
-
-			updateIndicatorVar();
-
 			document.body.onmousemove = elementDrag;
 		}
 	}
   
 	function elementDrag(e) {
 		e.preventDefault();
-		const curY = e.clientY;
-		const deltaY = curY - lastMouseY;
-		lastMouseY = curY;
-		let newTop = parseInt(indicator.style.top, 10) + deltaY;
-		const minTop = 0 - (indicator.offsetHeight / 2);
-		const maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
-
-		if (newTop < minTop) {
-			newTop = minTop;
-		} else if (newTop > maxTop) {
-			newTop = maxTop;
-		}
-
-		indicator.style.top = newTop + "px";
-
-		const scrollPosition = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
-		window.scrollTo(0, scrollPosition);
-
-		updateIndicatorVar();
+		moveIndicator(e.clientY);
 	}
   
 	function endDrag(e) {
@@ -424,54 +439,39 @@ function setupContent() {
 		mouseIsDown = false;
 	}
 
-	let scrollY;
+	let scrollY = null;
 	let nextScrollY;
 	let scrollID = null;
 
-	function performScrollToY(y) {
-		const newTop = y - (indicator.offsetHeight / 2) - 10;
-		const minTop = 0 - (indicator.offsetHeight / 2);
-		const maxTop = indicator.parentElement.offsetHeight - (indicator.offsetHeight / 2);
-
-		if (newTop >= minTop && newTop <= maxTop) {
-			indicator.style.top = newTop + "px";
-
-			const scrollPos = getOffsetForNav((indicator.offsetTop+indicator.offsetHeight/2) / indicator.parentElement.offsetHeight);
-			window.scrollTo(0, scrollPos);	
-			updateIndicatorVar();
-			scrollY = y;
-		}
-	}
-
 	function scrollTimer() {
 		scrollID = null;
-		if (scrollY != nextScrollY) {
-			performScrollToY(nextScrollY);
-		}
+		throttledScrollToY(nextScrollY);
 	}
 
-	function startTimerForY(y) {
-		performScrollToY(y);
-		nextScrollY = scrollY;
-		scrollID = setInterval(scrollTimer, 700);
+	function throttledScrollToY(y) {
+		if (y != scrollY) {
+			nextScrollY = y;
+			if (scrollID == null) {
+				moveIndicator(y);
+				scrollY = y;
+				scrollID = setTimeout(scrollTimer, 500);
+			}
+		}
 	}
 	
 	function touchStart(e) {
 		e.preventDefault();
-		startTimerForY(e.touches[0].clientY);
+		scrollID = null;
+		scrollY = null;
+		throttledScrollToY(e.touches[0].clientY);
 		mouseIsDown = true;
 	}
   
 	function touchMove(e) {
 		e.preventDefault();
 		const newY = e.touches[0].clientY;
-		if (newY != scrollY) {
-			if (scrollID) {
-				nextScrollY = newY;
-			}
-			else {
-				startTimerForY(newY);
-			}
+		if (newY == clampedIndicatorPosition(newY)) {
+			throttledScrollToY(newY);
 		}
 	}
   
@@ -480,6 +480,7 @@ function setupContent() {
 		mouseIsDown = false;
 		if (scrollID) {
 			clearInterval(scrollID);
+			scrollID = null;
 		}
 	}
 }

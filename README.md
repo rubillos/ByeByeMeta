@@ -10,6 +10,7 @@
 [Viewing your posts](#viewing)<br>
 [Adjusting the results](#adjusting)<br>
 [Done!](#done)
+[URL Options](#options)
 
 ## <a name="background"></a>Background
 With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky - ubillos.bsky.social](https://bsky.app/profile/ubillos.bsky.social)
@@ -115,3 +116,16 @@ You now have an archive of your Facebook/Instagram posts that you can look at lo
 You can drag the red line along the left edge to navigate through the years.
 
 You can click on the header to toggle viewing "Memories" - entries that match the current month and day.
+
+## <a name="options"></a>URL Options
+There are a couple of options that can be added to the URL in the browser. These are added after a '?' at the end of the URL and multiple can be added, separated by a '&'.
+
+**memories** - Causes only the entries with month and day matching the current month and day to be shown.
+**offset=N** - Adjusts the month/day used for memories by a number of days specified by 'N', which can be positive or negative.
+**day=M/D** - Sets the month day for the memories to be shown, where 'M' is the month and 'D' is the day.
+
+For example:
+```
+https://rickandrandy.com/fb/randy/index.html?memories&day=01/10
+```
+would show memories for January 10th.
