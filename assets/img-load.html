@@ -57,23 +57,29 @@
 				mainImg.src = "../" + imgSrc;
 			}
 			var imgUrls = localStorage.getItem('img_urls');
-			imgUrls = imgUrls.split(",");
+			if (imgUrls) {
+				imgUrls = imgUrls.split(",");
+			}
 
 			function nextImage() {
-				var currentIndex = imgUrls.indexOf(imgSrc);
-				if (currentIndex < imgUrls.length - 1) {
-					imgSrc = imgUrls[currentIndex + 1];
-					mainImg.src = "../" + imgSrc;
-					localStorage.setItem('last_url', imgSrc);
+				if (imgUrls) {
+					var currentIndex = imgUrls.indexOf(imgSrc);
+					if (currentIndex < imgUrls.length - 1) {
+						imgSrc = imgUrls[currentIndex + 1];
+						mainImg.src = "../" + imgSrc;
+						localStorage.setItem('last_url', imgSrc);
+					}
 				}
 			}
 
 			function previousImage() {
-				var currentIndex = imgUrls.indexOf(imgSrc);
-				if (currentIndex > 0) {
-					imgSrc = imgUrls[currentIndex - 1];
-					mainImg.src = "../" + imgSrc;
-					localStorage.setItem('last_url', imgSrc);
+				if (imgUrls) {
+					var currentIndex = imgUrls.indexOf(imgSrc);
+					if (currentIndex > 0) {
+						imgSrc = imgUrls[currentIndex - 1];
+						mainImg.src = "../" + imgSrc;
+						localStorage.setItem('last_url', imgSrc);
+					}
 				}
 			}
 
