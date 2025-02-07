@@ -30,6 +30,7 @@ from rich.padding import Padding
 from rich.theme import Theme
 from rich.panel import Panel
 import webbrowser
+import traceback
 
 assetsFolder = "assets"
 entryFolder = "entries"
@@ -144,6 +145,22 @@ def copyFile(srcPath, dstPath):
 			return False
 	else:
 		return False
+	
+lastOperation = ""
+lastSubOperation = ""
+
+def startOperation(name, print=True):
+	global lastOperation, lastSubOperation
+	if print:
+		console.print(name)
+	lastOperation = name
+	lastSubOperation = ""
+
+def startSubOperation(name, print=True):
+	global lastSubOperation
+	if print:
+		console.print(f"  {name}")
+	lastSubOperation = name
 
 def processData():
 	if args.srcFolder != None:
@@ -152,7 +169,7 @@ def processData():
 		srcFolder = getFolder("Select the <your_facebook/instagram_activity folder>:")
 
 	if srcFolder == None:
-		return
+		return None
 	
 	if args.dstFolder != None:
 		dstFolder = args.dstFolder
@@ -160,12 +177,12 @@ def processData():
 		dstFolder = getFolder("Select the destination folder:")
 
 	if dstFolder == None:
-		return
+		return None
 
 	console.print(f"src={srcFolder}\ndst={dstFolder}")
 
 	# --------------------------------------------------
-	console.print("Check Data Type")
+	startOperation("Check Data Type")
 
 	if os.path.basename(srcFolder) == fbFolderName:
 		console.print("Processing Facebook Data")
@@ -182,11 +199,11 @@ def processData():
 		isFacebook = False
 		srcFolder = os.path.join(srcFolder, igFolderName)
 	else:
-		console.print("Unknown source data folder!")
-		return
+		console.print("Unknown source data folder type!")
+		return None
 
 	# --------------------------------------------------
-	console.print("Open Main Data File")
+	startOperation("Open Main Data File")
 
 	srcDataCount = 0
 
@@ -231,7 +248,7 @@ def processData():
 				console.print(f"Exclusion list read from {excludePath}")
 
 	# --------------------------------------------------
-	console.print("Cleaning destination folder...")
+	startOperation("Cleaning destination folder...")
 
 	folderList = [entryFolder, assetsFolder]
 	fileList = [indexName, excludedName]
@@ -261,7 +278,7 @@ def processData():
 		console.print("done.")
 
 	# --------------------------------------------------
-	console.print("Copying Assets folder...")
+	startOperation("Copying Assets folder")
 
 	destAssetsPath = os.path.join(dstFolder, assetsFolder)
 	if os.path.isdir(destAssetsPath):
@@ -270,12 +287,11 @@ def processData():
 		srcAssetsPath = os.path.join(scriptPath, assetsFolder)
 		try:
 			shutil.copytree(srcAssetsPath, destAssetsPath)
-			console.print(" done.")
 		except OSError as e:
 			console.print(f"\nError copying: {destAssetsPath}, {e}");
 
 	# --------------------------------------------------
-	console.print("Build used file list")
+	startOperation("Build used file list")
 
 	usedFiles = set()
 
@@ -290,8 +306,9 @@ def processData():
 	# --------------------------------------------------
 
 	def mergeAlbumSoup(albumSoup, name):
+		startSubOperation(f"Adding entries from the album '{name}'", print=False)
 		firstDiv = albumSoup.find("div", class_="_a6-g")
-		if firstDiv:
+		if firstDiv != None:
 			albumList = list(firstDiv.parent.children)
 			listCount = len(albumList)
 			addedCount = 0
@@ -308,7 +325,7 @@ def processData():
 				if not skip:
 					entry.extract()
 					tab = entry.find('table')
-					if (tab != None):
+					if tab != None:
 						tab.decompose()
 					if len(entry.contents) == 2:
 						newDiv = soup.new_tag("div")
@@ -321,7 +338,7 @@ def processData():
 						entry.insert(0, newDiv)
 					mainEntries.append(entry)
 					addedCount += 1
-			console.print(f"Added {addedCount} out of {listCount} entries from the album '{name}'")
+			console.log(f"Added {addedCount} out of {listCount} entries from the album '{name}'")
 
 	def mergeSoupFile(soupPath):
 		nonlocal srcDataCount
@@ -331,24 +348,24 @@ def processData():
 			mergeAlbumSoup(soup2, os.path.basename(soupPath))
 
 	if isFacebook:
-		console.print("Merge Photos")
+		startOperation("Merge Photos")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
 
-		console.print("Merge Videos")
+		startOperation("Merge Videos")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
 
-		console.print("Merge Other Posts")
+		startOperation("Merge Other Posts")
 		mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
 
 		albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
 		albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
 
-		console.print(f"Merge {len(albumFiles)} albums")
+		startOperation(f"Merge {len(albumFiles)} albums")
 		for albumFile in albumFiles:
 			mergeSoupFile(os.path.join(albumsFolder, albumFile))
 
 	# --------------------------------------------------
-	console.print("Remove unneeded elements")
+	startOperation("Remove unneeded elements")
 
 	del soup.head.base['href']
 
@@ -369,7 +386,7 @@ def processData():
 			heading.decompose()
 
 	# --------------------------------------------------
-	console.print("Remove Facebook links")
+	startOperation("Remove Facebook links")
 
 	fblinks = soup.find_all("a", href=re.compile(".*facebook\.com"))
 	for flink in fblinks:
@@ -378,10 +395,10 @@ def processData():
 		p.smooth()
 
 	# --------------------------------------------------
-	console.print("Remove GPS coordinates")
+	startOperation("Remove GPS coordinates")
 
 	def isAPlace(tag):
-		if (tag.name == "div"):
+		if tag.name == "div":
 			if len(tag.contents) == 1 and isinstance(tag.contents[0], NavigableString):
 				if tag.string.startswith("Place: "):
 					return True
@@ -393,14 +410,14 @@ def processData():
 		place.unwrap()
 
 	# --------------------------------------------------
-	console.print("Remove Addresses")
+	startOperation("Remove Addresses")
 
 	addresses = soup.find_all("div", string=re.compile("^Address: "))
 	for address in addresses:
 		address.decompose()
 
 	# --------------------------------------------------
-	console.print("Reformat entries")
+	startOperation("Reformat entries")
 
 	def addClass(tag, c):
 		if isinstance(c, list):
@@ -443,8 +460,6 @@ def processData():
 					if len(twop[1].contents) == 2 and isinstance(twop[1].contents[0], NavigableString):
 						kids[0].string.replace_with(twop[1].contents[0])
 						twop[1].contents[0].extract()
-						# kids[0].string.replace_with(", ".join(list(twop[1].contents[0].strings)))
-						# twop[1].decompose()
 				removeClass(kids[0], "_a6-i")
 				addClass(kids[0], "_bot4")
 				addClass(kids[1], "_3-94")
@@ -495,13 +510,13 @@ def processData():
 			lastDate = itemDate
 
 	# --------------------------------------------------
-	console.print("Sort entries")
+	startOperation("Sort entries")
 
 	entries.sort(key=lambda x: x.itemdate, reverse=True)
 	entryOuter.extend(entries)
 
 	# --------------------------------------------------
-	console.print("Remove unneeded headings")
+	startOperation("Remove unneeded headings")
 
 	userName = args.userName
 
@@ -532,7 +547,7 @@ def processData():
 	if not args.noBanner:
 		a706 = soup.find("div", class_="_a706")
 		if a706 != None:
-			console.print("Create banner")
+			startOperation("Create banner")
 
 			newDiv = soup.new_tag("div")
 			newDiv['class'] = "banner"
@@ -551,7 +566,7 @@ def processData():
 			didBanner = True
 
 	# --------------------------------------------------
-	console.print("Clean up tags")
+	startOperation("Clean up tags")
 
 	class Clean(Enum):
 		Ok = 0
@@ -566,7 +581,7 @@ def processData():
 
 		classCount = 0
 		classes = tag.get('class')
-		if classes:
+		if classes != None:
 			classCount = len(classes)
 		for subTag in reversed(tag.contents):
 			if not isinstance(subTag, NavigableString):
@@ -592,14 +607,14 @@ def processData():
 	console.print(f"Cleaned {simpleDivCount} simple divs")
 
 	# --------------------------------------------------
-	console.print("Add entry numbers")
+	startOperation("Add entry numbers")
 
 	entries = soup.find_all("div", class_="_a6-g")
 	for i, entry in enumerate(entries):
 		entry['eix'] = str(i)
 
 	# --------------------------------------------------
-	console.print("Remove Updated... strings")
+	startOperation("Remove Updated... strings")
 
 	isUpdated = re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m")
 	pin2s = soup.find_all("div", class_="_2pin")
@@ -610,7 +625,7 @@ def processData():
 
 	# --------------------------------------------------
 	def removeEmptyStrings():
-		console.print("Remove sequential and starting/ending empty strings")
+		startOperation("Remove sequential and starting/ending empty strings")
 
 		emptyStringCount = 0
 
@@ -641,13 +656,13 @@ def processData():
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	console.print("Remove duplicate and birthday tags")
+	startOperation("Remove duplicate and birthday tags")
 
 	birthdayMatches = [re.compile("^ha+p{2,}y .*birth.*y.*", re.IGNORECASE),
-			   re.compile("^joy.*x anniversaire.*", re.IGNORECASE),
-			   re.compile("^bon anniversaire.*", re.IGNORECASE),
-			   re.compile("^gefeliciteerd.*", re.IGNORECASE),
-			   re.compile("^feliz cu.*leaños.*", re.IGNORECASE)]
+			   re.compile("^joy.*x an+ivers.*re.*", re.IGNORECASE),
+			   re.compile("^bon an+ivers.*re.*", re.IGNORECASE),
+			   re.compile("^gefelicite+rd.*", re.IGNORECASE),
+			   re.compile("^feliz cu.*lea.*os.*", re.IGNORECASE)]
 
 	def isBirthdayString(string):
 		for match in birthdayMatches:
@@ -688,7 +703,7 @@ def processData():
 	console.print(f"Deleted {len(deletedEntries)} birthday entries")
 
 	# --------------------------------------------------
-	console.print("Clean up titles")
+	startOperation("Clean up titles")
 
 	def tagIsEmpty(tag):
 		if len(tag.contents) == 0:
@@ -745,7 +760,7 @@ def processData():
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	console.print("Count tags")
+	startOperation("Count tags")
 
 	allClasses = set()
 	allNames = set()
@@ -758,7 +773,7 @@ def processData():
 					classes = [classes]
 				for c in classes:
 					allClasses.add(f'.{c}')
-			if item.name and item.name not in allNames:
+			if item.name != None and item.name not in allNames:
 				allNames.add(item.name)
 			if item.get('id'):
 				allIDs.add(item['id'])
@@ -768,7 +783,7 @@ def processData():
 	console.print(f"There are {len(allIDs)} ids")
 
 	# --------------------------------------------------
-	console.print("Remove img/video <a> wrappers")
+	startOperation("Remove img/video <a> wrappers")
 
 	alist = soup.find_all("a")
 	for a in reversed(alist):
@@ -804,7 +819,7 @@ def processData():
 	
 	def dimensionsOfImage(path):
 		image = Image.open(path)
-		if image is not None:
+		if image != None:
 			return image.size
 		else:
 			return 0, 0
@@ -842,7 +857,7 @@ def processData():
 
 	def excludeEntries():
 		if xstring != "":
-			console.print("Remove excluded entries")
+			startOperation("Remove excluded entries")
 			xlist = xstring.split(",")
 			entries = soup.find_all("div", class_="_a6-g")
 			for i, entry in enumerate(entries):
@@ -856,7 +871,7 @@ def processData():
 		excludeEntries()
 
 	# --------------------------------------------------
-	# console.print("Renaming and organizing media files")
+	startOperation("Renaming and organizing media files", print=False)
 
 	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
@@ -873,10 +888,11 @@ def processData():
 			addClass(entry, "d" + str(date.month*100 + date.day))
 
 			imgs = entry.find_all(["img", "video"])
-			if (len(imgs) > 0):
+			if len(imgs) > 0:
 				for i, tagimg in enumerate(imgs):
 					oldName = tagimg['src']
 					if not oldName.startswith("http"):
+						startSubOperation(f"Processing '{oldName}'", print=False)
 						extension = oldName.split(".")[-1]
 						newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
 						newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
@@ -913,11 +929,8 @@ def processData():
 						newNameTotal += len(newName)
 			progress.update(task, advance=1)
 
-	# console.print("")
-	# console.print(f"Copied {copyCount} files")
-
 	# --------------------------------------------------
-	console.print("Retrieve static graphics")
+	startOperation("Retrieve static graphics")
 
 	for img in soup.find_all("img"):
 		src = img['src']
@@ -931,6 +944,7 @@ def processData():
 				newSrc = os.path.join(mediaFolder, staticImageFolder, newName)
 				destPath = os.path.join(dstFolder, newSrc)
 				if not fileExists(destPath):
+					startSubOperation(f"Downloading '{src}'", print=False)
 					createFolder(destPath)
 					response = requests.get(src)
 					if response.status_code == 200:
@@ -954,7 +968,7 @@ def processData():
 		excludeEntries()
 
 	# --------------------------------------------------
-	console.print("Split entries into blocks")
+	startOperation("Split entries into blocks")
 
 	entries = soup.find_all("div", class_=["_a6-g", "year-mark"])
 
@@ -978,7 +992,7 @@ def processData():
 	htmlBlocks[0] = soup
 
 	# --------------------------------------------------
-	console.print("Fix styles")
+	startOperation("Fix styles")
 
 	styletag = soup.find("style")
 	sstyle = str(styletag.string)
@@ -1078,7 +1092,7 @@ def processData():
 	styletag.string.replace_with(newStyle)
 
 	# --------------------------------------------------
-	console.print("Add style sheet")
+	startOperation("Add style sheet")
 
 	linkTag = soup.new_tag("link", href=os.path.join(assetsFolder, styleName))
 	linkTag['rel'] = "stylesheet"
@@ -1087,11 +1101,11 @@ def processData():
 	# --------------------------------------------------
 	excludeSoup = None
 	if args.exlist:
-		console.print("Copy structure for exluded entries page")
+		startOperation("Copy structure for exluded entries page")
 		excludeSoup = copy.copy(soup)
 
 	# --------------------------------------------------
-	console.print("Add computed values")
+	startOperation("Add computed values")
 
 	years = sorted(yearCounts.keys())
 	yearCounts = [yearCounts[year] for year in years]
@@ -1109,7 +1123,7 @@ def processData():
 	soup.head.append(scripttag)
 
 	# --------------------------------------------------
-	console.print("Add scripts")
+	startOperation("Add scripts")
 
 	def addMainScript(sp):
 		scripttag = sp.new_tag("script")
@@ -1120,7 +1134,7 @@ def processData():
 
 	# --------------------------------------------------
 	if args.exlist and excludeSoup != None:
-		console.print("Create excluded entries page")
+		startOperation("Create excluded entries page")
 		addMainScript(excludeSoup)
 		wrapper = excludeSoup.find("div", class_="_a706")
 		if wrapper != None:
@@ -1132,13 +1146,13 @@ def processData():
 				f.write(str(excludeSoup))
 		
 	# --------------------------------------------------
-	console.print("Write html files")
+	startOperation("Write html files")
 	totalBytes = 0
 
 	with open(os.path.join(dstFolder, indexName), "w") as f:
 		totalBytes += f.write(str(soup))
 
-	if (len(htmlBlocks) > 0):
+	if len(htmlBlocks) > 0:
 		entriesPath = os.path.join(dstFolder, entryFolder)
 		createFolder(entriesPath)
 
@@ -1146,19 +1160,46 @@ def processData():
 			with open(os.path.join(entriesPath, entryName.format(str(i))), "w") as f:
 				totalBytes += f.write(str(htmlBlocks[i]))
 
-	console.print(f"Number of entries: {len(entries)}")
-	console.print(f"Number of blocks: {len(htmlBlocks)}")
-	console.print(f"Block counts: {blockCounts}")
-	console.print(f"Media items: {len(fileRename)}")
-	console.print(f"Total name usage went from {oldNameTotal}  to {newNameTotal}")
-
-	console.print(f"Read {srcDataCount} bytes")
-	console.print(f"Wrote {totalBytes} bytes")
+	result = []
+	result.append(f"Number of entries: {len(entries)}")
+	result.append(f"Number of blocks: {len(htmlBlocks)}")
+	result.append(f"Block counts: {blockCounts}")
+	result.append(f"Media items: {len(fileRename)}")
+	result.append(f"Total name usage went from {oldNameTotal} to {newNameTotal}")
+	result.append(f"Read {srcDataCount} bytes of html, wrote {totalBytes} bytes - saved {((srcDataCount - totalBytes) / srcDataCount) * 100:.2f}%")
 
 	if args.showResult:
 		destUrl = "file://" + os.path.join(dstFolder, indexName)
 		webbrowser.open(destUrl)
+	
+	return result
 
 if __name__ == '__main__':
-	console.print(Panel("[green]Begin ByeByeMeta"))
-	processData()
+	console.print(Panel("[green]Begin ByeByeMeta..."))
+
+	try:
+		result = processData()
+		if result == None:
+			console.print(Panel("[orange1]Cancelled"))
+		else:
+			if isinstance(result, list):
+				result.insert(0,"")
+			else:
+				result = []
+			result.insert(0, "[green]ByeByeMeta Finished.[white]")
+			console.print(Panel("\n".join(result)))
+	except KeyboardInterrupt:
+		console.print(Panel("[orange1]Cancelled"))
+		sys.exit(1)
+	except Exception as err:
+		msgs = []
+		msgs.append(f"[red]ByeByeMeta encountered an error!")
+		msgs.append("[orange1]")
+		msgs.append(f"Process: {lastOperation}")
+		if lastSubOperation != "":
+			msgs.append(f"SubProcess: {lastSubOperation}")
+		msgs.append("[yellow]")
+		msgs.append(f"{traceback.format_exc()}")
+		msgs.append("[white]")
+		msgs.append("You can email the developer at [green]randy@mac.com[white]. Please include a copy of this error box in your message.")
+		console.print(Panel("\n".join(msgs)))
