@@ -41,7 +41,7 @@ excludedName = "excluded.html"
 entryName = "entries{}.html"
 appName = "app.js"
 styleName = "style.css"
-excludesName = "excludes.txt"
+excludesListName = "excludes.txt"
 
 fbFolderName = "your_facebook_activity"
 igFolderName = "your_instagram_activity"
@@ -71,15 +71,27 @@ parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an ht
 parser.add_argument("-s", "--show-result", dest="showResult", help="Show the page in your browser", action="store_true")
 
 group = parser.add_argument_group("exclusion list")
-group.add_argument("-x", "--exclude", dest="exclude", help="Comma separated list of numbers to exclude", type=str, default="")
-group.add_argument("-xfb", "--exclude-fb", dest="excludefb", help="Comma separated list of numbers to exclude from Facebook data", type=str, default="")
-group.add_argument("-xig", "--exclude-ig", dest="excludeig", help="Comma separated list of numbers to exclude from Instagram data", type=str, default="")
-group.add_argument("-ux", "--existing-excludes", dest="useExcludesFile", help="Use any existing excludes folder", action="store_true")
+group.add_argument("-x", "--excludes", dest="excludes", help="Comma separated list of entry numbers to exclude", type=str, default="")
+group.add_argument("-xfb", "--excludes-fb", dest="excludesfb", help="Comma separated list of entry numbers to exclude from Facebook data", type=str, default="")
+group.add_argument("-xig", "--excludes-ig", dest="excludesig", help="Comma separated list of entry numbers to exclude from Instagram data", type=str, default="")
+
+group.add_argument("-ux", "--existing-excludes", dest="useExcludesFile", help="Use any existing excludes list file", action="store_true")
+
+extendList = None
+extendCmds = ["-xx", "--extend-excludes"]
+group.add_argument(extendCmds[0], extendCmds[1], dest="extendExcludes", help="Comma separated list of entry numbers to add or remove from the existing excludes list. Positive numbers are added, negative numbers are removed.", type=str, default="")
 
 group = parser.add_argument_group("banner options")
 group.add_argument("-nb", "--no-banner", dest="noBanner", help="Suppress banner at top of entry list", type=str, default="")
 group.add_argument("-u", "--user-name", dest="userName", help="Name for banner, if omitted will be inferred from data. (Put double quotes around)", type=str, default="")
 group.add_argument("-bf", "--banner-format", dest="bannerFormat", help=f"Banner format string, use $N for name, $M for facebook/instagram, $S for start date, $E for end date - defaults to '{bannerFormat}'", type=str, default=bannerFormat)
+
+for i in range(len(sys.argv)-1):
+	if sys.argv[i] in extendCmds:
+		extendList = sys.argv[i+1]
+		del sys.argv[i+1]
+		del sys.argv[i]
+		break
 
 args = parser.parse_args()
 
@@ -228,24 +240,43 @@ def processData():
 	xstring = ""
 
 	if isFacebook:
-		xstring = args.excludefb
+		xstring = args.excludesfb
 	else:
-		xstring = args.excludeig
+		xstring = args.excludesig
 
 	if xstring == "":
-		xstring = args.exclude
+		xstring = args.excludes
 
-	excludePath = os.path.join(dstFolder, excludesName)
+	excludesPath = os.path.join(dstFolder, excludesListName)
 	if xstring != "":
-		with open(excludePath, "w") as f:
+		with open(excludesPath, "w") as f:
 			f.write(xstring)
-		console.print(f"Exclusion list written to {excludePath}")
+		console.print(f"Exclusion list written to {excludesPath}")
 	else:
-		if os.path.isfile(excludePath):
-			if args.useExcludesFile or askToUseExcludesFile():
-				with open(excludePath) as f:
+		if os.path.isfile(excludesPath):
+			if args.useExcludesFile or extendList != None or askToUseExcludesFile():
+				with open(excludesPath) as f:
 					xstring = f.read()
-				console.print(f"Exclusion list read from {excludePath}")
+				console.print(f"Exclusion list read from {excludesPath}")
+				if extendList != None:
+					didExtend = False
+					xlist = xstring.split(",")
+					for item in extendList.replace("+", "").split(","):
+						if item != "":
+							if item[0] == "-":
+								if item[1:] in xlist:
+									xlist.remove(item[1:])
+									didExtend = True
+							else:
+								if not item in xlist:
+									xlist.append(item)
+									didExtend = True
+					if didExtend:
+						xlist.sort(key=int)
+						xstring = ",".join(xlist)
+						with open(excludesPath, "w") as f:
+							f.write(xstring)
+						console.print(f"Exclusion list written to {excludesPath}")
 
 	# --------------------------------------------------
 	startOperation("Cleaning destination folder...")
@@ -1177,29 +1208,34 @@ def processData():
 if __name__ == '__main__':
 	console.print(Panel("[green]Begin ByeByeMeta..."))
 
-	try:
+	msgs = []
+
+	def doRun():
 		result = processData()
 		if result == None:
-			console.print(Panel("[orange1]Cancelled"))
+			msgs.append("[orange1]Cancelled")
 		else:
+			msgs.append("[green]ByeByeMeta Finished.")
 			if isinstance(result, list):
-				result.insert(0,"")
-			else:
-				result = []
-			result.insert(0, "[green]ByeByeMeta Finished.[white]")
-			console.print(Panel("\n".join(result)))
-	except KeyboardInterrupt:
-		console.print(Panel("[orange1]Cancelled"))
-		sys.exit(1)
-	except Exception as err:
-		msgs = []
-		msgs.append(f"[red]ByeByeMeta encountered an error!")
-		msgs.append("[orange1]")
-		msgs.append(f"Process: {lastOperation}")
-		if lastSubOperation != "":
-			msgs.append(f"SubProcess: {lastSubOperation}")
-		msgs.append("[yellow]")
-		msgs.append(f"{traceback.format_exc()}")
-		msgs.append("[white]")
-		msgs.append("You can email the developer at [green]randy@mac.com[white]. Please include a copy of this error box in your message.")
-		console.print(Panel("\n".join(msgs)))
+				msgs.append("[white]")
+				msgs.extend(result)
+
+	if (0 and 'debugpy' in sys.modules and sys.modules['debugpy'].__file__.find('/.vscode/extensions/') > -1):
+		doRun()
+	else:
+		try:
+			doRun()
+		except KeyboardInterrupt:
+			msgs.append("[orange1]Cancelled")
+		except Exception as err:
+			msgs.append(f"[red]ByeByeMeta encountered an error!")
+			msgs.append("[orange1]")
+			msgs.append(f"Process: {lastOperation}")
+			if lastSubOperation != "":
+				msgs.append(f"SubProcess: {lastSubOperation}")
+			msgs.append("[yellow]")
+			msgs.append(traceback.format_exc().rstrip("\n"))
+			msgs.append("[white]")
+			msgs.append("You can email the developer at [green]randy@mac.com[white]. Please include a copy of this error box in your message.")
+
+	console.print(Panel("\n".join(msgs)))
