@@ -112,7 +112,7 @@ function setMemoryTitle(useCount = true) {
 	const title = document.querySelector('#title');
 
 	if (title != null) {
-		let banner = title.parentElement;
+		const banner = title.parentElement;
 
 		banner.querySelectorAll('.arrow').forEach(element => {
 			element.style.display = (showMemories) ? "block" : "none";
@@ -152,8 +152,7 @@ function initialMemoriesSetup() {
 			banner.textContent = '';
 
 			let leftTriangle = document.createElement('div');
-			leftTriangle.classList.add('arrow');
-			leftTriangle.classList.add('left');
+			leftTriangle.classList.add('arrow', 'left');
 			banner.appendChild(leftTriangle);
 			leftTriangle.addEventListener('click', (e) => {
 				e.preventDefault();
@@ -162,7 +161,6 @@ function initialMemoriesSetup() {
 
 			let title = document.createElement('div');
 			title.id = 'title';
-			title.style.padding = '20px';
 			banner.appendChild(title);
 
 			let memories = document.createElement('div');
@@ -172,8 +170,7 @@ function initialMemoriesSetup() {
 			memories.addEventListener('click', toggleMemories);
 
 			let rightTriangle = document.createElement('div');
-			rightTriangle.classList.add('arrow');
-			rightTriangle.classList.add('right');
+			rightTriangle.classList.add('arrow', 'right');
 			banner.appendChild(rightTriangle);
 			rightTriangle.addEventListener('click', (e) => {
 				e.preventDefault();
@@ -183,7 +180,6 @@ function initialMemoriesSetup() {
 			setMemoryTitle(false);
 		}
 		banner.addEventListener('click', toggleMemories);
-		banner.style.cursor = "pointer";
 	}
 }
 
@@ -217,10 +213,10 @@ function updateMemories() {
 }
 
 function createRoundedRectPath(x, y, width, height, llRadius, lrRadius, vOffset) {
-	width = parseInt(width);
-	height = parseInt(height);
-	llRadius = parseInt(Math.min(llRadius, height));
-	lrRadius = parseInt(Math.min(lrRadius, height));
+	const width = parseInt(width);
+	const height = parseInt(height);
+	const llRadius = parseInt(Math.min(llRadius, height));
+	const lrRadius = parseInt(Math.min(lrRadius, height));
 	return (
 		`M${x},${(y-vOffset)}h${width}v${(height+vOffset-lrRadius)}a${lrRadius},${lrRadius} 0 0 1 ${-lrRadius},${lrRadius}h${(lrRadius + llRadius - width)}a${-llRadius},${-llRadius} 0 0 1 ${-llRadius},${-llRadius}v${(llRadius-vOffset-height)}z`
 	);
@@ -276,6 +272,8 @@ function computeNavInfo() {
 }
 
 async function loadAndInsertDivsSequentially(filePaths, domDone) {
+	const startTrim = "<div>".length;
+	const endTrim = "</div>".length;
 	let activeTask = null;
 	let index = 1;
 	let checkDom = true;
@@ -283,23 +281,17 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
-			const startTrim = "<div>".length;
-			const endTrim = "</div>".length;
 			const entriesDiv = document.createElement('div');
-			const htm = htmlText.slice(startTrim, -endTrim)
-			entriesDiv.innerHTML = htm;
+			entriesDiv.innerHTML = htmlText.slice(startTrim, -endTrim);
 
 			if (checkDom) {
 				await domDone;
 				checkDom = false;
-			}
-
-			const targetDiv = document.querySelector('._a706');
-
-			if (index == 1) {
 				initialMemoriesSetup();
 				hideShowMemories(targetDiv);
 			}
+
+			const targetDiv = document.querySelector('._a706');
 
 			if (priorTask !== null) {
 				await priorTask;
@@ -345,12 +337,6 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	updateIndicatorPosition();
 	setupEntryEvents();
 
-	const options = {
-		root: document.querySelector("#scrollArea"),
-		rootMargin: "1000px 0 1000px 0",
-		threshold: 0,
-	};
-
 	function setSrc(img, intersect, src, sxx) {
 		const imgUrls = localStorage.getItem('img_urls');
 		// const index = (imgUrls) ? imgUrls.indexOf(imgSrc(img)) : -1;
@@ -370,17 +356,16 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	}
 	  
 	const io = new IntersectionObserver(entries => {
-		entries.forEach((entry, i) => {
+		entries.forEach(entry => {
 			const img = entry.target;
 			if (img.nodeName == "VIDEO") {
 				setSrc(img, entry.isIntersecting, 'poster', 'xpost');
 			}
 			setSrc(img, entry.isIntersecting, 'src', 'sxx');
 		});
-	}, options);
+	}, { rootMargin: "100% 0 100% 0" });
 	  
-	const imgList = document.querySelectorAll('img, video');
-	imgList.forEach((img) => {
+	document.querySelectorAll('img, video').forEach((img) => {
 	  io.observe(img);
 	});
 }
@@ -392,7 +377,7 @@ function imgSrc(img) {
 function setupImgUrls() {
 	const imgUrls = [];
 	document.querySelectorAll('img._a6_o').forEach(img => {
-		let parentDiv = img.closest('div._a6-g');
+		const parentDiv = img.closest('div._a6-g');
 		if (parentDiv && parentDiv.style.display !== "none") {
 			imgUrls.push(imgSrc(img));
 		}
