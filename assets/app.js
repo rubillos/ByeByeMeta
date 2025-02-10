@@ -353,7 +353,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	function setSrc(img, intersect, src, sxx) {
 		const imgUrls = localStorage.getItem('img_urls');
-		const index = (imgUrls) ? imgUrls.indexOf(imgSrc(img)) : -1;
+		// const index = (imgUrls) ? imgUrls.indexOf(imgSrc(img)) : -1;
 		if (intersect) {
 			if (img.getAttribute(sxx)) {
 				img.setAttribute(src, img.getAttribute(sxx));
@@ -528,7 +528,7 @@ function supportsTouchEvents() {
 }
   
 function setupContent() {
-	fetch('assets/extra.html?${version}')
+	fetch(`assets/extra.html?${version}`)
 		.then(response => response.text())
 		.then(data => {
 			const parser = new DOMParser();
@@ -575,8 +575,6 @@ function setupContent() {
 			yearDiv.style.setProperty('--pos', `${(index + 0.5) / yearCount}`);
 			yearColumn.appendChild(yearDiv);
 		});	
-
-		document.documentElement.style.setProperty('--nav-width', `${(yearColumn.offsetWidth / 2.0)}px`);
 
 		yearsReady = true;
 		entryCount += document.querySelector('._a706').children.length;
