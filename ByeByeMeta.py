@@ -820,29 +820,6 @@ def processData():
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	startOperation("Count tags")
-
-	allClasses = set()
-	allNames = set()
-	allIDs = set()
-	for item in soup.descendants:
-		if isinstance(item, Tag):
-			classes = item.get('class')
-			if classes:
-				if not isinstance(classes, list):
-					classes = [classes]
-				for c in classes:
-					allClasses.add(f'.{c}')
-			if item.name != None and item.name not in allNames:
-				allNames.add(item.name)
-			if item.get('id'):
-				allIDs.add(item['id'])
-
-	console.print(f"There are {len(allNames)} tags")
-	console.print(f"There are {len(allClasses)} classes")
-	console.print(f"There are {len(allIDs)} ids")
-
-	# --------------------------------------------------
 	startOperation("Remove img/video <a> wrappers")
 
 	alist = soup.find_all("a")
@@ -935,10 +912,13 @@ def processData():
 
 	srcCount = 0
 
-	def srcAttr():
+	def srcAttr(forPoster=False):
 		nonlocal srcCount
-		srcCount += 1
-		return 'src' if srcCount < 5 else 'sxx'
+		if forPoster:
+			return 'poster' if srcCount < 5 else 'xpost'
+		else:
+			srcCount += 1
+			return 'src' if srcCount < 5 else 'sxx'
 	
 	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
@@ -987,8 +967,8 @@ def processData():
 							height = int(height)
 							tagimg['preload'] = "none"
 							if extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
-								del tagimg['xpost']
-								tagimg['xpost'] = posterName
+								del tagimg['poster']
+								tagimg[srcAttr(True)] = posterName
 							else:
 								console.print(f"\nUnable to get poster frame for{destPath}\n")
 
@@ -1029,8 +1009,10 @@ def processData():
 						console.print(f"Downloaded {src} to {destPath}")
 					else:
 						console.print(f"Failed to download {src}")
-				del img['src']
+				# del img['src']
+				img['src'] = ""
 				img[srcAttr()] = newSrc
+				# addClass(tagimg, "hide")
 				width, height = dimensionsOfImage(destPath)
 				if width > 0:
 					img['width'] = width
@@ -1043,6 +1025,29 @@ def processData():
 	# --------------------------------------------------
 	if args.exlist:
 		excludeEntries()
+
+	# --------------------------------------------------
+	startOperation("Count tags")
+
+	allClasses = set()
+	allNames = set()
+	allIDs = set()
+	for item in soup.descendants:
+		if isinstance(item, Tag):
+			classes = item.get('class')
+			if classes:
+				if not isinstance(classes, list):
+					classes = [classes]
+				for c in classes:
+					allClasses.add(f'.{c}')
+			if item.name != None and item.name not in allNames:
+				allNames.add(item.name)
+			if item.get('id'):
+				allIDs.add(item['id'])
+
+	console.print(f"There are {len(allNames)} tags")
+	console.print(f"There are {len(allClasses)} classes")
+	console.print(f"There are {len(allIDs)} ids")
 
 	# --------------------------------------------------
 	startOperation("Split entries into blocks")

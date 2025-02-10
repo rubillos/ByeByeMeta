@@ -343,7 +343,7 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 	setupEvents();
 }
 
-function setSrc(img, intersect, src, sxx) {
+function setSrc(img, intersect, src, sxx, noDelete=false) {
 	if (intersect) {
 		if (img.getAttribute(sxx)) {
 			img.setAttribute(src, img.getAttribute(sxx));
@@ -352,7 +352,9 @@ function setSrc(img, intersect, src, sxx) {
 	} else {
 		if (img.getAttribute(src)) {
 			img.setAttribute(sxx, img.getAttribute(src));
-			img.removeAttribute(src);
+			if (!noDelete) {
+				img.removeAttribute(src);
+			}
 		}
 	}
 }
@@ -454,7 +456,7 @@ function setupEvents() {
 		entries.forEach(entry => {
 			const img = entry.target;
 			if (img.nodeName == "VIDEO") {
-				setSrc(img, entry.isIntersecting, 'poster', 'xpost');
+				setSrc(img, entry.isIntersecting, 'poster', 'xpost', true);
 			}
 			setSrc(img, entry.isIntersecting, 'src', 'sxx');
 		});
