@@ -181,6 +181,7 @@ img._a6_o {
 
 #title {
 	flex-grow: 1;
+	padding: '20px';
 }
 
 .banner {
