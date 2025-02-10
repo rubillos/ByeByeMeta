@@ -121,7 +121,6 @@ You can click on the header to toggle viewing "Memories" - entries that match th
 There are a couple of options that can be added to the URL in the browser. These are added after a '?' at the end of the URL and multiple can be added, separated by a '&'.
 
 - **memories** - Causes only the entries with month and day matching the current month and day to be shown.
-- **offset=N** - Adjusts the month/day used for memories by a number of days specified by 'N', which can be positive or negative.
 - **day=M/D** - Sets the month day for the memories to be shown, where 'M' is the month and 'D' is the day.
 
 For example:
