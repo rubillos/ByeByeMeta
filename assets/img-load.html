@@ -45,119 +45,19 @@
 			text-shadow: -1px -1px 0 gray, 1px -1px 0 gray, -1px 1px 0 gray, 1px 1px 0 gray;
 			cursor: pointer;
 			font-family: sans-serif;
+			z-index: 100;
 		}
 	</style>
 	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			const urlParams = new URLSearchParams(window.location.search);
-			const mainImg = document.getElementById('main-img');
-			var imgSrc = urlParams.get('src');
-			if (imgSrc) {
-				mainImg.src = "../" + imgSrc;
-			}
-			var imgUrls = localStorage.getItem('img_urls');
-			if (imgUrls) {
-				imgUrls = imgUrls.split(",");
-			}
-
-			function nextImage() {
-				if (imgUrls) {
-					var currentIndex = imgUrls.indexOf(imgSrc);
-					if (currentIndex < imgUrls.length - 1) {
-						imgSrc = imgUrls[currentIndex + 1];
-						mainImg.src = "../" + imgSrc;
-						localStorage.setItem('last_url', imgSrc);
-					}
-				}
-			}
-
-			function previousImage() {
-				if (imgUrls) {
-					var currentIndex = imgUrls.indexOf(imgSrc);
-					if (currentIndex > 0) {
-						imgSrc = imgUrls[currentIndex - 1];
-						mainImg.src = "../" + imgSrc;
-						localStorage.setItem('last_url', imgSrc);
-					}
-				}
-			}
-
-			mainImg.addEventListener('click', nextImage);
-
-			document.addEventListener('keydown', function(event) {
-				const closeKeys = ['Escape', 'Enter'];
-				const nextKeys = ['ArrowUp', 'ArrowRight', ' '];
-				const prevKeys = ['ArrowDown', 'ArrowLeft'];
-
-				if (closeKeys.includes(event.key)) {
-					window.close();
-				}
-				else if (imgUrls) {
-					if (prevKeys.includes(event.key)) {
-						previousImage();
-					} else if (nextKeys.includes(event.key)) {
-						nextImage();
-					}
-				}
-			});
-
-			document.addEventListener('touchstart', handleTouchStart, false);
-			document.addEventListener('touchend', handleTouchEnd, false);
-
-			var xDown = null;
-			var yDown = null;
-
-			function getTouches(evt) {
-				return evt.touches || evt.originalEvent.touches;
-			}
-
-			function handleTouchStart(evt) {
-				const firstTouch = getTouches(evt)[0];
-				xDown = firstTouch.clientX;
-				yDown = firstTouch.clientY;
-			}
-
-			function handleTouchEnd(evt) {
-				if (!xDown || !yDown) {
-					return;
-				}
-
-				var touches = evt.changedTouches;
-
-				if (touches.length == 1) {
-					var xUp = touches[0].clientX;
-					var yUp = touches[0].clientY;
-
-					var xDiff = xDown - xUp;
-					var yDiff = yDown - yUp;
-
-					if (Math.abs(xDiff) > Math.abs(yDiff)) {
-						if (xDiff > -20) {
-							nextImage();
-						} else {
-							previousImage();
-						}
-					} else {
-						if (yDiff > -20) {
-							nextImage();
-						} else {
-							previousImage();
-						}
-					}
-				}
-
-				xDown = null;
-				yDown = null;
-			}
-		});
 	</script>
 </head>
 <body>
 	<div class="full-screen-div">
-		<div class="close-x" onclick="window.close()">
+		<img id="main-img" alt="Full Screen Image" class="full-screen-img">
+		<div class="close-x">
 			ⓧ
 		</div>
-		<img id="main-img" alt="Full Screen Image" class="full-screen-img">
 	</div>
+	<script src="img-load.js"></script>
 </body>
 </html>
