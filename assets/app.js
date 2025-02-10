@@ -144,7 +144,7 @@ function toggleMemories(e) {
 	}
 }
 
-function initialMemoriesSetup() {
+function setupMemories() {
 	const banner = document.querySelector('.banner');
 	if (banner) {
 		if (banner.getAttribute('txt') == null) {
@@ -162,6 +162,7 @@ function initialMemoriesSetup() {
 			let title = document.createElement('div');
 			title.id = 'title';
 			banner.appendChild(title);
+			title.addEventListener('click', toggleMemories);
 
 			let memories = document.createElement('div');
 			memories.textContent = "⟲";
@@ -179,11 +180,10 @@ function initialMemoriesSetup() {
 
 			setMemoryTitle(false);
 		}
-		banner.addEventListener('click', toggleMemories);
 	}
 }
 
-function finalMemoriesCleanup() {
+function cleanupMemories() {
 	if (showMemories) {
 		const visList = cleanHeadings();
 		if (visList.length >= 1 && isYearMark(visList[visList.length - 1])) {
@@ -208,17 +208,17 @@ function updateMemories() {
 			element.style.display = "block";
 		}
 	}
-	finalMemoriesCleanup();
+	cleanupMemories();
 	computeNavInfo();
 }
 
 function createRoundedRectPath(x, y, width, height, llRadius, lrRadius, vOffset) {
-	const width = parseInt(width);
-	const height = parseInt(height);
-	const llRadius = parseInt(Math.min(llRadius, height));
-	const lrRadius = parseInt(Math.min(lrRadius, height));
+	const w = parseInt(width);
+	const h = parseInt(height);
+	const ll = parseInt(Math.min(llRadius, height));
+	const lr = parseInt(Math.min(lrRadius, height));
 	return (
-		`M${x},${(y-vOffset)}h${width}v${(height+vOffset-lrRadius)}a${lrRadius},${lrRadius} 0 0 1 ${-lrRadius},${lrRadius}h${(lrRadius + llRadius - width)}a${-llRadius},${-llRadius} 0 0 1 ${-llRadius},${-llRadius}v${(llRadius-vOffset-height)}z`
+		`M${x},${(y-vOffset)}h${w}v${(h+vOffset-lr)}a${lr},${lr} 0 0 1 ${-lr},${lr}h${(lr + ll - w)}a${-ll},${-ll} 0 0 1 ${-ll},${-ll}v${(ll-vOffset-h)}z`
 	);
 }
 
@@ -234,6 +234,24 @@ function updateYearBackground(durationMS) {
 		background.style.transition = `clip-path ${(durationMS / 1000.0)}s linear`;
 		background.style.clipPath = `path('${path}')`;
 	}
+}
+
+function finishYearBackground() {
+	const yearBack = document.getElementById('year-background');
+	const yearBackTop = document.getElementById('year-back-top');
+	const yearBackBottom = document.getElementById('year-back-bottom');
+
+	yearBack.style.transition = 'background-image 0.3s';
+	yearBackTop.style.transition = 'background-image 0.3s';
+	yearBackBottom.style.transition = 'display 0.3s';
+
+	yearBack.style.setProperty('--bar-display', 'none');
+	yearBack.style.removeProperty('clip-path');
+	yearBack.classList.remove('back-blue');
+	yearBack.classList.add('back-gray');
+	yearBackTop.classList.remove('back-blue');
+	yearBackTop.classList.add('back-gray');
+	yearBackBottom.style.display = "block";
 }
 
 function computeNavInfo() {
@@ -272,8 +290,6 @@ function computeNavInfo() {
 }
 
 async function loadAndInsertDivsSequentially(filePaths, domDone) {
-	const startTrim = "<div>".length;
-	const endTrim = "</div>".length;
 	let activeTask = null;
 	let index = 1;
 	let checkDom = true;
@@ -281,17 +297,21 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	for (const filePath of filePaths) {
 		const parseTask = async (htmlText, priorTask, index) => {
+			const startTrim = "<div>".length;
+			const endTrim = "</div>".length;
 			const entriesDiv = document.createElement('div');
 			entriesDiv.innerHTML = htmlText.slice(startTrim, -endTrim);
 
 			if (checkDom) {
 				await domDone;
 				checkDom = false;
-				initialMemoriesSetup();
-				hideShowMemories(targetDiv);
 			}
 
 			const targetDiv = document.querySelector('._a706');
+			if (index == 1) {
+				setupMemories();
+				hideShowMemories(targetDiv);
+			}
 
 			if (priorTask !== null) {
 				await priorTask;
@@ -314,62 +334,29 @@ async function loadAndInsertDivsSequentially(filePaths, domDone) {
 
 	await activeTask;
 
-	const yearBack = document.getElementById('year-background');
-	const yearBackTop = document.getElementById('year-back-top');
-	const yearBackBottom = document.getElementById('year-back-bottom');
-	
-	yearBack.style.transition = 'background-image 0.3s';
-	yearBackTop.style.transition = 'background-image 0.3s';
-	yearBackBottom.style.transition = 'display 0.3s';
-
-	yearBack.style.setProperty('--bar-display', 'none');
-	yearBack.style.removeProperty('clip-path');
-	yearBack.classList.remove('back-blue');
-	yearBack.classList.add('back-gray');
-	yearBackTop.classList.remove('back-blue');
-	yearBackTop.classList.add('back-gray');
-	yearBackBottom.style.display = "block";
-
-	finalMemoriesCleanup();
+	finishYearBackground();
+	cleanupMemories();
 	computeNavInfo();
 
 	indicator.style.removeProperty("display");
 	updateIndicatorPosition();
-	setupEntryEvents();
-
-	function setSrc(img, intersect, src, sxx) {
-		const imgUrls = localStorage.getItem('img_urls');
-		// const index = (imgUrls) ? imgUrls.indexOf(imgSrc(img)) : -1;
-		if (intersect) {
-			if (img.getAttribute(sxx)) {
-				img.setAttribute(src, img.getAttribute(sxx));
-				img.removeAttribute(sxx);
-				// console.log("Show", index, "attr=", src);
-			}
-		} else {
-			if (img.getAttribute(src)) {
-				img.setAttribute(sxx, img.getAttribute(src));
-				img.removeAttribute(src);
-				// console.log("Hide", index, "attr=", sxx);
-			}
-		}
-	}
-	  
-	const io = new IntersectionObserver(entries => {
-		entries.forEach(entry => {
-			const img = entry.target;
-			if (img.nodeName == "VIDEO") {
-				setSrc(img, entry.isIntersecting, 'poster', 'xpost');
-			}
-			setSrc(img, entry.isIntersecting, 'src', 'sxx');
-		});
-	}, { rootMargin: "100% 0 100% 0" });
-	  
-	document.querySelectorAll('img, video').forEach((img) => {
-	  io.observe(img);
-	});
+	setupEvents();
 }
 
+function setSrc(img, intersect, src, sxx) {
+	if (intersect) {
+		if (img.getAttribute(sxx)) {
+			img.setAttribute(src, img.getAttribute(sxx));
+			img.removeAttribute(sxx);
+		}
+	} else {
+		if (img.getAttribute(src)) {
+			img.setAttribute(sxx, img.getAttribute(src));
+			img.removeAttribute(src);
+		}
+	}
+}
+  
 function imgSrc(img) {
 	return img.getAttribute('src') || img.getAttribute('sxx');
 }
@@ -386,7 +373,7 @@ function setupImgUrls() {
 	localStorage.setItem('last_url', "");
 }
 
-function setupEntryEvents() {
+function setupEvents() {
 	if (showIndexes) {
 		addAllIndexes();
 	}
@@ -423,7 +410,12 @@ function setupEntryEvents() {
 			if (lastUrl) {
 				const img = document.querySelector(`img[src="${lastUrl}"], img[sxx="${lastUrl}"]`);
 				if (img) {
-					img.scrollIntoView({ behavior: 'instant', block: 'center' });
+					const rect = img.getBoundingClientRect();
+					if (rect.top > 0) {
+						setTimeout(() => {
+							window.scrollTo(0, window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2);
+						}, 0);
+					}
 				}
 				localStorage.setItem('last_url', "");
 			}
@@ -456,6 +448,20 @@ function setupEntryEvents() {
 				showImage({ currentTarget: closestImage });
 			}
 		}
+	});
+
+	const io = new IntersectionObserver(entries => {
+		entries.forEach(entry => {
+			const img = entry.target;
+			if (img.nodeName == "VIDEO") {
+				setSrc(img, entry.isIntersecting, 'poster', 'xpost');
+			}
+			setSrc(img, entry.isIntersecting, 'src', 'sxx');
+		});
+	}, { rootMargin: "100% 0 100% 0" });
+	  
+	document.querySelectorAll('img, video').forEach((img) => {
+	  io.observe(img);
 	});
 }
 
@@ -496,8 +502,6 @@ function showImage(e) {
 	window.open(`assets/img-load.html?src=${encodeURIComponent(src)}`, '_blank');
 }
 
-var mouseIsDown = false;
-
 function domReady() {
 	return new Promise(resolve => {
 		if (document.readyState === "complete") {
@@ -512,7 +516,9 @@ function supportsTouchEvents() {
 	return 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
 }
   
-function setupContent() {
+var mouseIsDown = false;
+
+function setupNavigation() {
 	fetch(`assets/extra.html?${version}`)
 		.then(response => response.text())
 		.then(data => {
@@ -659,7 +665,7 @@ function updateIndicatorPosition() {
 }
 
 if (window.numSrcFiles !== undefined) {
-	document.addEventListener("DOMContentLoaded", setupContent);
+	document.addEventListener("DOMContentLoaded", setupNavigation);
 
 	const filePaths = [];
 	for (var i = 1; i <= window.numSrcFiles; i++) {
@@ -668,5 +674,5 @@ if (window.numSrcFiles !== undefined) {
 	loadAndInsertDivsSequentially(filePaths, domReady());
 }
 else {
-	document.addEventListener("DOMContentLoaded", setupEntryEvents);
+	document.addEventListener("DOMContentLoaded", setupEvents);
 }
