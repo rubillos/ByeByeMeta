@@ -32,6 +32,8 @@ from rich.panel import Panel
 import webbrowser
 import traceback
 
+version = "v1.1"
+
 assetsFolder = "assets"
 entryFolder = "entries"
 mediaFolder = "media"
@@ -39,8 +41,8 @@ staticImageFolder = "static"
 indexName = "index.html"
 excludedName = "excluded.html"
 entryName = "entries{}.html"
-appName = "app.js"
-styleName = "style.css"
+appName = f"app.js?{version}"
+styleName = f"style.css?{version}"
 excludesListName = "excludes.txt"
 
 fbFolderName = "your_facebook_activity"
@@ -330,7 +332,7 @@ def processData():
 	for entry in mainEntries:
 		imgs = entry.find_all(["img", "video"])
 		for img in imgs:
-			src = img['src']
+			src = img.get('src', img.get('sxx'))
 			if not src.startswith("http"):
 				usedFiles.add(src)
 
@@ -904,13 +906,20 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Renaming and organizing media files", print=False)
 
+	srcCount = 0
+
+	def srcAttr():
+		nonlocal srcCount
+		srcCount += 1
+		return 'src' if srcCount < 5 else 'sxx'
+	
 	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
 		task = progress.add_task("Organizing Media...", total=len(entries))
 
 		for entry in entries:
 			date = entry.itemdate
-			yearMonth = date.year*100 + date.month
+			yearMonth = (date.year % 100) * 100 + date.month
 			if date.year in yearCounts:
 				yearCounts[date.year] += 1
 			else:
@@ -921,9 +930,10 @@ def processData():
 			imgs = entry.find_all(["img", "video"])
 			if len(imgs) > 0:
 				for i, tagimg in enumerate(imgs):
-					oldName = tagimg['src']
+					oldName = tagimg.get('src', tagimg.get('sxx'))
 					if not oldName.startswith("http"):
 						startSubOperation(f"Processing '{oldName}'", print=False)
+						
 						extension = oldName.split(".")[-1]
 						newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
 						newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
@@ -935,26 +945,29 @@ def processData():
 							index += 1
 						allNewNames.add(newName)
 						fileRename[oldName] = newName
-						tagimg['src'] = newName
+						del tagimg['src']
+						tagimg[srcAttr()] = newName
+
 						destPath = os.path.join(dstFolder, newName)
 						copyFile(os.path.join(srcMediaPath, oldName), destPath)
 						width = 0
 						height = 0
 						if tagimg.name == 'img':
 							width, height = dimensionsOfImage(destPath)
-							tagimg['loading'] = "lazy"
 						elif tagimg.name == 'video':
 							width, height = dimensionsOfVideo(destPath)
 							width = int(width)
 							height = int(height)
-							if not extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
-								console.print(f"\nUnable to get poster frame for{destPath}\n")
 							tagimg['preload'] = "none"
-							tagimg['poster'] = posterName
+							if extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
+								del tagimg['xpost']
+								tagimg['xpost'] = posterName
+							else:
+								console.print(f"\nUnable to get poster frame for{destPath}\n")
 
 						if width > 0:
 							tagimg['width'] = width
-							tagimg['style'] = f"aspect-ratio:{width}/{height};"
+							tagimg['height'] = height
 						copyCount += 1
 						oldNameTotal += len(oldName)
 						newNameTotal += len(newName)
@@ -963,32 +976,38 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Retrieve static graphics")
 
+	staticIndex = 1
+	staticRename = {}
+
 	for img in soup.find_all("img"):
-		src = img['src']
+		src = img.get('src', img.get('sxx'))
 		if src.startswith(staticPrefix):
-			if src.endswith(".gif") or src.endswith(".png"):
-				newName = src.removeprefix(staticPrefix)
-				newName = newName.replace("/", "_")
-				nameParts = newName.split(".")
-				extension = nameParts[-1]
-				newName = "_".join(nameParts[:-1]) + "." + extension
+			ext = os.path.splitext(src)[1]
+			if ext in [".gif", ".png"]:
+				if src in staticRename:
+					newName = staticRename[src]
+				else:
+					newName = f"{staticIndex}{ext}"
+					staticRename[src] = newName
+					staticIndex += 1
 				newSrc = os.path.join(mediaFolder, staticImageFolder, newName)
 				destPath = os.path.join(dstFolder, newSrc)
 				if not fileExists(destPath):
 					startSubOperation(f"Downloading '{src}'", print=False)
-					createFolder(destPath)
 					response = requests.get(src)
 					if response.status_code == 200:
+						createFolder(destPath)
 						with open(destPath, 'wb') as f:
 							f.write(response.content)
-						img['src'] = newSrc
 						console.print(f"Downloaded {src} to {destPath}")
 					else:
 						console.print(f"Failed to download {src}")
+				del img['src']
+				img[srcAttr()] = newSrc
 				width, height = dimensionsOfImage(destPath)
 				if width > 0:
 					img['width'] = width
-					img['style'] = f"aspect-ratio:{width}/{height};"
+					img['height'] = height
 			else:
 				console.print(f"Unknown static image type: {src}")
 		elif src.startswith("http"):
@@ -1077,13 +1096,7 @@ def processData():
 	addStyle("._top0", "padding-top", "0px", styleDict)
 	addStyle("._a706", 'margin-top', '-12px', styleDict)
 	addStyle("._a705", 'max-width', '800px', styleDict)
-	addStyle("._a705", 'padding-left', 'calc(var(--nav-width,0))', styleDict)
-
-	if didBanner:
-		addStyle(".banner", 'padding', '20px', styleDict)
-		addStyle(".banner", 'text-align', 'center', styleDict)
-		addStyle(".banner", 'font-weight', '600', styleDict)
-		addStyle(".banner", 'font-size', '18px', styleDict)
+	addStyle("._a6_o", 'height', 'auto', styleDict)
 
 	keysToDelete = []
 	for key in styleDict.keys():
@@ -1143,6 +1156,7 @@ def processData():
 
 	scripttag = soup.new_tag("script")
 	varString = f"var numSrcFiles = {str(len(htmlBlocks)-1)};" \
+				f"var numImages = {str(len(allNewNames))};" \
 				f"var allYears = [{','.join(map(str, years))}];" \
 				f"var yearCounts = [{','.join(map(str, yearCounts))}];" \
 				f"var numEntries = {str(len(entries))};" \
@@ -1151,15 +1165,23 @@ def processData():
 		varString += f"var showIndexes = true;"
 	
 	scripttag.append(varString)
-	soup.head.append(scripttag)
+	soup.html.append(scripttag)
 
 	# --------------------------------------------------
 	startOperation("Add scripts")
 
 	def addMainScript(sp):
+		scriptPath = os.path.join(assetsFolder, appName)
+
+		linktag = sp.new_tag("link")
+		linktag['rel'] = "preload"
+		linktag['href'] = scriptPath
+		linktag['as'] = "script"
+		sp.head.append(linktag)
+
 		scripttag = sp.new_tag("script")
-		scripttag['src'] = os.path.join(assetsFolder, appName)
-		sp.head.append(scripttag)
+		scripttag['src'] = scriptPath
+		sp.html.append(scripttag)
 
 	addMainScript(soup)
 
@@ -1220,7 +1242,7 @@ if __name__ == '__main__':
 				msgs.append("[white]")
 				msgs.extend(result)
 
-	if (0 and 'debugpy' in sys.modules and sys.modules['debugpy'].__file__.find('/.vscode/extensions/') > -1):
+	if ('debugpy' in sys.modules and sys.modules['debugpy'].__file__.find('/.vscode/extensions/') > -1):
 		doRun()
 	else:
 		try:
