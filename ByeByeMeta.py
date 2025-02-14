@@ -603,8 +603,6 @@ def processData():
 		heading.string.replace_with("")
 
 	# --------------------------------------------------
-	didBanner = False
-
 	if not args.noBanner:
 		a706 = soup.find("div", class_="_a706")
 		if a706 != None:
@@ -624,7 +622,6 @@ def processData():
 			bannerText = format.replace("$N", userName).replace("$M", typeString).replace("$S", startDate).replace("$E", endDate)
 			newDiv.string = bannerText
 			a706.insert_before(newDiv)
-			didBanner = True
 
 	# --------------------------------------------------
 	startOperation("Clean up tags")
@@ -756,9 +753,9 @@ def processData():
 		for item in pin2:
 			divs = item.find_all("div")
 			if len(divs)==2:
-				str1 = "".join(divs[0].stripped_strings)
+				str1 = " ".join(divs[0].stripped_strings)
 				if len(str1) > 0:
-					str2 = "".join(divs[1].stripped_strings)
+					str2 = " ".join(divs[1].stripped_strings)
 					if str1 == str2:
 						divs[1].decompose()
 			if not args.birthdays:
@@ -769,8 +766,8 @@ def processData():
 		atags = entry.find_all("a")
 		if len(atags) == 2:
 			if atags[0].string and len(atags[0].string) > 0 and atags[0].string == atags[1].string:
-				a0ParentString = "".join(atags[0].parent.stripped_strings)
-				a1ParentString = "".join(atags[1].parent.stripped_strings)
+				a0ParentString = " ".join(atags[0].parent.stripped_strings)
+				a1ParentString = " ".join(atags[1].parent.stripped_strings)
 				if len(a0ParentString) < len(a1ParentString):
 					atags[0].parent.decompose()
 				else:
@@ -837,6 +834,23 @@ def processData():
 						entry.insert(0, newDiv)	
 
 	removeEmptyStrings()
+
+	# --------------------------------------------------
+	if isFacebook:
+		startOperation("Clean up Traveling tags")
+
+		wasTraveling = re.compile(".* was traveling .*")
+
+		entries = soup.find_all("div", class_="_a6-g")
+		for entry in entries:
+			a6h = entry.find("div", class_="_a6-h")
+			if a6h != None:
+				if wasTraveling.match(a6h.string):
+					a6p = entry.find("div", class_="_a6-p")
+					if a6p != None:
+						pin2s = a6p.find_all("div", class_="_2pin")
+						if len(pin2s) == 2:
+							pin2s[0].decompose()
 
 	# --------------------------------------------------
 	startOperation("Remove img/video <a> wrappers")
