@@ -95,6 +95,7 @@ parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activit
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
+parser.add_argument("-#", "--hashtags", dest="hashtags", help="Remove hashtags in headings", action="store_true")
 parser.add_argument("-si", "--show-indexes", dest="showIndexes", help="Always show the index numbers for entries", action="store_true")
 parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with the excluded entries", action="store_true")
 parser.add_argument("-s", "--show-result", dest="showResult", help="Show the page in your browser", action="store_true")
@@ -682,6 +683,24 @@ def processData():
 		for string in reversed(list(pin.strings)):
 			if isUpdated.match(string):
 				string.extract()
+
+	# --------------------------------------------------
+	if args.hashtags:
+		startOperation("Remove hashtags")
+
+		hashtag = re.compile("#[a-zA-Z0-9_]+")
+		separators = re.compile("[\n\t \u2028.]{2,}")
+		startSpace = re.compile("^[\n\t \u2028]+")
+
+		pim2s = soup.find_all("div", class_="_2pim")
+		for pim2 in pim2s:
+			if pim2.string:
+				s = pim2.string
+				if hashtag.search(s):
+					s = hashtag.sub("", s)
+					s = separators.sub(" ", s)
+					s = startSpace.sub("", s)
+					pim2.string.replace_with(s)
 
 	# --------------------------------------------------
 	def removeEmptyStrings():
