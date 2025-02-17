@@ -460,7 +460,7 @@ function setupEvents() {
 			}
 			setSrc(img, entry.isIntersecting, 'src', 'sxx');
 		});
-	}, { rootMargin: "100% 0 100% 0" });
+	}, { rootMargin: `${window.innerHeight}px 0px ${window.innerHeight}px 0px` });
 	  
 	document.querySelectorAll('img, video').forEach((img) => {
 	  io.observe(img);
