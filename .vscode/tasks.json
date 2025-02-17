@@ -4,6 +4,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "Update Web Folders",
+			"type": "shell",
+			"command": "rsync -av --update assets/ /Users/randy/Sites/PortlandAve/fb/randy/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/fb/rick/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/ig/rick/assets/"
+		},
+		{
 			"label": "Update Assets",
 			"type": "shell",
 			"command": "rsync -av --update assets/ Processed/assets/"
