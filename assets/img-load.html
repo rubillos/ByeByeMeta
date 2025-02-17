@@ -6,37 +6,39 @@
 	<title>Full Screen Div</title>
 	<style>
 		body {
-			overflow: hidden;
+			background-color: gray;
 		}
 		html, body {
 			height: 100%;
 			margin: 0;
 		}
-		.full-screen-div {
-			position: absolute;
+		#wrapper {
+			position: fixed;
+			top: 0;
+			left: 0;
 			height: 100dvh;
 			width: 100dvw;
-			background-color: gray;
 		}
-		.full-screen-img {
+		#main-img {
 			display: block;
-			margin: auto;
+			position: relative;
 			height: 100%;
 			width: 100%;
 			object-fit: contain;
 		}
-		#left-img {
-			position: absolute;
-			left: -100dvw;
-			cursor: pointer;
+		#touch-div {
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100dvh;
+			width: 100dvw;
+			z-index: 10;
 		}
-		#right-img {
-			position: absolute;
-			right: -100dvw;
-			cursor: pointer;
+		.smooth {
+			transition: transform 0.3s;
 		}
-		.close-x {
-			position: absolute;
+		#close-x {
+			position: fixed;
 			top: 0;
 			left: 0;
 			padding: 4px 10px;
@@ -48,16 +50,13 @@
 			z-index: 100;
 		}
 	</style>
-	<script>
-	</script>
 </head>
 <body>
-	<div class="full-screen-div">
-		<img id="main-img" alt="Full Screen Image" class="full-screen-img">
-		<div class="close-x">
-			ⓧ
-		</div>
+	<div id="wrapper">
+		<img id="main-img" alt="Full Screen Image">
+		<div id="touch-div"></div>
 	</div>
+	<div id="close-x">ⓧ</div>
 	<script src="img-load.js"></script>
 </body>
 </html>
