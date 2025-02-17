@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", function() {
 	const touchDiv = document.getElementById('touch-div');
 	const mainImg = document.getElementById('main-img');
 	const cacheImg = document.createElement("img");
-	var imgSrc = ""
 	const hasTouch = 'ontouchstart' in window;
-	var animationActive = false;
+	var activeAnimation = null;
+	var imgSrc = "";
 	
 	cacheImg.style = "position:absolute;z-index:-1000;max-width:100px;max-height:100px;opacity:0;";
 	document.body.appendChild(cacheImg);
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	function handleTouchStart(e) {
 		e.preventDefault();
-		animationActive = false;
+		cancelAnimation();
 
 		if (e.targetTouches.length == 1) {
 			startOne = touchPoint(e);
@@ -262,18 +262,8 @@ document.addEventListener("DOMContentLoaded", function() {
 			const maxX = Math.max(0, (size.width * newXForm.scale - window.innerWidth) / 2.0);
 			const maxY = Math.max(0, (size.height * newXForm.scale - window.innerHeight) / 2.0);
 
-			if (newXForm.x < -maxX) {
-				newXForm.x = -maxX;
-			}
-			else if (newXForm.x > maxX) {
-				newXForm.x = maxX;
-			}
-			if (newXForm.y < -maxY) {
-				newXForm.y = -maxY;
-			}
-			else if (newXForm.y > maxY) {
-				newXForm.y = maxY;
-			}
+			newXForm.x = clamp(xform.x, -maxX, maxX);
+			newXForm.y = clamp(xform.y, -maxY, maxY);
 		}
 		else {
 			newXForm.x = 0;
@@ -284,9 +274,17 @@ document.addEventListener("DOMContentLoaded", function() {
 	}
 
 	function performSlideback(resetScale) {
+		cancelAnimation();
 		const newXForm = clampXForm(imgXForm, resetScale);
 		if (newXForm.x != imgXForm.x || newXForm.y != imgXForm.y || newXForm.scale != imgXForm.scale) {
 			animateImgTo(newXForm);
+		}
+	}
+
+	function cancelAnimation() {
+		if (activeAnimation != null) {
+			cancelAnimationFrame(activeAnimation);
+			activeAnimation = null;
 		}
 	}
 
@@ -301,39 +299,35 @@ document.addEventListener("DOMContentLoaded", function() {
 			return start + (end - start) * easeInOut(t);
 		}
 
+		cancelAnimation();
+
 		const startTime = Date.now();
 		const duration = 250;
 		const oldXForm = { ...imgXForm };
-		let currentFrame = 0;
 
 		function animate() {
 			const now = Date.now();
 			const fraction = (now - startTime) / duration;
 
-			if (fraction < 1.0 && animationActive) {
+			animationActive = null;
+
+			if (fraction < 1.0) {
 				imgXForm.x = interpolate(oldXForm.x, newXForm.x, fraction);
 				imgXForm.y = interpolate(oldXForm.y, newXForm.y, fraction);
 				imgXForm.scale = interpolate(oldXForm.scale, newXForm.scale, fraction);
 				updateImage();
-				currentFrame++;
-				requestAnimationFrame(animate);
+				activeAnimation = requestAnimationFrame(animate);
 			}
 			else {
 				imgXForm = newXForm;
 				updateImage();
-				animationActive = false;
 			}
 		}
 
-		animationActive = true;
 		animate();
 	}
 
 	if (!hasTouch) {
-		var tx = 0;
-		var ty = 0;
-		var scale = 1;
-
 		function relativeScaleAdjust(oldScale, newScale, pt) {
 			if (newScale != oldScale) {
 				const relCenter = relativeCenter(pt);
@@ -348,12 +342,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		
 		document.addEventListener('wheel', event => {
 			event.preventDefault();
+			const oldScale = imgXForm.scale;
 		
-			if (event.ctrlKey) {
-				var s = Math.exp(-event.deltaY/100);
-				const oldScale = imgXForm.scale;
-				imgXForm.scale *= s;
-				relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
+			if (event.ctrlKey || event.altKey) {
+				imgXForm.scale *= Math.exp(-event.deltaY/100);
 			}
 			else{
 				imgXForm.x -= event.deltaX;
@@ -361,6 +353,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			}
 			
 			imgXForm = clampXForm(imgXForm, false);
+			relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
 			updateImage();
 		}, {
 			passive: false
@@ -384,10 +377,10 @@ document.addEventListener("DOMContentLoaded", function() {
 			}
 			
 			const oldScale = imgXForm.scale;
+
 			imgXForm.scale *= 1.0 + (event.scale - lastGestureScale);
-			relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
-			
 			imgXForm = clampXForm(imgXForm, false);
+			relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
 			updateImage();
 
 			lastGestureX = event.screenX;
