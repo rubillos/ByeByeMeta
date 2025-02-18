@@ -172,11 +172,29 @@ img._a6_o {
 	margin-left: 2%;
 }
 
-.memories {
+#memories {
 	position: relative;
 	margin: 0;
 	padding: 0;
 	margin-left: 2%;
+}
+
+#search {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	margin-right: 2%;
+}
+
+#find {
+	flex-grow: 1;
+	text-align: center;
+}
+
+.outline {
+	border-style: dashed;
+	border-width: 5px;
+	border-color: black;	
 }
 
 #title {
@@ -224,10 +242,16 @@ img._a6_o {
 		font-size: 18px;
 		scale: 1 2;	
 	}
-	.memories {
+	#memories {
 		font-size: 80px;
 		top: -6px;
 		margin-right: 2%
+	}
+	#search {
+		font-size: 50px;
+	}
+	#find {
+		font-size: 48px;
 	}
 }
 
@@ -269,9 +293,15 @@ img._a6_o {
 	#title {
 		font-size: 18px;
 	}
-	.memories {
+	#memories {
 		font-size: 60px;
 		top: -6px;
+	}
+	#search {
+		font-size: 30px;
+	}
+	#find {
+		font-size: 24px;
 	}
 }
 

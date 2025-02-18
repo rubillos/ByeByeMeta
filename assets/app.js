@@ -1,10 +1,14 @@
-var version = "v1.1"
+var version = "v1.2"
+
+const hasTouch = 'ontouchstart' in window;
 
 var yearsReady = false;
 var entryCount = 0;
 var navOffsets = [];
 var yearOffsets = [];
 var adjustedYearOffsets = [];
+var searchMode = false;
+var searchString = "";
 
 const search = new URLSearchParams(window.location.search);
 let showMemories = search.has('memories');
@@ -102,6 +106,30 @@ function reFlow() {
 	setupImgUrls();
 }
 
+var searchTimer = null;
+
+function cancelSearchTimer() {
+	if (searchTimer) {
+		clearTimeout(searchTimer);
+		searchTimer = null;
+	}
+}
+
+function doUpdateSearch() {
+	searchString = document.getElementById('find').value.toLowerCase();
+	reFlow();
+}
+
+function updateSearch(useTimer = false) {
+	if (useTimer) {
+		cancelSearchTimer();
+		searchTimer = setTimeout(doUpdateSearch, 300);
+	}
+	else {
+		doUpdateSearch();
+	}
+}
+
 function changeBy(dayOffset) {
 	currentDate = new Date(currentDate.getTime() + dayOffset * 24 * 60 * 60 * 1000);
 	makeMonthDay();
@@ -136,10 +164,45 @@ function setMemoryTitle(useCount = true) {
 	}
 }
 
+function toggleSearch(e) {
+	if (!e.defaultPrevented) {
+		e.preventDefault();
+		cancelSearchTimer();
+		searchMode = !searchMode;
+		const find = document.getElementById('find');
+		const title = document.getElementById('title');
+		if (searchMode) {
+			showMemories = false;
+			reFlow();
+			find.style.display = "block";
+			title.style.display = "none";
+			find.focus();
+		}
+		else {
+			find.style.display = "none";
+			title.style.display = "block";
+			find.blur();
+			find.value = "";
+			searchString = "";
+			reFlow();
+		}
+	}
+}
+
 function toggleMemories(e) {
 	if (!e.defaultPrevented) {
 		e.preventDefault();
+		cancelSearchTimer();
 		showMemories = !showMemories;
+		searchMode = false;
+		document.getElementById('title').style.display = "block";
+		const find = document.getElementById('find')
+		find.blur();
+		find.style.display = "none";
+		searchString = "";
+		find.value = "";
+		const search = document.getElementById('search');
+		search.style.display = (showMemories) ? "none" : "block";
 		reFlow();
 	}
 }
@@ -159,6 +222,44 @@ function setupMemories() {
 				changeBy(-1);
 			});
 
+			let search = document.createElement('div');
+			search.textContent = "🔍";
+			search.id ='search';
+			banner.appendChild(search);
+			search.addEventListener('click', toggleSearch);
+
+			let find = document.createElement('input');
+			find.id = 'find';
+			find.style.display = "none";
+			banner.appendChild(find);
+			find.addEventListener('input', (e) => {
+				if (!hasTouch) {
+					e.preventDefault();
+					e.stopPropagation();
+					updateSearch(true);
+				}
+			});
+			find.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') {
+					find.blur();
+					if (find.value == "") {
+						toggleSearch(e);
+					}
+					else if (hasTouch) {
+						find.classList.add('outline');
+						setTimeout(() => {
+							updateSearch();
+							find.classList.remove('outline');
+						}, 10);
+					}
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				else if (e.key === 'Escape') {
+					toggleSearch(e);
+				}
+			});
+
 			let title = document.createElement('div');
 			title.id = 'title';
 			banner.appendChild(title);
@@ -166,7 +267,7 @@ function setupMemories() {
 
 			let memories = document.createElement('div');
 			memories.textContent = "⟲";
-			memories.classList.add('memories');
+			memories.id = 'memories';
 			banner.appendChild(memories);
 			memories.addEventListener('click', toggleMemories);
 
@@ -184,24 +285,31 @@ function setupMemories() {
 }
 
 function cleanupMemories() {
-	if (showMemories) {
-		const visList = cleanHeadings();
-		if (visList.length >= 1 && isYearMark(visList[visList.length - 1])) {
-			visList[visList.length - 1].style.display = "none";
-		}
-		if (visList.length == 1 && isYearMark(visList[0])) {
-			visList[0].style.display = "none";
-		}
-		setMemoryTitle();
+	const visList = cleanHeadings();
+	if (visList.length >= 1 && isYearMark(visList[visList.length - 1])) {
+		visList[visList.length - 1].style.display = "none";
 	}
+	if (visList.length == 1 && isYearMark(visList[0])) {
+		visList[0].style.display = "none";
+	}
+	setMemoryTitle();
 }
 
 function updateMemories() {
-	const elements = document.querySelectorAll('.year-mark, ._a6-g');
+	var elements = document.querySelectorAll('.year-mark');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.display = "block";
+	}
+
+	re = new RegExp(searchString, "i");
+	elements = document.querySelectorAll('._a6-g');
 	for (let i = 0; i < elements.length; i++) {
 		const element = elements[i];
 		const classes = element.classList;
-		if (showMemories && !classes.contains('year-mark') && !classes.contains(monthDayID)) {
+		if (showMemories && !classes.contains(monthDayID)) {
+			element.style.display = "none";
+		}
+		else if (searchMode && searchString != "" && !re.test(element.innerText)) {
 			element.style.display = "none";
 		}
 		else {
@@ -428,26 +536,28 @@ function setupEvents() {
 
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Enter' || event.key === 'ArrowRight') {
-			const images = document.querySelectorAll('img._a6_o');
-			const middleY = window.innerHeight / 2;
-			let closestImage = null;
-			let closestDistance = Infinity;
+			if (event.target.tagName !== 'INPUT') {
+				const images = document.querySelectorAll('img._a6_o');
+				const middleY = window.innerHeight / 2;
+				let closestImage = null;
+				let closestDistance = Infinity;
 
-			images.forEach(img => {
-				const rect = img.getBoundingClientRect();
-				if (rect.height > 0) {
-					const imgMiddleY = rect.top + rect.height / 2;
-					const distance = Math.abs(imgMiddleY - middleY);
+				images.forEach(img => {
+					const rect = img.getBoundingClientRect();
+					if (rect.height > 0) {
+						const imgMiddleY = rect.top + rect.height / 2;
+						const distance = Math.abs(imgMiddleY - middleY);
 
-					if (distance < closestDistance) {
-						closestDistance = distance;
-						closestImage = img;
+						if (distance < closestDistance) {
+							closestDistance = distance;
+							closestImage = img;
+						}
 					}
-				}
-			});
+				});
 
-			if (closestImage) {
-				showImage({ currentTarget: closestImage });
+				if (closestImage) {
+					showImage({ currentTarget: closestImage });
+				}
 			}
 		}
 	});

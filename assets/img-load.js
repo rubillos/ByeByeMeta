@@ -46,9 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				return imgUrls[currentIndex + 1];
 			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	function previousSrc() {
@@ -58,9 +56,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				return imgUrls[currentIndex - 1];
 			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	function nextImage() {
@@ -83,7 +79,8 @@ document.addEventListener("DOMContentLoaded", function() {
 			if (prevKeys.includes(event.key)) {
 				previousImage();
 				performSlideback(true);
-			} else if (nextKeys.includes(event.key)) {
+			}
+			else if (nextKeys.includes(event.key)) {
 				nextImage();
 				performSlideback(true);
 			}
@@ -342,6 +339,8 @@ document.addEventListener("DOMContentLoaded", function() {
 		
 		document.addEventListener('wheel', event => {
 			event.preventDefault();
+			cancelAnimation();
+
 			const oldScale = imgXForm.scale;
 		
 			if (event.ctrlKey || event.altKey) {
@@ -367,22 +366,24 @@ document.addEventListener("DOMContentLoaded", function() {
 			event.preventDefault();
 			
 			if (event.type === 'gesturestart') {
-				lastGestureX = event.screenX;
-				lastGestureY = event.screenY;
-				lastGestureScale = event.scale;
+				cancelAnimation();
 			}
 			else if (event.type === 'gesturechange') {
+				const oldScale = imgXForm.scale;
+
 				imgXForm.x += event.screenX - lastGestureX;
 				imgXForm.y += event.screenY - lastGestureY;
+
+				imgXForm.scale *= 1.0 + (event.scale - lastGestureScale);
+				imgXForm.scale = clamp(imgXForm.scale, 0.3, 8.0);
+
+				relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
+				updateImage();
+			}
+			else if (event.type === 'gestureend') {
+				performSlideback(false);
 			}
 			
-			const oldScale = imgXForm.scale;
-
-			imgXForm.scale *= 1.0 + (event.scale - lastGestureScale);
-			imgXForm = clampXForm(imgXForm, false);
-			relativeScaleAdjust(oldScale, imgXForm.scale, { x:event.clientX, y:event.clientY });
-			updateImage();
-
 			lastGestureX = event.screenX;
 			lastGestureY = event.screenY;
 			lastGestureScale = event.scale;
