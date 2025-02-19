@@ -214,16 +214,19 @@ function setupMemories() {
 			banner.setAttribute('txt', banner.textContent);
 			banner.textContent = '';
 
-			let leftTriangle = document.createElement('div');
-			leftTriangle.classList.add('arrow', 'left');
-			banner.appendChild(leftTriangle);
-			leftTriangle.addEventListener('click', (e) => {
+			let left = document.createElement('div');
+			left.textContent = "⬅️";
+			left.classList.add('text-button', 'arrow');
+			left.id = 'left';
+			banner.appendChild(left);
+			left.addEventListener('click', (e) => {
 				e.preventDefault();
 				changeBy(-1);
 			});
 
 			let search = document.createElement('div');
 			search.textContent = "🔍";
+			search.classList.add('text-button');
 			search.id ='search';
 			banner.appendChild(search);
 			search.addEventListener('click', toggleSearch);
@@ -266,15 +269,18 @@ function setupMemories() {
 			title.addEventListener('click', toggleMemories);
 
 			let memories = document.createElement('div');
-			memories.textContent = "⟲";
+			memories.textContent = "🗓️";
+			memories.classList.add('text-button');
 			memories.id = 'memories';
 			banner.appendChild(memories);
 			memories.addEventListener('click', toggleMemories);
 
-			let rightTriangle = document.createElement('div');
-			rightTriangle.classList.add('arrow', 'right');
-			banner.appendChild(rightTriangle);
-			rightTriangle.addEventListener('click', (e) => {
+			let right = document.createElement('div');
+			right.textContent = "➡️";
+			right.classList.add('text-button', 'arrow');
+			right.id = 'right';
+			banner.appendChild(right);
+			right.addEventListener('click', (e) => {
 				e.preventDefault();
 				changeBy(1);
 			});

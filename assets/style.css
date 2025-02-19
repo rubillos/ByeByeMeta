@@ -156,34 +156,8 @@ img._a6_o {
 	cursor: pointer;
 }
 
-.left {
-	width: 8%;
-	height: 100%;
-	background-color: #333;
-	clip-path: polygon(80% 20%, 20% 50%, 80% 80%);
-	margin-right: 2%;
-}
-
-.right {
-	width: 8%;
-	height: 100%;
-	background-color: #333;
-	clip-path: polygon(20% 20%, 80% 50%, 20% 80%);
-	margin-left: 2%;
-}
-
 #memories {
-	position: relative;
-	margin: 0;
-	padding: 0;
-	margin-left: 2%;
-}
-
-#search {
-	position: relative;
-	margin: 0;
-	padding: 0;
-	margin-right: 2%;
+	text-shadow: -1px -1px 0 gray, 1px -1px 0 gray, -1px 1px 0 gray, 1px 1px 0 gray;
 }
 
 #find {
@@ -210,6 +184,7 @@ img._a6_o {
 	cursor: pointer;
 	display: flex;
 	align-content: space-between;
+	column-gap: 2.5%;
 	align-items: center;
 }
 
@@ -235,19 +210,11 @@ img._a6_o {
 	.banner {
 		height: 120px;
 	}
-	.left, .right {
-		width: 12%;
-	}
 	#title {
 		font-size: 18px;
 		scale: 1 2;	
 	}
-	#memories {
-		font-size: 80px;
-		top: -6px;
-		margin-right: 2%
-	}
-	#search {
+	.text-button {
 		font-size: 50px;
 	}
 	#find {
@@ -293,11 +260,7 @@ img._a6_o {
 	#title {
 		font-size: 18px;
 	}
-	#memories {
-		font-size: 60px;
-		top: -6px;
-	}
-	#search {
+	.text-button {
 		font-size: 30px;
 	}
 	#find {
