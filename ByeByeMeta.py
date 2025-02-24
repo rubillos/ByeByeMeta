@@ -404,9 +404,10 @@ def processData():
 	def mergeSoupFile(soupPath):
 		nonlocal srcDataCount
 		srcDataCount += os.path.getsize(soupPath)
-		with open(soupPath) as fp:
-			soup2 = BeautifulSoup(fp, 'lxml')
-			mergeAlbumSoup(soup2, os.path.basename(soupPath))
+		if fileExists(soupPath):
+			with open(soupPath) as fp:
+				soup2 = BeautifulSoup(fp, 'lxml')
+				mergeAlbumSoup(soup2, os.path.basename(soupPath))
 
 	if isFacebook:
 		startOperation("Merge Photos")
