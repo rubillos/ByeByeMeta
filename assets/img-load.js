@@ -67,20 +67,20 @@ document.addEventListener("DOMContentLoaded", function() {
 		setSrc(previousSrc());
 	}
 
-	document.addEventListener('keydown', function(event) {
+	document.addEventListener('keydown', function(e) {
 		const closeKeys = ['Escape', 'Enter'];
 		const nextKeys = ['ArrowDown', 'ArrowRight', ' '];
 		const prevKeys = ['ArrowUp', 'ArrowLeft'];
 
-		if (closeKeys.includes(event.key)) {
+		if (closeKeys.includes(e.key)) {
 			window.close();
 		}
 		else if (imgUrls) {
-			if (prevKeys.includes(event.key)) {
+			if (prevKeys.includes(e.key)) {
 				previousImage();
 				performSlideback(true);
 			}
-			else if (nextKeys.includes(event.key)) {
+			else if (nextKeys.includes(e.key)) {
 				nextImage();
 				performSlideback(true);
 			}
@@ -303,10 +303,9 @@ document.addEventListener("DOMContentLoaded", function() {
 		const oldXForm = { ...imgXForm };
 
 		function animate() {
-			const now = Date.now();
-			const fraction = (now - startTime) / duration;
+			const fraction = (Date.now() - startTime) / duration;
 
-			animationActive = null;
+			activeAnimation = null;
 
 			if (fraction < 1.0) {
 				imgXForm.x = interpolate(oldXForm.x, newXForm.x, fraction);
