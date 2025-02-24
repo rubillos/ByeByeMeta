@@ -52,7 +52,11 @@ From your Facebook page on a Mac browser:
 14. Make sure "Format" is set to "HTML"
 15. Click "Media quality", then click "High", then "Save"
 
-You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usuualy just a few minutes. You'll get an email and a notification when your data is ready. When you receive it, select the notification, then:
+You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usuualy just a few minutes.
+
+**UPDATE: Seems that Meta has been getting *lots* of requests for data, which is slowing things down. I had one request take 3 weeks! Just keep waiting!**
+
+You'll get an email and a notification when your data is ready. When you receive it, select the notification, then:
 
 1. Follow the notification and click the "Download" button.
 2. Locate the downloaded .zip file and double click it.
