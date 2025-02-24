@@ -52,7 +52,7 @@ From your Facebook page on a Mac browser:
 14. Make sure "Format" is set to "HTML"
 15. Click "Media quality", then click "High", then "Save"
 
-You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usuualy just a few minutes.
+You'll now see a page saying that your information has been requested. It will take a little time for Facebook/Instagram to process everything, usually just a few minutes.
 
 **UPDATE: Seems that Meta has been getting *lots* of requests for data, which is slowing things down. I had one request take 3 weeks! Just keep waiting!**
 
