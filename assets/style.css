@@ -195,6 +195,18 @@ img._a6_o {
 	._a705 {
 		max-width: 88vw;
 	}
+	._a6-h {
+		line-height: 36px;
+		font-size: 36px;
+	}
+	._a6-o {
+		line-height: 24px;
+		font-size: 24px;
+	}
+	._a6-p {
+		line-height: 28px;
+		font-size: 24px;
+	}
 	.back-blue {
 		background-color: deepskyblue;
 	}
@@ -206,6 +218,9 @@ img._a6_o {
 	} 
 	#year-background {
 		width: 100%;
+	}
+	.year-mark {
+		font-size: 48px;
 	}
 	.banner {
 		height: 120px;
