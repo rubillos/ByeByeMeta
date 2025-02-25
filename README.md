@@ -90,7 +90,9 @@ At this point the script will run, printing out progress information and copying
 
 ## <a name="viewing"></a>Viewing your posts
 
-When the script is done, inside your `Output Folder` you should have three folders, `assets`, `entries`, and `media`, along with a file named `index.html`. Double clicking the `index.html` file should open it into your browser.
+When the script is done, inside your `Output Folder` you should have three folders, `assets`, `entries`, and `media`, along with a file named `index.html`. This folder can be hosted on any web server.
+
+To view the files locally, there is a small web server script included. Double click the `localserver.command` file. Select the `Output Folder` above. A browser window will open for local viewing.
 
 You can use the navigation bar at the left to jump to any portion of any year.
 
