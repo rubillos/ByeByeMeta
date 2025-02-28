@@ -95,6 +95,7 @@ parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activit
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
+parser.add_argument("-v", "--missing-videos", dest="missingVideos", help="Include posts with missing video", action="store_true")
 parser.add_argument("-#", "--hashtags", dest="hashtags", help="Remove hashtags in headings", action="store_true")
 parser.add_argument("-si", "--show-indexes", dest="showIndexes", help="Always show the index numbers for entries", action="store_true")
 parser.add_argument("-xl", "--exclude-list", dest="exlist", help="Generate an html page with the excluded entries", action="store_true")
@@ -253,6 +254,10 @@ def processData():
 		mainSrcFile = os.path.join(srcFolder, postsFolder, mainPostsName)
 	else:
 		mainSrcFile = os.path.join(srcFolder, contentFolder, igPostsName)
+
+	if not fileExists(mainSrcFile):
+		console.print(f"Main data file '{mainSrcFile}' not found!\nYou may need to perform another download with different options.")
+		return None
 
 	srcDataCount += os.path.getsize(mainSrcFile)
 	with open(mainSrcFile) as fp:
@@ -446,6 +451,115 @@ def processData():
 		heading = soup.find("div", class_="_3-8y")
 		if heading != None:
 			heading.decompose()
+
+	# --------------------------------------------------
+	srcCount = 0
+
+	def srcAttr(forPoster=False):
+		nonlocal srcCount
+		if forPoster:
+			return 'poster' if srcCount < 5 else 'xpost'
+		else:
+			srcCount += 1
+			return 'src' if srcCount < 5 else 'sxx'
+	
+	def hashForBase64(str):
+		import hashlib
+		return hashlib.md5(str.encode()).hexdigest()
+	
+	oldNameTotal = 0
+	newNameTotal = 0
+
+	allNewNames = set()
+	dataImgPaths = set()
+	dataIMGLookup = {}
+
+	dataImgCount = 0
+	dataImgIndex = 1
+	dataImgFolderIndex = 1
+	dataImgReuse = 0
+
+	dataStr = "data:image/"
+	jpegStr = "jpeg;base64,"
+	pngStr = "png;base64,"
+
+	def base64ToPath(base64Str):
+		nonlocal dataImgIndex, dataImgFolderIndex, dataImgReuse, dataImgCount, newNameTotal
+
+		newPath = None
+		extension = None
+
+		if base64Str.startswith(jpegStr):
+			extension = "jpg"
+			base64Str = base64Str[len(jpegStr):]
+		elif base64Str.startswith(pngStr):
+			extension = "png"
+			base64Str = base64Str[len(pngStr):]
+		else:
+			console.print(f"Unknown data image type: {base64Str[:10]}")
+
+		if extension != None:
+			startSubOperation(f"Extracting data #{dataImgIndex} - type:'{extension}'", print=False)
+
+			dataHash = hashForBase64(base64Str)
+
+			if dataHash in dataIMGLookup:
+				newPath = dataIMGLookup[dataHash]
+				dataImgReuse += 1
+			else:
+				import base64
+				data = base64.b64decode(base64Str)
+
+				newPath = "{}.{}".format(os.path.join(mediaFolder, f"data{dataImgFolderIndex}", f"{dataImgIndex}"), extension)
+				dataImgIndex += 1
+				if dataImgIndex > 200:
+					dataImgIndex = 1
+					dataImgFolderIndex += 1
+
+				allNewNames.add(newPath)
+				dataImgPaths.add(newPath)
+				dataIMGLookup[dataHash] = newPath
+				dataImgCount += 1
+
+				destPath = os.path.join(dstFolder, newPath)
+				createFolder(destPath)
+				with open(destPath, "wb") as f:
+					f.write(data)
+		
+		newNameTotal += len(newPath)
+		return newPath
+				
+	startOperation("Extract embedded images", print=False)
+
+	dataImages = soup.find_all("img", src=re.compile(f"^{dataStr}.*"))
+	if len(dataImages) > 0:
+		with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
+			task = progress.add_task("Extracting embedded images...", total=len(dataImages))
+			for img in dataImages:
+				src = img['src'][len(dataStr):]
+				newName = base64ToPath(src)
+
+				if newName:
+					del img['src']
+					img[srcAttr()] = newName
+
+				progress.update(task, advance=1)
+
+	startOperation("Extract embedded <a> hrefs", print=False)
+
+	dataARefs = soup.find_all("a", href=re.compile(f"^{dataStr}.*"))
+	if len(dataARefs) > 0:
+		with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
+			task = progress.add_task("Extracting embedded hrefs...", total=len(dataARefs))
+			for a in dataARefs:
+				src = a['href'][len(dataStr):]
+				newName = base64ToPath(src)
+
+				if newName:
+					del a['href']
+					a['href'] = newName
+
+				progress.update(task, advance=1)
 
 	# --------------------------------------------------
 	startOperation("Remove Facebook links")
@@ -748,7 +862,7 @@ def processData():
 		return False
 
 	entries = soup.find_all("div", class_="_a6-g")
-	deletedEntries = set()
+	entriesToDelete = set()
 	for entry in entries:
 		pin2 = entry.find_all("div", class_="_2pin")
 		for item in pin2:
@@ -762,7 +876,7 @@ def processData():
 			if not args.birthdays:
 				for string in item.strings:
 					if isBirthdayString(string):
-						deletedEntries.add(entry)
+						entriesToDelete.add(entry)
 						break
 		atags = entry.find_all("a")
 		if len(atags) == 2:
@@ -774,10 +888,28 @@ def processData():
 				else:
 					atags[1].parent.decompose()
 
-	for item in deletedEntries:
+	for item in entriesToDelete:
 		item.decompose()
 
-	console.print(f"Deleted {len(deletedEntries)} birthday entries")
+	console.print(f"Deleted {len(entriesToDelete)} birthday entries")
+
+	# --------------------------------------------------
+	if not args.missingVideos:
+		startOperation("Remove missing video entries")
+
+		dataImages = soup.find_all("img", src=re.compile(f"^{dataStr}.*"))
+
+		entriesToDelete = set()
+		entries = soup.find_all("div", class_="_a6-g")
+		for entry in entries:
+			vid = entry.find("video", src=re.compile(f"^https://.*"))
+			if vid != None:
+				entriesToDelete.add(entry)
+
+		for entry in entriesToDelete:
+			entry.decompose()
+
+		console.print(f"Deleted {len(entriesToDelete)} entries with missing video")
 
 	# --------------------------------------------------
 	startOperation("Clean up titles")
@@ -872,9 +1004,6 @@ def processData():
 	yearCounts = {}
 
 	fileRename = {}
-	allNewNames = set()
-	oldNameTotal = 0
-	newNameTotal = 0
 
 	createFolder(os.path.join(dstFolder, mediaFolder))
 
@@ -924,7 +1053,7 @@ def processData():
 	# --------------------------------------------------
 	# Exclusion List
 
-	deletedEntries = []
+	excludedEntries = []
 
 	def excludeEntries():
 		if xstring != "":
@@ -933,9 +1062,9 @@ def processData():
 			entries = soup.find_all("div", class_="_a6-g")
 			for i, entry in enumerate(entries):
 				if entry['eix'] in xlist:
-					deletedEntries.append(entry)
+					excludedEntries.append(entry)
 
-			for item in deletedEntries:
+			for item in excludedEntries:
 				item.extract()
 
 	if not args.exlist:
@@ -944,16 +1073,9 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Renaming and organizing media files", print=False)
 
-	srcCount = 0
+	def nameForPoster(src):
+		return src.replace("mp4", "jpg")
 
-	def srcAttr(forPoster=False):
-		nonlocal srcCount
-		if forPoster:
-			return 'poster' if srcCount < 5 else 'xpost'
-		else:
-			srcCount += 1
-			return 'src' if srcCount < 5 else 'sxx'
-	
 	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
 		task = progress.add_task("Organizing Media...", total=len(entries))
@@ -973,24 +1095,29 @@ def processData():
 				for i, tagimg in enumerate(imgs):
 					oldName = tagimg.get('src', tagimg.get('sxx'))
 					if not oldName.startswith("http"):
-						startSubOperation(f"Processing '{oldName}'", print=False)
-						
-						extension = oldName.split(".")[-1]
-						newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
-						newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
-						posterName = newName.replace("mp4", "jpg")
-						index = 2
-						while newName in allNewNames or posterName in allNewNames:
-							newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
-							posterName = newName.replace("mp4", "jpg")
-							index += 1
-						allNewNames.add(newName)
-						fileRename[oldName] = newName
-						del tagimg['src']
-						tagimg[srcAttr()] = newName
+						if not oldName in dataImgPaths:
+							startSubOperation(f"Processing '{oldName}'", print=False)
+							
+							extension = oldName.split(".")[-1]
+							newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
+							newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
+							posterName = nameForPoster(newName)
+							index = 2
+							while newName in allNewNames or posterName in allNewNames:
+								newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+								posterName = nameForPoster(newName)
+								index += 1
+							allNewNames.add(newName)
+							fileRename[oldName] = newName
+							del tagimg['src']
+							tagimg[srcAttr()] = newName
+
+							destPath = os.path.join(dstFolder, newName)
+							copyFile(os.path.join(srcMediaPath, oldName), destPath)
+						else:
+							newName = oldName
 
 						destPath = os.path.join(dstFolder, newName)
-						copyFile(os.path.join(srcMediaPath, oldName), destPath)
 						width = 0
 						height = 0
 						if tagimg.name == 'img':
@@ -1000,6 +1127,7 @@ def processData():
 							width = int(width)
 							height = int(height)
 							tagimg['preload'] = "none"
+							posterName = nameForPoster(newName)
 							if extractFirstFrameToFile(destPath, os.path.join(dstFolder, posterName)):
 								del tagimg['poster']
 								tagimg[srcAttr(True)] = posterName
@@ -1259,7 +1387,7 @@ def processData():
 		if wrapper != None:
 			for entry in reversed(wrapper.contents):
 				entry.decompose()
-			for entry in deletedEntries:
+			for entry in excludedEntries:
 				wrapper.append(entry)
 			with open(os.path.join(dstFolder, excludedName), "w") as f:
 				f.write(str(excludeSoup))
@@ -1281,9 +1409,13 @@ def processData():
 
 	result = []
 	result.append(f"Number of entries: {len(entries)}")
+	result.append(f"Years: {years}")
+	result.append(f"Year counts: {yearCounts}")
 	result.append(f"Number of blocks: {len(htmlBlocks)}")
 	result.append(f"Block counts: {blockCounts}")
-	result.append(f"Media items: {len(fileRename)}")
+	result.append(f"Copied media items: {len(fileRename)}")
+	if dataImgCount > 0:
+		result.append(f"Extracted images: {dataImgCount} (reused {dataImgReuse} references)")
 	result.append(f"Total name usage went from {oldNameTotal} to {newNameTotal}")
 	result.append(f"Read {srcDataCount} bytes of html, wrote {totalBytes} bytes - saved {((srcDataCount - totalBytes) / srcDataCount) * 100:.2f}%")
 
