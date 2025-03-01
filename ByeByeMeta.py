@@ -53,9 +53,10 @@ import copy
 from rich.console import Console
 from rich.progress import Progress, BarColumn, TimeElapsedColumn, Task
 from rich.text import Text
-from rich.padding import Padding
 from rich.theme import Theme
 from rich.panel import Panel
+from rich.live import Live
+from rich.table import Table
 import webbrowser
 import traceback
 
@@ -141,8 +142,9 @@ theme = Theme({
 			"repr.filename": "white"
 			})
 
-prog_description = "[progress.description]{task.description}"
-prog_percentage = "[progress.percentage]{task.percentage:>3.0f}% "
+progressDesc = "[progress.description]{task.description}"
+progressPercent = "[progress.percentage]{task.percentage:>3.0f}% "
+progressPercentCount = "[progress.percentage]{task.percentage:>3.0f}% ({task.fields[count]})"
 
 console = Console(theme=theme)
 
@@ -204,6 +206,14 @@ def startSubOperation(name, print=True):
 	if print:
 		console.print(f"  {name}")
 	lastSubOperation = name
+
+def pluralize(count, singleStr, pluralStr=None):
+	if count == 1:
+		return singleStr
+	elif pluralStr == None:
+		return singleStr+"s"
+	else:
+		return pluralStr
 
 def processData():
 	if args.srcFolder != None:
@@ -339,9 +349,7 @@ def processData():
 			os.remove(path)
 			filesRemoved += 1
 	if filesRemoved>0 or foldersRemoved>0:
-		console.print(f"removed {foldersRemoved} folders and {filesRemoved} files.")
-	else:
-		console.print("done.")
+		console.print(f"Removed {foldersRemoved} {pluralize(foldersRemoved, 'folder')} and {filesRemoved} {pluralize(filesRemoved, 'file')}.")
 
 	# --------------------------------------------------
 	startOperation("Copying Assets folder")
@@ -370,87 +378,124 @@ def processData():
 				usedFiles.add(src)
 
 	# --------------------------------------------------
-
-	def mergeAlbumSoup(albumSoup, name):
-		startSubOperation(f"Adding entries from the album '{name}'", print=False)
-		firstDiv = albumSoup.find("div", class_="_a6-g")
-		if firstDiv != None:
-			albumList = list(firstDiv.parent.children)
-			listCount = len(albumList)
-			addedCount = 0
-			for entry in albumList:
-				skip = False
-				imgs = entry.find_all(["img", "video"])
-				for img in imgs:
-					src = img['src']
-					if src in usedFiles:
-						skip = True
-						break
-					else:
-						usedFiles.add(src)
-				if not skip:
-					entry.extract()
-					tab = entry.find('table')
-					if tab != None:
-						tab.decompose()
-					if len(entry.contents) == 2:
-						newDiv = soup.new_tag("div")
-						label = entry.find("div", class_= "_3-95")
-						if label != None and label.string != None:
-							newDiv.string = label.string
-						else:
-							newDiv.string = " "
-						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
-						entry.insert(0, newDiv)
-					mainEntries.append(entry)
-					addedCount += 1
-			console.log(f"Added {addedCount} out of {listCount} entries from the album '{name}'")
-
-	def mergeSoupFile(soupPath):
-		nonlocal srcDataCount
-		srcDataCount += os.path.getsize(soupPath)
-		if fileExists(soupPath):
-			with open(soupPath) as fp:
-				soup2 = BeautifulSoup(fp, 'lxml')
-				mergeAlbumSoup(soup2, os.path.basename(soupPath))
-
+	# Merge albums
+	
 	if isFacebook:
-		startOperation("Merge Photos")
-		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
+		category = "Processing..."
+		lastStatus = ""
+		albumStats = []
 
-		startOperation("Merge Videos")
-		mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
+		def recordAlbumStats(albumName, count, total):
+			nonlocal lastStatus
+			albumStats.append(f"'{albumName}':{count}_of_{total}")
+			lastStatus = f"\033[1;32m'{albumName}'\033[1;39m: added {count} of {total} entries"
 
-		startOperation("Merge Other Posts")
-		mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
+		def albumStatus():
+			txt = Text()
+			txt.append("Completed: ", style="cyan")
+			txt.append(Text.from_ansi(lastStatus))
+			txt.append("\n")
+			txt.append("Current:   ", style="yellow")
+			txt.append(category, style="white")
+			return txt
 
-		albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
-		albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+		with Live(albumStatus(), transient=True) as live:
+			def mergeAlbumSoup(albumSoup, name):
+				startSubOperation(f"Adding entries from the album '{name}'", print=False)
+				firstDiv = albumSoup.find("div", class_="_a6-g")
+				if firstDiv != None:
+					albumList = list(firstDiv.parent.children)
+					listCount = len(albumList)
+					addedCount = 0
+					for entry in albumList:
+						skip = False
+						imgs = entry.find_all(["img", "video"])
+						for img in imgs:
+							src = img['src']
+							if src in usedFiles:
+								skip = True
+								break
+							else:
+								usedFiles.add(src)
+						if not skip:
+							entry.extract()
+							tab = entry.find('table')
+							if tab != None:
+								tab.decompose()
+							if len(entry.contents) == 2:
+								newDiv = soup.new_tag("div")
+								label = entry.find("div", class_= "_3-95")
+								if label != None and label.string != None:
+									newDiv.string = label.string
+								else:
+									newDiv.string = " "
+								newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+								entry.insert(0, newDiv)
+							mainEntries.append(entry)
+							addedCount += 1
+					# console.print(f" - Added {addedCount} out of {listCount} entries from the album '{name}'")
+					recordAlbumStats(name, addedCount, listCount)
 
-		startOperation(f"Merge {len(albumFiles)} albums")
-		for albumFile in albumFiles:
-			mergeSoupFile(os.path.join(albumsFolder, albumFile))
+			def mergeSoupFile(soupPath):
+				nonlocal srcDataCount
+				srcDataCount += os.path.getsize(soupPath)
+				if fileExists(soupPath):
+					with open(soupPath) as fp:
+						soup2 = BeautifulSoup(fp, 'lxml')
+						mergeAlbumSoup(soup2, os.path.basename(soupPath))
+
+			def startAlbumGroup(name):
+				nonlocal category
+				startOperation(name, print=False)
+				category = name
+				live.update(albumStatus(), refresh=True)
+
+			startAlbumGroup("Merge Photos...")
+			mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
+
+			startAlbumGroup("Merge Videos...")
+			mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
+
+			startAlbumGroup("Merge Other Posts...")
+			mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
+
+			albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
+			albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+
+			for i, albumFile in enumerate(albumFiles):
+				startAlbumGroup(f"{i+1} of {len(albumFiles)} - Merge album '{albumFile}'")
+				mergeSoupFile(os.path.join(albumsFolder, albumFile))
+
+		console.print("Albums merged:")
+		console.print(", ".join(albumStats))
 
 	# --------------------------------------------------
 	startOperation("Remove unneeded elements")
 
 	del soup.head.base['href']
 
-	upstrs = soup.find_all("div", string="Mobile uploads")
-	for updiv in upstrs:
-		updiv.decompose()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Clean up tags...", total=None)
 
-	if isFacebook:
-		pdescs = soup.find_all("div", class_="_3-95")
-		for pdsc in pdescs:
-			pdsc.decompose()
-	else:
-		table = soup.find("table")
-		if table != None:
-			table.decompose()
-		heading = soup.find("div", class_="_3-8y")
-		if heading != None:
-			heading.decompose()
+		upstrs = soup.find_all("div", string="Mobile uploads")
+		for updiv in upstrs:
+			progress.update(task, advance=1)
+			updiv.decompose()
+
+		if isFacebook:
+			pdescs = soup.find_all("div", class_="_3-95")
+			for pdsc in pdescs:
+				progress.update(task, advance=1)
+				pdsc.decompose()
+		else:
+			table = soup.find("table")
+			if table != None:
+				table.decompose()
+			heading = soup.find("div", class_="_3-8y")
+			if heading != None:
+				heading.decompose()
+
+		progress.update(task, total=100, completed=100)
 
 	# --------------------------------------------------
 	srcCount = 0
@@ -496,7 +541,10 @@ def processData():
 			extension = "png"
 			base64Str = base64Str[len(pngStr):]
 		else:
-			console.print(f"Unknown data image type: {base64Str[:10]}")
+			commaIndex = base64Str.find(",")
+			if commaIndex == -1:
+				commaIndex = 20
+			console.print(f"Unknown data image type: {base64Str[:commaIndex]}")
 
 		if extension != None:
 			startSubOperation(f"Extracting data #{dataImgIndex} - type:'{extension}'", print=False)
@@ -533,8 +581,8 @@ def processData():
 
 	dataImages = soup.find_all("img", src=re.compile(f"^{dataStr}.*"))
 	if len(dataImages) > 0:
-		with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
-			task = progress.add_task("Extracting embedded images...", total=len(dataImages))
+		with Progress(progressDesc, BarColumn(), progressPercentCount, console=console) as progress:
+			task = progress.add_task("Extracting embedded images...", total=len(dataImages), count=dataImgCount)
 			for img in dataImages:
 				src = img['src'][len(dataStr):]
 				newName = base64ToPath(src)
@@ -543,14 +591,14 @@ def processData():
 					del img['src']
 					img[srcAttr()] = newName
 
-				progress.update(task, advance=1)
+				progress.update(task, advance=1, count=dataImgCount)
 
 	startOperation("Extract embedded <a> hrefs", print=False)
 
 	dataARefs = soup.find_all("a", href=re.compile(f"^{dataStr}.*"))
 	if len(dataARefs) > 0:
-		with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
-			task = progress.add_task("Extracting embedded hrefs...", total=len(dataARefs))
+		with Progress(progressDesc, BarColumn(), progressPercentCount, console=console) as progress:
+			task = progress.add_task("Extracting embedded hrefs...", total=len(dataARefs), count=dataImgCount)
 			for a in dataARefs:
 				src = a['href'][len(dataStr):]
 				newName = base64ToPath(src)
@@ -559,19 +607,22 @@ def processData():
 					del a['href']
 					a['href'] = newName
 
-				progress.update(task, advance=1)
+				progress.update(task, advance=1, count=dataImgCount)
 
 	# --------------------------------------------------
-	startOperation("Remove Facebook links")
+	startOperation("Remove Facebook links", print=False)
 
 	fblinks = soup.find_all("a", href=re.compile(".*facebook\.com"))
-	for flink in fblinks:
-		p = flink.parent
-		flink.unwrap()
-		p.smooth()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove Facebook links...", total=len(fblinks))
+		for flink in fblinks:
+			p = flink.parent
+			flink.unwrap()
+			p.smooth()
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
-	startOperation("Remove GPS coordinates")
+	startOperation("Remove GPS coordinates", print=False)
 
 	def isAPlace(tag):
 		if tag.name == "div":
@@ -581,19 +632,25 @@ def processData():
 		return False
 
 	places = soup.find_all(isAPlace)
-	for place in places:
-		place.string = re.sub(" \(-?\d+.?\d*, ?-?\d+.?\d*\)", "", place.string).replace("Place: ", "")
-		place.unwrap()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove GPS coordinates...", total=len(places))
+		for place in places:
+			place.string = re.sub(" \(-?\d+.?\d*, ?-?\d+.?\d*\)", "", place.string).replace("Place: ", "")
+			place.unwrap()
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
-	startOperation("Remove Addresses")
+	startOperation("Remove Addresses", print=False)
 
 	addresses = soup.find_all("div", string=re.compile("^Address: "))
-	for address in addresses:
-		address.decompose()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove Addresses...", total=len(addresses))
+		for address in addresses:
+			address.decompose()
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
-	startOperation("Reformat entries")
+	startOperation("Reformat entries", print=False)
 
 	def addClass(tag, c):
 		if isinstance(c, list):
@@ -627,63 +684,66 @@ def processData():
 
 	entries = soup.find_all("div", class_="_a6-g")
 	entryOuter = entries[0].parent
-	for entry in entries:
-		if isFacebook:
-			kids = list(entry.children)
-			if len(kids) == 3 and kids[0].string != None:
-				twop = kids[1].find_all("div", class_="_2pin")
-				if len(twop) == 2:
-					if len(twop[1].contents) == 2 and isinstance(twop[1].contents[0], NavigableString):
-						kids[0].string.replace_with(twop[1].contents[0])
-						twop[1].contents[0].extract()
-				removeClass(kids[0], "_a6-i")
-				addClass(kids[0], "_bot4")
-				addClass(kids[1], "_3-94")
-				addClass(kids[1], "_top0")
-				addClass(kids[2], "_a6-o")
-				kids[0].parent.insert(1, kids[2].extract())
-				a7ng = entry.find_all("div", class_="_a7ng")
-				for item in a7ng:
-					div1 = item.find("div")
-					if div1 != None:
-						div2 = div1.find("div")
-						if div2 != None:
-							div2.decompose()
-			if kids[0].string == " ":
-				kids[0].string.replace_with("")
-			a701 = entry.find_all("div", class_="_a701")
-			a72d = entry.find_all("div", class_="_a72d")
-			if len(a72d) == 1:
-				entry.itemdate = convertToDatetime(str(a72d[0].string))
-			if len(a701) == 1 and len(a72d) == 1:
-				newStr = str(a72d[0].string) + " with " + str(a701[0].string).replace("You tagged ", "")
-				a72d[0].string.replace_with(newStr)
-				a701[0].decompose()
-		else:
-			a6ps = entry.find_all("div", class_="_a6-p")
-			if len(a6ps) == 1:
-				tables = a6ps[0].find_all("table")
-				for table in reversed(tables):
-					table.decompose()
-				a6o = entry.find_all("div", class_="_a6-o")
-				if len(a6o) == 1:
-					entry.itemdate = convertToDatetime(str(a6o[0].string))
-				if len(entry.contents) == 2:
-					newDiv = soup.new_tag("div")
-					newDiv.string = " "
-					newDiv['class'] = ["_2ph_", "_a6-h"]
-					entry.insert(0, newDiv)
-				entry.insert(1, a6o[0].extract())
-				if len(entry.contents) == 3:
-					addClass(entry.contents[0], "_top4")
-					addClass(entry.contents[2], "_top0")
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Reformat entries...", total=len(entries))
+		for entry in entries:
+			if isFacebook:
+				kids = list(entry.children)
+				if len(kids) == 3 and kids[0].string != None:
+					twop = kids[1].find_all("div", class_="_2pin")
+					if len(twop) == 2:
+						if len(twop[1].contents) == 2 and isinstance(twop[1].contents[0], NavigableString):
+							kids[0].string.replace_with(twop[1].contents[0])
+							twop[1].contents[0].extract()
+					removeClass(kids[0], "_a6-i")
+					addClass(kids[0], "_bot4")
+					addClass(kids[1], "_3-94")
+					addClass(kids[1], "_top0")
+					addClass(kids[2], "_a6-o")
+					kids[0].parent.insert(1, kids[2].extract())
+					a7ng = entry.find_all("div", class_="_a7ng")
+					for item in a7ng:
+						div1 = item.find("div")
+						if div1 != None:
+							div2 = div1.find("div")
+							if div2 != None:
+								div2.decompose()
+				if kids[0].string == " ":
+					kids[0].string.replace_with("")
+				a701 = entry.find_all("div", class_="_a701")
+				a72d = entry.find_all("div", class_="_a72d")
+				if len(a72d) == 1:
+					entry.itemdate = convertToDatetime(str(a72d[0].string))
+				if len(a701) == 1 and len(a72d) == 1:
+					newStr = str(a72d[0].string) + " with " + str(a701[0].string).replace("You tagged ", "")
+					a72d[0].string.replace_with(newStr)
+					a701[0].decompose()
+			else:
+				a6ps = entry.find_all("div", class_="_a6-p")
+				if len(a6ps) == 1:
+					tables = a6ps[0].find_all("table")
+					for table in reversed(tables):
+						table.decompose()
+					a6o = entry.find_all("div", class_="_a6-o")
+					if len(a6o) == 1:
+						entry.itemdate = convertToDatetime(str(a6o[0].string))
+					if len(entry.contents) == 2:
+						newDiv = soup.new_tag("div")
+						newDiv.string = " "
+						newDiv['class'] = ["_2ph_", "_a6-h"]
+						entry.insert(0, newDiv)
+					entry.insert(1, a6o[0].extract())
+					if len(entry.contents) == 3:
+						addClass(entry.contents[0], "_top4")
+						addClass(entry.contents[2], "_top0")
 
-		entry.extract()
-		itemDate = entry.itemdate
-		if firstDate == None or itemDate < firstDate:
-			firstDate = itemDate
-		if lastDate == None or itemDate > lastDate:
-			lastDate = itemDate
+			entry.extract()
+			itemDate = entry.itemdate
+			if firstDate == None or itemDate < firstDate:
+				firstDate = itemDate
+			if lastDate == None or itemDate > lastDate:
+				lastDate = itemDate
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
 	startOperation("Sort entries")
@@ -692,7 +752,7 @@ def processData():
 	entryOuter.extend(entries)
 
 	# --------------------------------------------------
-	startOperation("Remove unneeded headings")
+	startOperation("Remove unneeded headings", print=False)
 
 	userName = args.userName
 
@@ -708,14 +768,17 @@ def processData():
 	]
 
 	headings = soup.find_all("div", string=patterns)
-	for heading in headings:
-		if not args.noBanner and userName == "":
-			for pattern in patterns:
-				match = pattern.match(heading.string)
-				if match:
-					userName = match.group(1)
-					break
-		heading.string.replace_with("")
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove unneeded headings...", total=len(headings))
+		for heading in headings:
+			if not args.noBanner and userName == "":
+				for pattern in patterns:
+					match = pattern.match(heading.string)
+					if match:
+						userName = match.group(1)
+						break
+			heading.string.replace_with("")
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
 	if not args.noBanner:
@@ -739,7 +802,7 @@ def processData():
 			a706.insert_before(newDiv)
 
 	# --------------------------------------------------
-	startOperation("Clean up tags")
+	startOperation("Clean up tags", print=False)
 
 	class Clean(Enum):
 		Ok = 0
@@ -749,34 +812,40 @@ def processData():
 
 	simpleDivCount = 0
 
-	def cleanTag(tag, indent=0):
-		nonlocal simpleDivCount
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Clean up tags...", total=None)
 
-		classCount = 0
-		classes = tag.get('class')
-		if classes != None:
-			classCount = len(classes)
-		for subTag in reversed(tag.contents):
-			if not isinstance(subTag, NavigableString):
-				result = cleanTag(subTag, indent+1)
-				if result == Clean.Remove:
-					subTag.decompose()
-				elif result == Clean.Unwrap:
-					subTag.unwrap()
-		count = len(tag.contents)
-		if tag.name == "div" and count == 0:
-			return Clean.Remove
-		elif tag.name == "div" and classCount == 0:
-			return Clean.Unwrap
-		elif tag.name == "div" and count == 1 and tag.contents[0].name == "div":
-			simpleDivCount += 1
-			addClass(tag, tag.contents[0]['class'])
-			tag.contents[0].unwrap()			
-			return Clean.Ok
-		else:
-			return Clean.Ok
+		def cleanTag(tag, indent=0):
+			nonlocal simpleDivCount
 
-	cleanTag(soup.body)
+			progress.update(task, advance=1)
+
+			classCount = 0
+			classes = tag.get('class')
+			if classes != None:
+				classCount = len(classes)
+			for subTag in reversed(tag.contents):
+				if not isinstance(subTag, NavigableString):
+					result = cleanTag(subTag, indent+1)
+					if result == Clean.Remove:
+						subTag.decompose()
+					elif result == Clean.Unwrap:
+						subTag.unwrap()
+			count = len(tag.contents)
+			if tag.name == "div" and count == 0:
+				return Clean.Remove
+			elif tag.name == "div" and classCount == 0:
+				return Clean.Unwrap
+			elif tag.name == "div" and count == 1 and tag.contents[0].name == "div":
+				simpleDivCount += 1
+				addClass(tag, tag.contents[0]['class'])
+				tag.contents[0].unwrap()			
+				return Clean.Ok
+			else:
+				return Clean.Ok
+
+		cleanTag(soup.body, 0)
+		progress.update(task, total=100, completed=100)
 	console.print(f"Cleaned {simpleDivCount} simple divs")
 
 	# --------------------------------------------------
@@ -816,7 +885,7 @@ def processData():
 
 	# --------------------------------------------------
 	def removeEmptyStrings():
-		startOperation("Remove sequential and starting/ending empty strings")
+		startOperation("Remove sequential and starting/ending empty strings", print=False)
 
 		emptyStringCount = 0
 
@@ -827,27 +896,30 @@ def processData():
 				return tag.name and tag.name == "br"
 
 		entries = soup.find_all("div", class_="_a6-g")
-		for entry in entries:
-			pin2s = entry.find_all("div", class_="_2pin")
-			for pin in pin2s:
-				for i in range(len(pin.contents)-2, 0, -1):
-					if isEmptyString(pin.contents[i]) and isEmptyString(pin.contents[i+1]):
-						pin.contents[i].extract()
+		with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+			task = progress.add_task("Remove empty strings...", total=len(entries))
+			for entry in entries:
+				pin2s = entry.find_all("div", class_="_2pin")
+				for pin in pin2s:
+					for i in range(len(pin.contents)-2, 0, -1):
+						if isEmptyString(pin.contents[i]) and isEmptyString(pin.contents[i+1]):
+							pin.contents[i].extract()
+							emptyStringCount += 1
+							
+					if len(pin.contents) > 0 and isEmptyString(pin.contents[0]):
+						pin.contents[0].extract()
 						emptyStringCount += 1
-						
-				if len(pin.contents) > 0 and isEmptyString(pin.contents[0]):
-					pin.contents[0].extract()
-					emptyStringCount += 1
-				if len(pin.contents) > 0 and isEmptyString(pin.contents[-1]):
-					pin.contents[-1].extract()
-					emptyStringCount += 1
+					if len(pin.contents) > 0 and isEmptyString(pin.contents[-1]):
+						pin.contents[-1].extract()
+						emptyStringCount += 1
+				progress.update(task, advance=1)
 		
 		console.print(f"Removed {emptyStringCount} empty strings")
 
 	removeEmptyStrings()
 
 	# --------------------------------------------------
-	startOperation("Remove duplicate and birthday tags")
+	startOperation("Remove duplicate and birthday tags", print=False)
 
 	birthdayMatches = [re.compile("^ha+p{2,}y .*birth.*y.*", re.IGNORECASE),
 			   re.compile("^joy.*x an+ivers.*re.*", re.IGNORECASE),
@@ -863,30 +935,33 @@ def processData():
 
 	entries = soup.find_all("div", class_="_a6-g")
 	entriesToDelete = set()
-	for entry in entries:
-		pin2 = entry.find_all("div", class_="_2pin")
-		for item in pin2:
-			divs = item.find_all("div")
-			if len(divs)==2:
-				str1 = " ".join(divs[0].stripped_strings)
-				if len(str1) > 0:
-					str2 = " ".join(divs[1].stripped_strings)
-					if str1 == str2:
-						divs[1].decompose()
-			if not args.birthdays:
-				for string in item.strings:
-					if isBirthdayString(string):
-						entriesToDelete.add(entry)
-						break
-		atags = entry.find_all("a")
-		if len(atags) == 2:
-			if atags[0].string and len(atags[0].string) > 0 and atags[0].string == atags[1].string:
-				a0ParentString = " ".join(atags[0].parent.stripped_strings)
-				a1ParentString = " ".join(atags[1].parent.stripped_strings)
-				if len(a0ParentString) < len(a1ParentString):
-					atags[0].parent.decompose()
-				else:
-					atags[1].parent.decompose()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove duplicate and birthday tags...", total=len(entries))
+		for entry in entries:
+			pin2 = entry.find_all("div", class_="_2pin")
+			for item in pin2:
+				divs = item.find_all("div")
+				if len(divs)==2:
+					str1 = " ".join(divs[0].stripped_strings)
+					if len(str1) > 0:
+						str2 = " ".join(divs[1].stripped_strings)
+						if str1 == str2:
+							divs[1].decompose()
+				if not args.birthdays:
+					for string in item.strings:
+						if isBirthdayString(string):
+							entriesToDelete.add(entry)
+							break
+			atags = entry.find_all("a")
+			if len(atags) == 2:
+				if atags[0].string and len(atags[0].string) > 0 and atags[0].string == atags[1].string:
+					a0ParentString = " ".join(atags[0].parent.stripped_strings)
+					a1ParentString = " ".join(atags[1].parent.stripped_strings)
+					if len(a0ParentString) < len(a1ParentString):
+						atags[0].parent.decompose()
+					else:
+						atags[1].parent.decompose()
+			progress.update(task, advance=1)
 
 	for item in entriesToDelete:
 		item.decompose()
@@ -909,10 +984,11 @@ def processData():
 		for entry in entriesToDelete:
 			entry.decompose()
 
-		console.print(f"Deleted {len(entriesToDelete)} entries with missing video")
+		if len(entriesToDelete) > 0:
+			console.print(f"Deleted {len(entriesToDelete)} {pluralize(len(entriesToDelete), 'entry', 'entries')} with missing video")
 
 	# --------------------------------------------------
-	startOperation("Clean up titles")
+	startOperation("Clean up titles", print=False)
 
 	def tagIsEmpty(tag):
 		if len(tag.contents) == 0:
@@ -924,93 +1000,99 @@ def processData():
 
 	if isFacebook:
 		entries = soup.find_all("div", class_="_a6-g")
-		for entry in entries:
-			a6h = entry.find("div", class_="_a6-h")
-			a6p = entry.find("div", class_="_a6-p")
-			if a6h != None and a6p != None:
-				if a6h.string == "" or a6h.string == " ":
-					pin2s = entry.find_all("div", class_="_2pin")
-					if len(pin2s) > 0 and len(pin2s) <= 2:
-						foundStrings = []
-						stringsToRemove = []
-						foundTitle = ""
-						for p2 in pin2s:
-							p2.smooth()
-							for string in list(p2.strings):
-								if len(string) > 0 and string != " " and not string.startswith("http"):
-									text = str(string)
-									if foundTitle == "":
-										foundTitle = text
-										foundStrings.append(text)
-										stringsToRemove.append(string)
-									elif text in foundStrings:
-										stringsToRemove.append(string)
-									else:
-										foundStrings.append(text)
-						if foundTitle != "":
-							a6h.string.replace_with(foundTitle)
-							for string in stringsToRemove:
-								string.extract()
-				if tagIsEmpty(a6h) and tagIsEmpty(a6p):
-					entry.decompose()
-			else:
-				if len(entry.contents) == 2:
-					pin2s = entry.find_all("div", class_="_2pin")
-					if len(pin2s) == 2 and pin2s[1].string != None:
-						second = entry.contents[1]
-						second.extract()
-						entry.insert(0, second)
-						newDiv = soup.new_tag("div")
-						newDiv.string = pin2s[1].string
-						newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
-						pin2s[1].decompose()
-						entry.insert(0, newDiv)	
+		with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+			task = progress.add_task("Clean up titles...", total=len(entries))
+			for entry in entries:
+				a6h = entry.find("div", class_="_a6-h")
+				a6p = entry.find("div", class_="_a6-p")
+				if a6h != None and a6p != None:
+					if a6h.string == "" or a6h.string == " ":
+						pin2s = entry.find_all("div", class_="_2pin")
+						if len(pin2s) > 0 and len(pin2s) <= 2:
+							foundStrings = []
+							stringsToRemove = []
+							foundTitle = ""
+							for p2 in pin2s:
+								p2.smooth()
+								for string in list(p2.strings):
+									if len(string) > 0 and string != " " and not string.startswith("http"):
+										text = str(string)
+										if foundTitle == "":
+											foundTitle = text
+											foundStrings.append(text)
+											stringsToRemove.append(string)
+										elif text in foundStrings:
+											stringsToRemove.append(string)
+										else:
+											foundStrings.append(text)
+							if foundTitle != "":
+								a6h.string.replace_with(foundTitle)
+								for string in stringsToRemove:
+									string.extract()
+					if tagIsEmpty(a6h) and tagIsEmpty(a6p):
+						entry.decompose()
+				else:
+					if len(entry.contents) == 2:
+						pin2s = entry.find_all("div", class_="_2pin")
+						if len(pin2s) == 2 and pin2s[1].string != None:
+							second = entry.contents[1]
+							second.extract()
+							entry.insert(0, second)
+							newDiv = soup.new_tag("div")
+							newDiv.string = pin2s[1].string
+							newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
+							pin2s[1].decompose()
+							entry.insert(0, newDiv)	
+				progress.update(task, advance=1)
 
 	removeEmptyStrings()
 
 	# --------------------------------------------------
 	if isFacebook:
-		startOperation("Clean up Traveling tags")
+		startOperation("Clean up Traveling tags", print=False)
 
 		wasTraveling = re.compile(".* was traveling .*")
 
 		entries = soup.find_all("div", class_="_a6-g")
-		for entry in entries:
-			a6h = entry.find("div", class_="_a6-h")
-			if a6h != None:
-				if wasTraveling.match(a6h.string):
-					a6p = entry.find("div", class_="_a6-p")
-					if a6p != None:
-						pin2s = a6p.find_all("div", class_="_2pin")
-						if len(pin2s) == 2:
-							pin2s[0].decompose()
+		with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+			task = progress.add_task("Clean up Traveling tags...", total=len(entries))
+			for entry in entries:
+				a6h = entry.find("div", class_="_a6-h")
+				if a6h != None:
+					if wasTraveling.match(a6h.string):
+						a6p = entry.find("div", class_="_a6-p")
+						if a6p != None:
+							pin2s = a6p.find_all("div", class_="_2pin")
+							if len(pin2s) == 2:
+								pin2s[0].decompose()
+				progress.update(task, advance=1)
 
 	# --------------------------------------------------
-	startOperation("Remove img/video <a> wrappers")
+	startOperation("Remove img/video <a> wrappers", print=False)
 
 	alist = soup.find_all("a")
-	for a in reversed(alist):
-		imgs = a.find_all(["img", "video"])
-		if len(imgs) == 1:
-			img = imgs[0]
-			if img.parent.name == "a":
-				img.parent.unwrap()
-		elif len(imgs) == 0 and (a.string == "" or a.string == " " or a.string == None):
-			a.decompose()
-		elif len(imgs) == 0 and a.get('href') != None and "your_facebook" in a['href']:
-			a.decompose()
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Remove img/video <a> wrappers...", total=len(alist))
+		for a in reversed(alist):
+			imgs = a.find_all(["img", "video"])
+			if len(imgs) == 1:
+				img = imgs[0]
+				if img.parent.name == "a":
+					img.parent.unwrap()
+			elif len(imgs) == 0 and (a.string == "" or a.string == " " or a.string == None):
+				a.decompose()
+			elif len(imgs) == 0 and a.get('href') != None and "your_facebook" in a['href']:
+				a.decompose()
+			progress.update(task, advance=1)
 
 	# --------------------------------------------------
 	yearCounts = {}
-
 	fileRename = {}
 
 	createFolder(os.path.join(dstFolder, mediaFolder))
 
 	srcMediaPath = os.path.dirname(srcFolder)
 	
-	copyCount = 0
-
 	def yearDivWithYear(year):
 		yearDiv = soup.new_tag("div")
 		yearDiv.string = str(year)
@@ -1076,9 +1158,11 @@ def processData():
 	def nameForPoster(src):
 		return src.replace("mp4", "jpg")
 
-	with Progress(prog_description, BarColumn(), prog_percentage, console=console) as progress:
+	copyCount = 0
+
+	with Progress(progressDesc, BarColumn(), progressPercentCount, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
-		task = progress.add_task("Organizing Media...", total=len(entries))
+		task = progress.add_task("Organizing Media...", total=len(entries), count=0)
 
 		for entry in entries:
 			date = entry.itemdate
@@ -1114,6 +1198,7 @@ def processData():
 
 							destPath = os.path.join(dstFolder, newName)
 							copyFile(os.path.join(srcMediaPath, oldName), destPath)
+							copyCount += 1
 						else:
 							newName = oldName
 
@@ -1137,10 +1222,9 @@ def processData():
 						if width > 0:
 							tagimg['width'] = width
 							tagimg['height'] = height
-						copyCount += 1
 						oldNameTotal += len(oldName)
 						newNameTotal += len(newName)
-			progress.update(task, advance=1)
+			progress.update(task, advance=1, count=copyCount)
 
 	# --------------------------------------------------
 	startOperation("Retrieve static graphics")
@@ -1189,27 +1273,30 @@ def processData():
 		excludeEntries()
 
 	# --------------------------------------------------
-	startOperation("Count tags")
+	startOperation("Count tags", print=False)
 
 	allClasses = set()
 	allNames = set()
 	allIDs = set()
-	for item in soup.descendants:
-		if isinstance(item, Tag):
-			classes = item.get('class')
-			if classes:
-				if not isinstance(classes, list):
-					classes = [classes]
-				for c in classes:
-					allClasses.add(f'.{c}')
-			if item.name != None and item.name not in allNames:
-				allNames.add(item.name)
-			if item.get('id'):
-				allIDs.add(item['id'])
 
-	console.print(f"There are {len(allNames)} tags")
-	console.print(f"There are {len(allClasses)} classes")
-	console.print(f"There are {len(allIDs)} ids")
+	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+		task = progress.add_task("Count tags...", total=None)
+		for item in soup.descendants:
+			if isinstance(item, Tag):
+				classes = item.get('class')
+				if classes:
+					if not isinstance(classes, list):
+						classes = [classes]
+					for c in classes:
+						allClasses.add(f'.{c}')
+				if item.name != None and item.name not in allNames:
+					allNames.add(item.name)
+				if item.get('id'):
+					allIDs.add(item['id'])
+			progress.update(task, advance=1)
+		progress.update(task, total=100, completed=100)
+
+	console.print(f"There are {len(allNames)} tags, {len(allClasses)} classes, and {len(allIDs)} ids")
 
 	# --------------------------------------------------
 	startOperation("Split entries into blocks")
