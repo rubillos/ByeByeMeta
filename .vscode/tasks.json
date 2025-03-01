@@ -12,6 +12,11 @@
 			"label": "Update Assets",
 			"type": "shell",
 			"command": "rsync -av --update assets/ Processed/assets/"
+		},
+		{
+			"label": "Update Assets - Both Folder",
+			"type": "shell",
+			"command": "rsync -av --update assets/ Others/Both/fb/assets/"
 		}
 	]
 }
