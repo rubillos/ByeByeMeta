@@ -66,12 +66,14 @@ assetsFolder = "assets"
 entryFolder = "entries"
 mediaFolder = "media"
 staticImageFolder = "static"
+dataImgFolder = "data"
 indexName = "index.html"
-excludedName = "excluded.html"
+excludedPageName = "excluded.html"
 entryName = "entries{}.html"
 appName = f"app.js?{version}"
 styleName = f"style.css?{version}"
 excludesListName = "excludes.txt"
+excludesHashesName = "excludes-hash.txt"
 
 fbFolderName = "your_facebook_activity"
 igFolderName = "your_instagram_activity"
@@ -94,6 +96,7 @@ parser = argparse.ArgumentParser(description='Process FB Data Download')
 
 parser.add_argument("-i", dest="srcFolder", help="Path to <your_facebook_activity folder>", type=str, default=None)
 parser.add_argument("-o", dest="dstFolder", help="Path to output folder", type=str, default=None)
+parser.add_argument("-a", "--add-more", dest="addMore", help="Add additional data sets", action="store_true")
 
 parser.add_argument("-b", "--birthdays", dest="birthdays", help="Include birthday posts", action="store_true")
 parser.add_argument("-v", "--missing-videos", dest="missingVideos", help="Include posts with missing video", action="store_true")
@@ -108,10 +111,15 @@ group.add_argument("-xfb", "--excludes-fb", dest="excludesfb", help="Comma separ
 group.add_argument("-xig", "--excludes-ig", dest="excludesig", help="Comma separated list of entry numbers to exclude from Instagram data", type=str, default="")
 
 group.add_argument("-ux", "--existing-excludes", dest="useExcludesFile", help="Use any existing excludes list file", action="store_true")
+group.add_argument("-uxh", "--existing-exclude-hashes", dest="useExcludeHashesFile", help="Use any existing excludes-hash list file", action="store_true")
 
 extendList = None
 extendCmds = ["-xx", "--extend-excludes"]
 group.add_argument(extendCmds[0], extendCmds[1], dest="extendExcludes", help="Comma separated list of entry numbers to add or remove from the existing excludes list. Positive numbers are added, negative numbers are removed.", type=str, default="")
+
+excludesHashList = None
+excludeHashCmds = ["-xh", "--exclude-hashes"]
+group.add_argument(excludeHashCmds[0], excludeHashCmds[1], dest="excludeHashes", help="Comma separated list of hashes of entries to be removed.", type=str, default="")
 
 group = parser.add_argument_group("banner options")
 group.add_argument("-nb", "--no-banner", dest="noBanner", help="Suppress banner at top of entry list", type=str, default="")
@@ -121,6 +129,11 @@ group.add_argument("-bf", "--banner-format", dest="bannerFormat", help=f"Banner 
 for i in range(len(sys.argv)-1):
 	if sys.argv[i] in extendCmds:
 		extendList = sys.argv[i+1]
+		del sys.argv[i+1]
+		del sys.argv[i]
+		break
+	elif sys.argv[i] in excludeHashCmds:
+		excludesHashList = sys.argv[i+1]
 		del sys.argv[i+1]
 		del sys.argv[i]
 		break
@@ -145,6 +158,7 @@ theme = Theme({
 progressDesc = "[progress.description]{task.description}"
 progressPercent = "[progress.percentage]{task.percentage:>3.0f}% "
 progressPercentCount = "[progress.percentage]{task.percentage:>3.0f}% ({task.fields[count]})"
+progressPercentMedia = "[progress.percentage]{task.percentage:>3.0f}% (copied:{task.fields[count]}, reused:{task.fields[reuse]})"
 
 console = Console(theme=theme)
 
@@ -274,13 +288,16 @@ def processData():
 		soup = BeautifulSoup(fp, 'lxml')
 
 	# --------------------------------------------------
-	def askToUseExcludesFile():
+	def askYorN(prompt):
 		while True:
-			answer = input("Use the existing excludes file? (y/n): ").lower()
+			answer = input(f"{prompt} (y/n): ").lower()
 			if answer == "y":
 				return True
 			elif answer == "n":
 				return False
+
+	def askToUseExcludesFile():
+		return askYorN("Use the existing excludes file?")
 
 	xstring = ""
 
@@ -293,6 +310,10 @@ def processData():
 		xstring = args.excludes
 
 	excludesPath = os.path.join(dstFolder, excludesListName)
+	excludeHashesPath = os.path.join(dstFolder, excludesHashesName)
+
+	global excludesHashList
+
 	if xstring != "":
 		with open(excludesPath, "w") as f:
 			f.write(xstring)
@@ -322,12 +343,16 @@ def processData():
 						with open(excludesPath, "w") as f:
 							f.write(xstring)
 						console.print(f"Exclusion list written to {excludesPath}")
+		elif excludesHashList == None and os.path.isfile(excludeHashesPath):
+			if args.useExcludeHashesFile or askYorN("Use the existing hash excludes file?"):
+				with open(excludeHashesPath) as f:
+					excludesHashList = f.read()
 
 	# --------------------------------------------------
 	startOperation("Cleaning destination folder...")
 
 	folderList = [entryFolder, assetsFolder]
-	fileList = [indexName, excludedName]
+	fileList = [indexName, excludedPageName]
 	foldersRemoved = 0
 	filesRemoved = 0
 	for name in os.listdir(dstFolder):
@@ -380,10 +405,14 @@ def processData():
 	# --------------------------------------------------
 	# Merge albums
 	
-	if isFacebook:
-		category = "Processing..."
-		lastStatus = ""
-		albumStats = []
+	userCount = 1
+	category = ""
+	catMessage = ""
+	lastStatus = ""
+	albumStats = []
+
+	def addAlbums(altSrcFolder = None):
+		nonlocal userCount
 
 		def recordAlbumStats(albumName, count, total):
 			nonlocal lastStatus
@@ -397,17 +426,23 @@ def processData():
 			txt.append("\n")
 			txt.append("Current:   ", style="yellow")
 			txt.append(category, style="white")
+			txt.append(catMessage, style="orange")
 			return txt
 
 		with Live(albumStatus(), transient=True) as live:
 			def mergeAlbumSoup(albumSoup, name):
+				nonlocal catMessage
+
 				startSubOperation(f"Adding entries from the album '{name}'", print=False)
+
+				altMediaSrcFolder = os.path.dirname(altSrcFolder) if altSrcFolder != None else None
+
 				firstDiv = albumSoup.find("div", class_="_a6-g")
 				if firstDiv != None:
 					albumList = list(firstDiv.parent.children)
 					listCount = len(albumList)
 					addedCount = 0
-					for entry in albumList:
+					for i, entry in enumerate(albumList):
 						skip = False
 						imgs = entry.find_all(["img", "video"])
 						for img in imgs:
@@ -417,6 +452,8 @@ def processData():
 								break
 							else:
 								usedFiles.add(src)
+								if altMediaSrcFolder != None:
+									img['altsrc'] = altMediaSrcFolder
 						if not skip:
 							entry.extract()
 							tab = entry.find('table')
@@ -431,9 +468,11 @@ def processData():
 									newDiv.string = " "
 								newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
 								entry.insert(0, newDiv)
+							entry['uid'] = str(userCount-1)
 							mainEntries.append(entry)
 							addedCount += 1
-					# console.print(f" - Added {addedCount} out of {listCount} entries from the album '{name}'")
+						catMessage = f" - {i+1} of {listCount} - {addedCount} added"
+						live.update(albumStatus(), refresh=True)
 					recordAlbumStats(name, addedCount, listCount)
 
 			def mergeSoupFile(soupPath):
@@ -445,27 +484,70 @@ def processData():
 						mergeAlbumSoup(soup2, os.path.basename(soupPath))
 
 			def startAlbumGroup(name):
-				nonlocal category
+				nonlocal category, catMessage
 				startOperation(name, print=False)
 				category = name
+				catMessage = ""
 				live.update(albumStatus(), refresh=True)
 
-			startAlbumGroup("Merge Photos...")
-			mergeSoupFile(os.path.join(srcFolder, postsFolder, yourPhotos))
+			if altSrcFolder != None:
+				if isFacebook:
+					mainSrc = os.path.join(altSrcFolder, postsFolder, mainPostsName)
+				else:
+					mainSrc = os.path.join(altSrcFolder, contentFolder, igPostsName)
+				startAlbumGroup("Merge main posts...")
+				mergeSoupFile(mainSrc)
 
-			startAlbumGroup("Merge Videos...")
-			mergeSoupFile(os.path.join(srcFolder, postsFolder, yourVideos))
+			if isFacebook:
+				albumFolder = altSrcFolder if altSrcFolder != None else srcFolder
 
-			startAlbumGroup("Merge Other Posts...")
-			mergeSoupFile(os.path.join(srcFolder, postsFolder, otherPostsName))
+				startAlbumGroup("Merge Photos...")
+				mergeSoupFile(os.path.join(albumFolder, postsFolder, yourPhotos))
 
-			albumsFolder = os.path.join(srcFolder, postsFolder, albumsFolderName)
-			albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+				startAlbumGroup("Merge Videos...")
+				mergeSoupFile(os.path.join(albumFolder, postsFolder, yourVideos))
 
-			for i, albumFile in enumerate(albumFiles):
-				startAlbumGroup(f"{i+1} of {len(albumFiles)} - Merge album '{albumFile}'")
-				mergeSoupFile(os.path.join(albumsFolder, albumFile))
+				startAlbumGroup("Merge Other Posts...")
+				mergeSoupFile(os.path.join(albumFolder, postsFolder, otherPostsName))
 
+				albumsFolder = os.path.join(albumFolder, postsFolder, albumsFolderName)
+				albumFiles = [f for f in os.listdir(albumsFolder) if f.endswith(".html")]
+
+				for i, albumFile in enumerate(albumFiles):
+					startAlbumGroup(f"{i+1} of {len(albumFiles)} - Merge album '{albumFile}'")
+					mergeSoupFile(os.path.join(albumsFolder, albumFile))
+
+	if isFacebook:
+		addAlbums()
+		console.print("Primary posts merged.")
+
+	if args.addMore:
+		while True:
+			nextFolder = getFolder(f"Select the next <your_{'facebook' if isFacebook else 'instagram'}_activity folder>:")
+			if nextFolder != None:
+				if isFacebook:
+					if os.path.basename(nextFolder) == fbFolderName:
+						pass
+					elif os.path.isdir(os.path.join(nextFolder, fbFolderName)):
+						nextFolder = os.path.join(nextFolder, fbFolderName)
+					else:
+						console.print("Selected folder is not a FaceBook data folder!")
+						nextFolder = None
+				else:
+					if os.path.basename(nextFolder) == igFolderName:
+						pass
+					elif os.path.isdir(os.path.join(nextFolder, igFolderName)):
+						nextFolder = os.path.join(nextFolder, igFolderName)
+					else:
+						console.print("Selected folder is not an Instagram data folder!")
+						nextFolder = None
+				if nextFolder != None:
+					userCount += 1
+					addAlbums(nextFolder)
+			if not askYorN("Add another folder?"):
+				break
+
+	if len(albumStats) > 0:
 		console.print("Albums merged:")
 		console.print(", ".join(albumStats))
 
@@ -558,7 +640,7 @@ def processData():
 				import base64
 				data = base64.b64decode(base64Str)
 
-				newPath = "{}.{}".format(os.path.join(mediaFolder, f"data{dataImgFolderIndex}", f"{dataImgIndex}"), extension)
+				newPath = "{}.{}".format(os.path.join(mediaFolder, f"{dataImgFolder}{dataImgFolderIndex}", f"{dataImgIndex}"), extension)
 				dataImgIndex += 1
 				if dataImgIndex > 200:
 					dataImgIndex = 1
@@ -584,6 +666,8 @@ def processData():
 		with Progress(progressDesc, BarColumn(), progressPercentCount, console=console) as progress:
 			task = progress.add_task("Extracting embedded images...", total=len(dataImages), count=dataImgCount)
 			for img in dataImages:
+				if img.get('altsrc') != None:
+					del img['altsrc']
 				src = img['src'][len(dataStr):]
 				newName = base64ToPath(src)
 
@@ -754,7 +838,12 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Remove unneeded headings", print=False)
 
-	userName = args.userName
+	userNames = [""] * userCount
+	userNameCount = 0
+
+	if args.userName != "":
+		userNames[0] = args.userName
+		userNameCount = 1
 
 	patterns = [
 		re.compile("(.*) shared a link\."),
@@ -771,12 +860,16 @@ def processData():
 	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
 		task = progress.add_task("Remove unneeded headings...", total=len(headings))
 		for heading in headings:
-			if not args.noBanner and userName == "":
-				for pattern in patterns:
-					match = pattern.match(heading.string)
-					if match:
-						userName = match.group(1)
-						break
+			if userNameCount < userCount:
+				parent = heading.find_parent("div", class_="_a6-g")
+				if parent != None:
+					uid = int(parent.get('uid', 0))
+					if userNames[uid] == "":
+						for pattern in patterns:
+							match = pattern.match(heading.string)
+							if match:
+								userNames[uid] = match.group(1)
+								break
 			heading.string.replace_with("")
 			progress.update(task, advance=1)
 
@@ -794,10 +887,10 @@ def processData():
 			endDate = lastDate.strftime("%b %d, %Y")
 			format = args.bannerFormat
 
-			if userName == "":
+			if len(userNames) == 0:
 				format = format.replace("$N - ", "")
 
-			bannerText = format.replace("$N", userName).replace("$M", typeString).replace("$S", startDate).replace("$E", endDate)
+			bannerText = format.replace("$N", ", ".join(userNames)).replace("$M", typeString).replace("$S", startDate).replace("$E", endDate)
 			newDiv.string = bannerText
 			a706.insert_before(newDiv)
 
@@ -846,6 +939,7 @@ def processData():
 
 		cleanTag(soup.body, 0)
 		progress.update(task, total=100, completed=100)
+		
 	console.print(f"Cleaned {simpleDivCount} simple divs")
 
 	# --------------------------------------------------
@@ -1137,17 +1231,37 @@ def processData():
 
 	excludedEntries = []
 
+	def hashForEntry(entry):
+		import hashlib
+		reSrc = re.compile(r"(?:src|sxx|poster|xpost|eix|height|width|uid)=\"(.*?)\"")
+		entryStr = reSrc.sub("", str(entry))
+		h = hashlib.shake_128(entryStr.encode("utf-8"))
+		return f"0x{h.hexdigest(8)}"
+
 	def excludeEntries():
 		if xstring != "":
-			startOperation("Remove excluded entries")
+			startOperation("Remove excluded entries", print=False)
 			xlist = xstring.split(",")
 			entries = soup.find_all("div", class_="_a6-g")
-			for i, entry in enumerate(entries):
-				if entry['eix'] in xlist:
-					excludedEntries.append(entry)
+			with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+				task = progress.add_task("Remove excluded entries...", total=len(entries))
+				for entry in entries:
+					if entry['eix'] in xlist:
+						excludedEntries.append(entry)
+					progress.update(task, advance=1)
 
-			for item in excludedEntries:
-				item.extract()
+		if excludesHashList != None:
+			startOperation("Remove excluded hash entries", print=False)
+			entries = soup.find_all("div", class_="_a6-g")
+			with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
+				task = progress.add_task("Remove excluded hash entries...", total=len(entries))
+				for entry in entries:
+					if hashForEntry(entry) in excludesHashList:
+						excludedEntries.append(entry)
+					progress.update(task, advance=1)
+
+		for item in excludedEntries:
+			item.extract()
 
 	if not args.exlist:
 		excludeEntries()
@@ -1159,10 +1273,11 @@ def processData():
 		return src.replace("mp4", "jpg")
 
 	copyCount = 0
+	reuseCount = 0
 
-	with Progress(progressDesc, BarColumn(), progressPercentCount, console=console) as progress:
+	with Progress(progressDesc, BarColumn(), progressPercentMedia, console=console) as progress:
 		entries = soup.find_all("div", class_="_a6-g")
-		task = progress.add_task("Organizing Media...", total=len(entries), count=0)
+		task = progress.add_task("Organizing Media...", total=len(entries), count=0, reuse=0)
 
 		for entry in entries:
 			date = entry.itemdate
@@ -1178,27 +1293,42 @@ def processData():
 			if len(imgs) > 0:
 				for i, tagimg in enumerate(imgs):
 					oldName = tagimg.get('src', tagimg.get('sxx'))
+					if tagimg.get('altsrc') != None:
+						altMediaSrcPath = tagimg['altsrc']
+						del tagimg['altsrc']
+					else:
+						altMediaSrcPath = None
 					if not oldName.startswith("http"):
 						if not oldName in dataImgPaths:
 							startSubOperation(f"Processing '{oldName}'", print=False)
 							
-							extension = oldName.split(".")[-1]
-							newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
-							newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
-							posterName = nameForPoster(newName)
-							index = 2
-							while newName in allNewNames or posterName in allNewNames:
-								newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+							if oldName in fileRename:
+								newName = fileRename[oldName]
+								reuseCount += 1
+							else:
+								extension = oldName.split(".")[-1]
+								newDateStr = os.path.join(str(yearMonth), str(date.day*1000000 + date.hour*10000 + date.minute*100 + date.second))
+								newName = "{}.{}".format(os.path.join(mediaFolder, newDateStr), extension)
 								posterName = nameForPoster(newName)
-								index += 1
-							allNewNames.add(newName)
-							fileRename[oldName] = newName
+								index = 2
+								while newName in allNewNames or posterName in allNewNames:
+									newName = "{}-{}.{}".format(os.path.join(mediaFolder, newDateStr), index, extension)
+									posterName = nameForPoster(newName)
+									index += 1
+								allNewNames.add(newName)
+								fileRename[oldName] = newName
+
+								destPath = os.path.join(dstFolder, newName)
+								if altMediaSrcPath != None:
+									srcPath = os.path.join(altMediaSrcPath, oldName)
+								else:
+									srcPath = os.path.join(srcMediaPath, oldName)
+								copyFile(srcPath, destPath)
+								copyCount += 1
+
 							del tagimg['src']
 							tagimg[srcAttr()] = newName
 
-							destPath = os.path.join(dstFolder, newName)
-							copyFile(os.path.join(srcMediaPath, oldName), destPath)
-							copyCount += 1
 						else:
 							newName = oldName
 
@@ -1224,7 +1354,7 @@ def processData():
 							tagimg['height'] = height
 						oldNameTotal += len(oldName)
 						newNameTotal += len(newName)
-			progress.update(task, advance=1, count=copyCount)
+			progress.update(task, advance=1, count=copyCount, reuse=reuseCount)
 
 	# --------------------------------------------------
 	startOperation("Retrieve static graphics")
@@ -1255,10 +1385,8 @@ def processData():
 						console.print(f"Downloaded {src} to {destPath}")
 					else:
 						console.print(f"Failed to download {src}")
-				# del img['src']
-				img['src'] = ""
+				del img['src']
 				img[srcAttr()] = newSrc
-				# addClass(tagimg, "hide")
 				width, height = dimensionsOfImage(destPath)
 				if width > 0:
 					img['width'] = width
@@ -1435,12 +1563,14 @@ def processData():
 	years = sorted(yearCounts.keys())
 	yearCounts = [yearCounts[year] for year in years]
 
+	userString = ','.join(f'\"{name}\"' for name in userNames)
 	scripttag = soup.new_tag("script")
 	varString = f"var numSrcFiles = {str(len(htmlBlocks)-1)};" \
 				f"var numImages = {str(len(allNewNames))};" \
 				f"var allYears = [{','.join(map(str, years))}];" \
 				f"var yearCounts = [{','.join(map(str, yearCounts))}];" \
 				f"var numEntries = {str(len(entries))};" \
+				f"var userNames = [{userString}];"\
 				
 	if args.showIndexes:
 		varString += f"var showIndexes = true;"
@@ -1467,6 +1597,17 @@ def processData():
 	addMainScript(soup)
 
 	# --------------------------------------------------
+	if len(excludedEntries) > 0:
+		startOperation("Generate excluded entries hashes")
+
+		hashList = []
+		for entry in excludedEntries:
+			hashList.append(hashForEntry(entry))
+
+		with open(os.path.join(dstFolder, excludesHashesName), "w") as f:
+			f.write(",".join(hashList))
+
+	# --------------------------------------------------
 	if args.exlist and excludeSoup != None:
 		startOperation("Create excluded entries page")
 		addMainScript(excludeSoup)
@@ -1476,7 +1617,7 @@ def processData():
 				entry.decompose()
 			for entry in excludedEntries:
 				wrapper.append(entry)
-			with open(os.path.join(dstFolder, excludedName), "w") as f:
+			with open(os.path.join(dstFolder, excludedPageName), "w") as f:
 				f.write(str(excludeSoup))
 		
 	# --------------------------------------------------

@@ -9,6 +9,7 @@ var yearOffsets = [];
 var adjustedYearOffsets = [];
 var searchMode = false;
 var searchString = "";
+var currentUser = -1;
 
 const search = new URLSearchParams(window.location.search);
 let showMemories = search.has('memories');
@@ -159,7 +160,16 @@ function setMemoryTitle(useCount = true) {
 			}
 		}
 		else if (banner.getAttribute('txt') != null) {
-			title.textContent = banner.getAttribute('txt');
+			let titleStr = banner.getAttribute('txt');
+			if (window.userNames !== undefined && window.userNames.length > 1) {
+				if (currentUser == -1) {
+					titleStr = titleStr.replace("{users}", window.userNames.join(', '));
+				}
+				else {
+					titleStr = titleStr.replace("{users}", window.userNames[currentUser]);
+				}		
+			}
+			title.textContent = titleStr;
 		}
 	}
 }
@@ -207,11 +217,44 @@ function toggleMemories(e) {
 	}
 }
 
+function changeUser(e) {
+	const userPopup = document.getElementById('popup');
+	const user = e.target.style.getPropertyValue('--user');
+
+	currentUser = user == null ? -1 : parseInt(user);
+	userPopup.style.setProperty('--cur-user', currentUser);
+
+	reFlow();
+}
+
+function hidePopup() {
+	const userPopup = document.getElementById('popup');
+
+	if (userPopup && userPopup.classList.contains('show')) {
+		userPopup.classList.remove('show');
+		window.removeEventListener('click', clickOutsideUser, true);
+	}
+}
+
+function clickOutsideUser(e) {
+	if (!e.target.closest("#popup")) {
+		e.preventDefault();
+		e.stopPropagation();
+		hidePopup();
+	}
+}
+
 function setupMemories() {
 	const banner = document.querySelector('.banner');
 	if (banner) {
 		if (banner.getAttribute('txt') == null) {
-			banner.setAttribute('txt', banner.textContent);
+			let titleStr = banner.textContent;
+
+			if (window.userNames !== undefined && window.userNames.length > 1) {
+				const allUsers = window.userNames.join(', ');
+				titleStr = titleStr.replace(allUsers, "{users}")
+			}
+			banner.setAttribute('txt', titleStr);
 			banner.textContent = '';
 
 			let left = document.createElement('div');
@@ -268,6 +311,48 @@ function setupMemories() {
 			banner.appendChild(title);
 			title.addEventListener('click', toggleMemories);
 
+			if (window.userNames !== undefined && window.userNames.length > 1) {
+				let chooseUser = document.createElement('div');
+				chooseUser.textContent = "👤";
+				chooseUser.classList.add('text-button');
+				chooseUser.id = 'user';
+				banner.appendChild(chooseUser);
+
+				function addUser(dropdown, name, index) {
+					let user = document.createElement('div');
+					user.textContent = name;
+					user.style.setProperty('--user', index);
+					dropdown.appendChild(user);
+					user.addEventListener('click', (e) => {
+						e.preventDefault();
+						chooseUser.classList.remove('show');
+						changeUser(e);
+					});
+				}
+
+				let userPopup = document.createElement('div');
+				userPopup.id = 'popup';
+				userPopup.classList.add('dropdown');
+				userPopup.style.setProperty('--cur-user', currentUser);
+
+				addUser(userPopup, "All", -1);
+				window.userNames.forEach((name, index) => {
+					addUser(userPopup, name, index);
+				});
+				chooseUser.appendChild(userPopup);
+
+				chooseUser.addEventListener('click', (e) => {
+					e.preventDefault();
+					if (userPopup.classList.contains('show')) {
+						hidePopup();
+					}
+					else {
+						userPopup.classList.add('show');
+						window.addEventListener('click', clickOutsideUser, true);
+					}
+				});
+			}
+
 			let memories = document.createElement('div');
 			memories.textContent = "🗓️";
 			memories.classList.add('text-button');
@@ -312,7 +397,13 @@ function updateMemories() {
 	for (let i = 0; i < elements.length; i++) {
 		const element = elements[i];
 		const classes = element.classList;
-		if (showMemories && !classes.contains(monthDayID)) {
+		let uid = element.getAttribute('uid');
+		uid = (uid == null) ? 0 : parseInt(uid);
+
+		if (currentUser != -1 && currentUser != uid) {
+			element.style.display = "none";
+		}
+		else if (showMemories && !classes.contains(monthDayID)) {
 			element.style.display = "none";
 		}
 		else if (searchMode && searchString != "" && !re.test(element.innerText)) {
@@ -540,6 +631,10 @@ function setupEvents() {
 
 	window.addEventListener('resize', makeAdjustedYearOffsets);
 
+	document.addEventListener('keypress', function(event) {
+		hidePopup();
+	});
+	
 	document.addEventListener('keydown', function(event) {
 		if (event.key === 'Enter' || event.key === 'ArrowRight') {
 			if (event.target.tagName !== 'INPUT') {
@@ -650,7 +745,10 @@ function setupNavigation() {
 				}
 				document.body.insertBefore(fragment, document.body.firstChild);
 				setupYears();
-				window.addEventListener('scroll', updateIndicatorPosition);
+				window.addEventListener('scroll', () => {
+					hidePopup();
+					updateIndicatorPosition();
+				});
 
 				const nav = document.getElementById('navigator');
 

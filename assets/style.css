@@ -188,6 +188,37 @@ img._a6_o {
 	align-items: center;
 }
 
+#user {
+	position: relative;
+}
+
+.dropdown {
+	display: none;
+	position: absolute;
+	background-color: #DDD;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.6);
+	z-index: 1;
+	right: -20px;
+	font-size: 24px;
+	border-radius: 10px;
+	padding: 10px 0px;
+}
+  
+.dropdown div {
+	padding: 12px 40px;
+	text-decoration: none;
+	display: block;
+	text-wrap: nowrap;
+	background-color: color-mix(in hsl, #44E, #DDD calc(clamp(0,abs(var(--user) - var(--cur-user)),1)*100%));
+	color: color-mix(in hsl, white, black calc(clamp(0,abs(var(--user) - var(--cur-user)),1)*100%));
+}
+
+.dropdown div:hover {
+	filter: brightness(0.8);
+}
+  
+.show {display: block;}
+
 @media (orientation: portrait) {
 	.year-text {
 		scale: 1.7 2.7;
@@ -281,8 +312,16 @@ img._a6_o {
 	#find {
 		font-size: 24px;
 	}
+	.dropdown {
+		font-size: 18px;
+		padding: 6px 0px;
+	}
+	.dropdown div {
+		padding: 8px 40px;
+	}
 }
 
 ._a705 {
 	padding-left: 10vw;
 }
+ 
