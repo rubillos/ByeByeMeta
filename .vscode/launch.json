@@ -1,24 +1,27 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "args": [
-                // "-xfb",
-                // "10,11,12,86,87,88,118,119,188,260,265,275,321,400,410,425,453,455,516,522,526,635,639,681,702,703,704,705,706,707,712,713,714,766,767,773,804,805,806,807,879,889,905,1003,1090,1124,1236,1351,1410,1415,1416,1469,1516,1525,1526,1571,1580,1636,1781,2053,2054,2279,2404",
-                // "-xl",
-                "-s",
-                // "-xx",
-                // "-10,15"
-            ]
-        }
-    ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Python: Current File",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${file}",
+			"console": "integratedTerminal",
+			"args": [
+				// "-xfb",
+				// "10,11,12,86,87,88,118,119,188,260,265,275,321,400,410,425,453,455,516,522,526,635,639,681,702,703,704,705,706,707,712,713,714,766,767,773,804,805,806,807,879,889,905,1003,1090,1124,1236,1351,1410,1415,1416,1469,1516,1525,1526,1571,1580,1636,1781,2053,2054,2279,2404",
+				// "-xl",
+				"-s",
+				// "-xx",
+				// "-10,15"
+				"-a",
+				// "-xh",
+				// "0xbd4c80d481bd82c9,0x19257928d30bb91f,0x043b781e55f36a4b,0x9daa21ac321bfa09,0x202ea13cc746b6ed,0x1d107cbe1f7c8e0e,0xd2f8fb0d03c58fa7,0xd2f8fb0d03c58fa7,0x46a09e82389cca27,0xa8846db7e70784d8,0x7ba87239a37fd053,0x522e65682abfd493,0x38d6cfadf7aeedb5,0xe899a6784e4b95c0,0x2de096dc3910605a,0x424f8244c5a98bec,0x255e89f65a7f3d42,0x081400676e915b89,0x2f781d4931e7e1ff,0x5ef5c0739921a936,0x9e0f880cd298bba1,0x77b5caf65dc66a8d,0x859731afcb33c234,0x25909d35f50e2a9c,0xcf007b86bca3149b,0x4521aa5e3ed495b0,0x6d3311173cdb3dff,0xdea8f0d0d0dbaa84,0x331e3fe3eae6f974,0x5685b5958b2e9fd2,0x3ff35fb998c2d1b1,0x1bf780095731288c,0x2de2056654eb81db,0x124f42cd84eb372f,0x05f5833e64c6d4f3,0x8c3b733c6f4b272d,0xfdf3b83147cae4d7,0x6a55728f4205c4e3,0x04263aa5c483af8d,0x04263aa5c483af8d,0x7b894df88ff7c6cd,0x7b894df88ff7c6cd,0x21db5eab2bb1ff77,0xee7603354f016693,0x1806c23dc63ca2fe,0x1eab18a7cd783579,0xc694f5813cf5d426,0x371dc20857f32e15,0x33dd2fa6b0dffa32,0x096817622afdc789,0xce8dc2aed0f723fe,0x9fe45c7f01fa6410,0x4cf7195f26792241,0x62e38659f1c5f05f,0xfb0410e4670f625c,0x8f5b138756c108d4,0x153e91b3a93d59c1,0xcb64ace14a3e2cf7,0x62ed25fa81bea75d,0xeb926696dc626e73,0xaa600fe6b312087d,0xb520c949deaecfa8,0x22e90a98f5b86399,0x660f261bf5a40afc,0x062f4e16bd3aee7e",
+			]
+		}
+	]
 }
 
