@@ -88,9 +88,9 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 
 	if (hasTouch) {		
-		touchDiv.addEventListener('touchstart', handleTouchStart, false);
-		touchDiv.addEventListener('touchmove', handleTouchMove, false);
-		touchDiv.addEventListener('touchend', handleTouchEnd, false);
+		touchDiv.addEventListener('touchstart', handleTouchStart, { passive: false });
+		touchDiv.addEventListener('touchmove', handleTouchMove, { passive: false });
+		touchDiv.addEventListener('touchend', handleTouchEnd, { passive: false });
 	}
 	else {
 		touchDiv.addEventListener('click', function(e) {
@@ -100,12 +100,16 @@ document.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 
+	const slideDuration = 200;
+	const springFactor = 0.5;
+
 	var imgXForm = { x:0, y:0, scale:1.0 };
 
 	var startSize = null;
 	var startOne = null;
 	var startTwo = null;
 	var centerTwo = null;
+	var startDist = null;
 	var startTime = null;
 	var startXForm = null;
 
@@ -153,6 +157,26 @@ document.addEventListener("DOMContentLoaded", function() {
 		return { x:x, y:y };
 	}
 
+	function touchDist(e) {
+		if (e.targetTouches.length == 2) {
+			const xDiff = e.targetTouches[0].clientX - e.targetTouches[1].clientX;
+			const yDiff = e.targetTouches[0].clientY - e.targetTouches[1].clientY;
+			return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+		}
+		else {
+			return 1.0;
+		}
+	}
+
+	function touchScale(e, startDist) {
+		if (e.scale) {
+			return e.scale;
+		}
+		else {
+			return touchDist(e) / startDist;
+		}
+	}
+
 	function touchPoint(e) {
 		return { x:e.targetTouches[0].clientX, y:e.targetTouches[0].clientY };
 	}
@@ -163,11 +187,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		if (e.targetTouches.length == 1) {
 			startOne = touchPoint(e);
+			startXForm = { ...imgXForm };
 			lastOne = { ...startOne };
 			startTime = Date.now();
 		}
 		else if (e.targetTouches.length == 2) {
 			startTwo = touchCenter(e);
+			startDist = touchDist(e);
 			centerTwo = relativeCenter(startTwo);
 			startSize = imageSize();
 			startXForm = { ...imgXForm };
@@ -180,19 +206,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		if (startTwo==null && e.targetTouches.length == 1) {
 			const pt = touchPoint(e);
-			imgXForm.x += pt.x - lastOne.x;
-			imgXForm.y += pt.y - lastOne.y;
+			imgXForm.x = startXForm.x + pt.x - startOne.x;
+			imgXForm.y = startXForm.y + pt.y - startOne.y;
 			lastOne = pt;
+			imgXForm = clampXForm(imgXForm, false, true);
 			updateImage();
 		}
 		else if (e.targetTouches.length == 2) {
 			const pt = touchCenter(e);
-			imgXForm.scale = startXForm.scale * e.scale;
+			imgXForm.scale = startXForm.scale * touchScale(e, startDist);
 			const scaleChange = imgXForm.scale - startXForm.scale;
 			const xChange = scaleChange * startSize.width;
 			const yChange = scaleChange * startSize.height;
 			imgXForm.x = startXForm.x + (pt.x - startTwo.x) + xChange * centerTwo.x;
 			imgXForm.y = startXForm.y + (pt.y - startTwo.y) + yChange * centerTwo.y;
+			imgXForm = clampXForm(imgXForm, false, true);
 			updateImage();
 		}
 	}
@@ -209,7 +237,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			var resetScale = false;
 			var slideBack = true;
 
-			if (startOne && startTwo==null && duration < 200 && e.scale == 1 && e.rotation == 0) {
+			if (startOne && startTwo==null && duration < 200 && (!e.scale || e.scale == 1) && (!e.rotation || e.rotation == 0)) {
 				const xDiff = startOne.x - lastOne.x;
 				const yDiff = startOne.y - lastOne.y;
 				const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
@@ -249,22 +277,46 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	}
 
-	function clampXForm(xform, resetScale) {
+	function clampXForm(xform, resetScale, springy = false) {
 		var newXForm = { ...xform };
 
-		newXForm.scale = (resetScale) ? 1.0 : clamp(xform.scale, 1.0, 5.0);
+		if (!springy) {
+			newXForm.scale = (resetScale) ? 1.0 : clamp(xform.scale, 1.0, 5.0);
+		}
 
 		if (newXForm.scale > 1.0) {
 			const size = imageSize();
 			const maxX = Math.max(0, (size.width * newXForm.scale - window.innerWidth) / 2.0);
 			const maxY = Math.max(0, (size.height * newXForm.scale - window.innerHeight) / 2.0);
 
-			newXForm.x = clamp(xform.x, -maxX, maxX);
-			newXForm.y = clamp(xform.y, -maxY, maxY);
+			if (springy) {
+				if (xform.x < -maxX) {
+					newXForm.x = -maxX + (xform.x + maxX) * springFactor;
+				}
+				else if (xform.x > maxX) {
+					newXForm.x = maxX + (xform.x - maxX) * springFactor;
+				}
+				if (xform.y < -maxY) {
+					newXForm.y = -maxY + (xform.y + maxY) * springFactor;
+				}
+				else if (xform.y > maxY) {
+					newXForm.y = maxY + (xform.y - maxY) * springFactor;
+				}
+			}
+			else {
+				newXForm.x = clamp(xform.x, -maxX, maxX);
+				newXForm.y = clamp(xform.y, -maxY, maxY);
+			}
 		}
 		else {
-			newXForm.x = 0;
-			newXForm.y = 0;
+			if (springy) {
+				newXForm.x = xform.x * springFactor;
+				newXForm.y = xform.y * springFactor;
+			}
+			else {
+				newXForm.x = 0;
+				newXForm.y = 0;
+			}
 		}
 
 		return newXForm;
@@ -299,11 +351,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		cancelAnimation();
 
 		const startTime = Date.now();
-		const duration = 250;
 		const oldXForm = { ...imgXForm };
 
 		function animate() {
-			const fraction = (Date.now() - startTime) / duration;
+			const fraction = (Date.now() - startTime) / slideDuration;
 
 			activeAnimation = null;
 
