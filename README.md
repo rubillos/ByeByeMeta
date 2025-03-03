@@ -9,10 +9,10 @@
 [Running the script](#running)<br>
 [Viewing your posts](#viewing)<br>
 [Adjusting the results](#adjusting)<br>
-[Done!](#done)
-[URL Options](#options)
-[Command Line Options](#commands)
-[Merging Downloads](#merging)
+[Done!](#done)<br>
+[URL Options](#options)<br>
+[Command Line Options](#commands)<br>
+[Merging Downloads](#merging)<br>
 
 ## <a name="background"></a>Background
 With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky - ubillos.bsky.social](https://bsky.app/profile/ubillos.bsky.social)
