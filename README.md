@@ -11,6 +11,8 @@
 [Adjusting the results](#adjusting)<br>
 [Done!](#done)
 [URL Options](#options)
+[Command Line Options](#commands)
+[Merging Downloads](#merging)
 
 ## <a name="background"></a>Background
 With the moderation changes and general move towards the far-right of Meta's products, I decided it was time to leave. As such, I'm setting up shop on [BlueSky - ubillos.bsky.social](https://bsky.app/profile/ubillos.bsky.social)
@@ -134,3 +136,11 @@ For example:
 https://rickandrandy.com/meta/randy/index.html?memories&day=01/10
 ```
 would show memories for January 10th.
+
+## <a name="commands"></a>Command Line Options
+There are a number of command line options available for controlling how the ByeByeMeta operates. Running the script with the "-h" option will display a list of these options and a short descrition of each.
+
+## <a name="merging"></a>Merging Downloads
+ByeByeMeta can merge multiple data downloads (of the same type) into a single page. A "user selector" button will be shown at the upper right allowing you to choose "All" or any of the user names of the available downloads. To do this simply add "-a" to the command line and ByeByeMeta will prompt for additional folders, one after another.
+
+If you are using exclude lists to exclude posts, the entry numbers don't correspond to the merged list. To overcome this, run ByeByeMeta on each of the data downloads separately, into their own output folders using the corresponding exclusion lists for each. ByeByeMeta creats a file in the output folder for each named `excludes-hash.txt` which is a list of unique identifying numbers for each excluded entry. Copy and paste the contents of these files from all of the individual output fodlers into a single file with the same name in the output folder for the combined data. Now when you run ByeByeMeta, you will be asked if you want to use the existing excludes hash file. Answer 'y' and the unique identifiers will be used to exclude the proper posts.

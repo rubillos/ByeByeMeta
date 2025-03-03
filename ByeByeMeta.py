@@ -1628,6 +1628,7 @@ def processData():
 
 			with open(excludeHashesPath, "w") as f:
 				f.write(",".join(hashList))
+				f.write("\n")
 
 	# --------------------------------------------------
 	if args.exlist and excludeSoup != None:
