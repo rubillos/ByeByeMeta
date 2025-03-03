@@ -468,7 +468,8 @@ def processData():
 									newDiv.string = " "
 								newDiv['class'] = ["_2ph_", "_a6-h", "_bot4"]
 								entry.insert(0, newDiv)
-							entry['uid'] = str(userCount-1)
+							if userCount > 1:
+								entry['uid'] = str(userCount-1)
 							mainEntries.append(entry)
 							addedCount += 1
 						catMessage = f" - {i+1} of {listCount} - {addedCount} added"
@@ -519,7 +520,8 @@ def processData():
 
 	if isFacebook:
 		addAlbums()
-		console.print("Primary posts merged.")
+		if args.addMore:
+			console.print("Primary posts merged.")
 
 	if args.addMore:
 		while True:
@@ -696,7 +698,7 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Remove Facebook links", print=False)
 
-	fblinks = soup.find_all("a", href=re.compile(".*facebook\.com"))
+	fblinks = soup.find_all("a", href=re.compile(r".*facebook\.com"))
 	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
 		task = progress.add_task("Remove Facebook links...", total=len(fblinks))
 		for flink in fblinks:
@@ -719,14 +721,14 @@ def processData():
 	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
 		task = progress.add_task("Remove GPS coordinates...", total=len(places))
 		for place in places:
-			place.string = re.sub(" \(-?\d+.?\d*, ?-?\d+.?\d*\)", "", place.string).replace("Place: ", "")
+			place.string = re.sub(r" \(-?\d+.?\d*, ?-?\d+.?\d*\)", "", place.string).replace("Place: ", "")
 			place.unwrap()
 			progress.update(task, advance=1)
 
 	# --------------------------------------------------
 	startOperation("Remove Addresses", print=False)
 
-	addresses = soup.find_all("div", string=re.compile("^Address: "))
+	addresses = soup.find_all("div", string=re.compile(r"^Address: "))
 	with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
 		task = progress.add_task("Remove Addresses...", total=len(addresses))
 		for address in addresses:
@@ -843,17 +845,17 @@ def processData():
 
 	if args.userName != "":
 		userNames[0] = args.userName
-		userNameCount = 1
+		userNameCount += 1
 
 	patterns = [
-		re.compile("(.*) shared a link\."),
-		re.compile("(.*) updated .* status\."),
-		re.compile("(.*) shared a post\."),
-		re.compile("(.*) shared an album\."),
-		re.compile("(.*) added a new video.*\."),
-		re.compile("(.*) added a new photo.*\."),
-		re.compile("(.*) shared a memory\."),
-		re.compile("(.*) posted something via Facebook.*\.")
+		re.compile(r"(.*) shared a link\."),
+		re.compile(r"(.*) updated .* status\."),
+		re.compile(r"(.*) shared a post\."),
+		re.compile(r"(.*) shared an album\."),
+		re.compile(r"(.*) added a new video.*\."),
+		re.compile(r"(.*) added a new photo.*\."),
+		re.compile(r"(.*) shared a memory\."),
+		re.compile(r"(.*) posted something via Facebook.*\.")
 	]
 
 	headings = soup.find_all("div", string=patterns)
@@ -864,11 +866,12 @@ def processData():
 				parent = heading.find_parent("div", class_="_a6-g")
 				if parent != None:
 					uid = int(parent.get('uid', 0))
-					if userNames[uid] == "":
+					if uid < userCount and userNames[uid] == "":
 						for pattern in patterns:
 							match = pattern.match(heading.string)
 							if match:
 								userNames[uid] = match.group(1)
+								userNameCount += 1
 								break
 			heading.string.replace_with("")
 			progress.update(task, advance=1)
@@ -952,7 +955,7 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Remove Updated... strings")
 
-	isUpdated = re.compile("^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m")
+	isUpdated = re.compile(r"^Updated \w{3} \d{2}, \d{4} \d{1,2}:\d{2}:\d{2} [ap]m")
 	pin2s = soup.find_all("div", class_="_2pin")
 	for pin in pin2s:
 		for string in reversed(list(pin.strings)):
@@ -963,9 +966,9 @@ def processData():
 	if args.hashtags:
 		startOperation("Remove hashtags")
 
-		hashtag = re.compile("#[a-zA-Z0-9_]+")
-		separators = re.compile("[\n\t \u2028.]{2,}")
-		startSpace = re.compile("^[\n\t \u2028]+")
+		hashtag = re.compile(r"#[a-zA-Z0-9_]+")
+		separators = re.compile(r"[\n\t \u2028.]{2,}")
+		startSpace = re.compile(r"^[\n\t \u2028]+")
 
 		pim2s = soup.find_all("div", class_="_2pim")
 		for pim2 in pim2s:
@@ -1015,11 +1018,11 @@ def processData():
 	# --------------------------------------------------
 	startOperation("Remove duplicate and birthday tags", print=False)
 
-	birthdayMatches = [re.compile("^ha+p{2,}y .*birth.*y.*", re.IGNORECASE),
-			   re.compile("^joy.*x an+ivers.*re.*", re.IGNORECASE),
-			   re.compile("^bon an+ivers.*re.*", re.IGNORECASE),
-			   re.compile("^gefelicite+rd.*", re.IGNORECASE),
-			   re.compile("^feliz cu.*lea.*os.*", re.IGNORECASE)]
+	birthdayMatches = [re.compile(r"^ha+p{2,}y .*birth.*y.*", re.IGNORECASE),
+			   re.compile(r"^joy.*x an+ivers.*re.*", re.IGNORECASE),
+			   re.compile(r"^bon an+ivers.*re.*", re.IGNORECASE),
+			   re.compile(r"^gefelicite+rd.*", re.IGNORECASE),
+			   re.compile(r"^feliz cu.*lea.*os.*", re.IGNORECASE)]
 
 	def isBirthdayString(string):
 		for match in birthdayMatches:
@@ -1145,7 +1148,7 @@ def processData():
 	if isFacebook:
 		startOperation("Clean up Traveling tags", print=False)
 
-		wasTraveling = re.compile(".* was traveling .*")
+		wasTraveling = re.compile(r".* was traveling .*")
 
 		entries = soup.find_all("div", class_="_a6-g")
 		with Progress(progressDesc, BarColumn(), progressPercent, console=console) as progress:
@@ -1510,7 +1513,7 @@ def processData():
 	keysToDelete = []
 	for key in styleDict.keys():
 		keepKey = False
-		selectors = re.split('[ ,]', key)
+		selectors = re.split(r'[ ,]', key)
 		for selector in selectors:
 			s = str(selector)
 			if s.startswith("."):
