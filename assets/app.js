@@ -163,7 +163,18 @@ function setMemoryTitle(useCount = true) {
 			let titleStr = banner.getAttribute('txt');
 			if (window.userNames !== undefined && window.userNames.length > 1) {
 				if (currentUser == -1) {
-					titleStr = titleStr.replace("{users}", window.userNames.join(', '));
+					const userCount = window.userNames.length;
+					const joinStr = (userCount == 2) ? " & " : ", ";
+					if (userCount == 1) {
+						titleStr = titleStr.replace("{users}", window.userNames[0]);
+					}
+					else {
+						const firstNames = [];
+						for (user in window.userNames) {
+							firstNames.push(window.userNames[user].split(' ')[0]);
+						}
+						titleStr = titleStr.replace("{users}", firstNames.join(', '));
+					}
 				}
 				else {
 					titleStr = titleStr.replace("{users}", window.userNames[currentUser]);
