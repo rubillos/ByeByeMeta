@@ -346,7 +346,7 @@ def processData():
 		elif excludesHashList == None and os.path.isfile(excludeHashesPath):
 			if args.useExcludeHashesFile or askYorN("Use the existing hash excludes file?"):
 				with open(excludeHashesPath) as f:
-					excludesHashList = f.read()
+					excludesHashList = f.read().replace("\n", ",")
 
 	# --------------------------------------------------
 	startOperation("Cleaning destination folder...")
@@ -1234,11 +1234,22 @@ def processData():
 
 	excludedEntries = []
 
+	def removeAttrs(tag, attrs):
+		for attr in attrs:
+			if attr in tag.attrs:
+				del tag.attrs[attr]
+
 	def hashForEntry(entry):
 		import hashlib
-		reSrc = re.compile(r"(?:src|sxx|poster|xpost|eix|height|width|uid)=\"(.*?)\"")
-		entryStr = reSrc.sub("", str(entry))
-		h = hashlib.shake_128(entryStr.encode("utf-8"))
+		import copy
+
+		e = copy.copy(entry)
+		removeAttrs(e, ["uid", "eix"])
+		imgs = e.find_all(["img", "video"])
+		for img in imgs:
+			removeAttrs(img, ["src", "sxx", "altsrc", "poster", "xpost", "height", "width"])
+
+		h = hashlib.shake_128(str(e).encode("utf-8"))
 		return f"0x{h.hexdigest(8)}"
 
 	def excludeEntries():
@@ -1265,6 +1276,11 @@ def processData():
 
 		for item in excludedEntries:
 			item.extract()
+		
+		if excludesHashList != None:
+			excludeHashCount = len(excludesHashList.split(","))
+			if len(excludedEntries) > 0 and len(excludedEntries) != excludeHashCount:
+				console.print(f"Exclusion warning: {len(excludedEntries)} entries were excluded, but {excludeHashCount} hashes were found in the exclusion list")
 
 	if not args.exlist:
 		excludeEntries()
@@ -1601,14 +1617,17 @@ def processData():
 
 	# --------------------------------------------------
 	if len(excludedEntries) > 0:
-		startOperation("Generate excluded entries hashes")
+		console.print(f"Excluded {len(excludedEntries)} entries")
 
-		hashList = []
-		for entry in excludedEntries:
-			hashList.append(hashForEntry(entry))
+		if not fileExists(excludeHashesPath):
+			startOperation("Generate excluded entries hashes")
 
-		with open(os.path.join(dstFolder, excludesHashesName), "w") as f:
-			f.write(",".join(hashList))
+			hashList = []
+			for entry in excludedEntries:
+				hashList.append(hashForEntry(entry))
+
+			with open(excludeHashesPath, "w") as f:
+				f.write(",".join(hashList))
 
 	# --------------------------------------------------
 	if args.exlist and excludeSoup != None:
