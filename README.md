@@ -17,7 +17,7 @@ With the moderation changes and general move towards the far-right of Meta's pro
 
 But I have quite a bit of history accumulated on Facebook that I don't want to lose. Hence this project. It takes the data download that you can request from Meta for your Facebook and/or Instagram posts and converts them into a single browsable page with a nice navigation bar. The data's internal structure is dramatically simplified and condensed. You can view the archive locally, or easily host it on your own website.
 
-You can see [my Facebook archive hosted on RickAndRandy.com](https://rickandrandy.com/fb/randy/).
+You can see [my Facebook archive hosted on RickAndRandy.com](https://rickandrandy.com/meta/randy/).
 
 Below are instructions for downloading your posts from Facebook/Instagram and for running the ByeByeMeta script. It's a Python script that is run from the command line. This might sound scary, but I'll walk you through the steps. If you can do the download from Facebook/Instagram, I'm pretty sure you can handle running the script.
 
@@ -131,6 +131,6 @@ There are a couple of options that can be added to the URL in the browser. These
 
 For example:
 ```
-https://rickandrandy.com/fb/randy/index.html?memories&day=01/10
+https://rickandrandy.com/meta/randy/index.html?memories&day=01/10
 ```
 would show memories for January 10th.
