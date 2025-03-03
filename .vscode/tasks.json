@@ -4,9 +4,14 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Update Web Folders",
+			"label": "Update Local Web Folders",
 			"type": "shell",
-			"command": "rsync -av --update assets/ /Users/randy/Sites/PortlandAve/fb/randy/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/fb/rick/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/ig/rick/assets/"
+			"command": "rsync -av --update assets/ /Users/randy/Sites/PortlandAve/meta/randy/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/meta/rick/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/meta/both/assets/ ; rsync -av --update assets/ /Users/randy/Sites/PortlandAve/meta/rickig/assets/"
+		},
+		{
+			"label": "Update Remote Web Folders",
+			"type": "shell",
+			"command": "./serverupdate.py"
 		},
 		{
 			"label": "Update Assets",
@@ -17,6 +22,11 @@
 			"label": "Update Assets - Both Folder",
 			"type": "shell",
 			"command": "rsync -av --update assets/ Others/Both/fb/assets/"
+		},
+		{
+			"label": "Merge hash lists for Both",
+			"type": "shell",
+			"command": "./make-both-hash.sh"
 		}
 	]
 }
