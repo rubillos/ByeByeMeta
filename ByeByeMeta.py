@@ -229,6 +229,17 @@ def pluralize(count, singleStr, pluralStr=None):
 	else:
 		return pluralStr
 
+def formatBytes(size, precision=1):
+	power = 1024
+	n = 0
+	labels = {0: ' bytes', 1: 'KB', 2: 'MB', 3: 'GB', 4: 'TB'}
+
+	while size > power:
+		size /= power
+		n += 1
+
+	return f"{size:.{precision}f}{labels[n]}"
+
 def processData():
 	if args.srcFolder != None:
 		srcFolder = args.srcFolder
@@ -1183,53 +1194,6 @@ def processData():
 			progress.update(task, advance=1)
 
 	# --------------------------------------------------
-	yearCounts = {}
-	fileRename = {}
-
-	createFolder(os.path.join(dstFolder, mediaFolder))
-
-	srcMediaPath = os.path.dirname(srcFolder)
-	
-	def yearDivWithYear(year):
-		yearDiv = soup.new_tag("div")
-		yearDiv.string = str(year)
-		yearDiv['class'] = "year-mark"
-		return yearDiv
-	
-	def dimensionsOfImage(path):
-		image = Image.open(path)
-		if image != None:
-			return image.size
-		else:
-			return 0, 0
-		
-	def dimensionsOfVideo(path):
-		cap = cv2.VideoCapture(path)
-		if cap.isOpened():
-			width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-			height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-			cap.release()
-			return width, height
-		else:
-			return 0, 0
-
-	def extractFirstFrameToFile(videoPath, posterPath):
-		vidcap = cv2.VideoCapture(videoPath)
-
-		fps = vidcap.get(cv2.CAP_PROP_FPS)
-		frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-		durationMS = frame_count * 1000 / fps
-		posterTimeMS = int(min(1000, durationMS / 2))
-		vidcap.set(cv2.CAP_PROP_POS_MSEC, posterTimeMS)
-
-		success, image = vidcap.read()
-		if success:
-			cv2.imwrite(posterPath, image)  # Save the frame as an image
-			return True
-		else:
-			return False
-
-	# --------------------------------------------------
 	# Exclusion List
 
 	excludedEntries = []
@@ -1284,6 +1248,53 @@ def processData():
 
 	if not args.exlist:
 		excludeEntries()
+
+	# --------------------------------------------------
+	yearCounts = {}
+	fileRename = {}
+
+	createFolder(os.path.join(dstFolder, mediaFolder))
+
+	srcMediaPath = os.path.dirname(srcFolder)
+	
+	def yearDivWithYear(year):
+		yearDiv = soup.new_tag("div")
+		yearDiv.string = str(year)
+		yearDiv['class'] = "year-mark"
+		return yearDiv
+	
+	def dimensionsOfImage(path):
+		image = Image.open(path)
+		if image != None:
+			return image.size
+		else:
+			return 0, 0
+		
+	def dimensionsOfVideo(path):
+		cap = cv2.VideoCapture(path)
+		if cap.isOpened():
+			width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+			height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+			cap.release()
+			return width, height
+		else:
+			return 0, 0
+
+	def extractFirstFrameToFile(videoPath, posterPath):
+		vidcap = cv2.VideoCapture(videoPath)
+
+		fps = vidcap.get(cv2.CAP_PROP_FPS)
+		frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+		durationMS = frame_count * 1000 / fps
+		posterTimeMS = int(min(1000, durationMS / 2))
+		vidcap.set(cv2.CAP_PROP_POS_MSEC, posterTimeMS)
+
+		success, image = vidcap.read()
+		if success:
+			cv2.imwrite(posterPath, image)  # Save the frame as an image
+			return True
+		else:
+			return False
 
 	# --------------------------------------------------
 	startOperation("Renaming and organizing media files", print=False)
@@ -1619,7 +1630,7 @@ def processData():
 	if len(excludedEntries) > 0:
 		console.print(f"Excluded {len(excludedEntries)} entries")
 
-		if not fileExists(excludeHashesPath):
+		if xstring != "" or not fileExists(excludeHashesPath):
 			startOperation("Generate excluded entries hashes")
 
 			hashList = []
@@ -1667,8 +1678,8 @@ def processData():
 	result.append(f"Copied media items: {len(fileRename)}")
 	if dataImgCount > 0:
 		result.append(f"Extracted images: {dataImgCount} (reused {dataImgReuse} references)")
-	result.append(f"Total name usage went from {oldNameTotal} to {newNameTotal}")
-	result.append(f"Read {srcDataCount} bytes of html, wrote {totalBytes} bytes - saved {((srcDataCount - totalBytes) / srcDataCount) * 100:.2f}%")
+	result.append(f"Total name usage went from {formatBytes(oldNameTotal)} to {formatBytes(newNameTotal)}")
+	result.append(f"Read {formatBytes(srcDataCount)} of html, wrote {formatBytes(totalBytes)} - saved {((srcDataCount - totalBytes) / srcDataCount) * 100:.2f}%")
 
 	if args.showResult:
 		destUrl = "file://" + os.path.join(dstFolder, indexName)
