@@ -6,7 +6,7 @@ output="Others/Both/fb/excludes-hash.txt"
 
 {
   cat "$input1"
-  echo -e "\r"
+  # echo -e "\r"
   cat "$input2"
-  echo -e "\r"
+  # echo -e "\r"
 } > "$output"
