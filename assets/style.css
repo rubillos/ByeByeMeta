@@ -323,5 +323,54 @@ img._a6_o {
 
 ._a705 {
 	padding-left: 10vw;
+	width: 100vw;
 }
- 
+
+/* Image Viewer */
+
+#image-viewer {
+	display: none;
+	z-index: 2000;
+	background-color: gray;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100dvw;
+	height: 100dvh;
+}
+#image-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100dvh;
+	width: 100dvw;
+}
+#main-img {
+	display: block;
+	position: relative;
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+}
+#touch-div {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100dvh;
+	width: 100dvw;
+	z-index: 10;
+}
+#close-x {
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding: 0px 8px;
+	font-size: 36px;
+	color: white;
+	cursor: pointer;
+	font-family: sans-serif;
+	z-index: 100;
+	background-color: rgba(0, 0, 0, 0.3);
+	margin: 5px;
+	border-radius: 30px;
+}
