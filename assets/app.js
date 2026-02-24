@@ -765,7 +765,7 @@ function setupNavigation() {
 				setupYears();
 				setupViewer();
 				window.addEventListener('scroll', () => {
-					if (viewerVisible()) {
+					if (!viewerVisible()) {
 						hidePopup();
 						updateIndicatorPosition();
 					}
